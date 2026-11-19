@@ -1,4 +1,6 @@
-export type PlaceId = "gate" | "courtyard" | "hall" | "pond" | "veranda" | "outside";
+import { routes, type PlaceId } from "./routes.ts";
+
+export type { PlaceId };
 
 export type Activity = {
   id: string;
@@ -10,14 +12,7 @@ export type Activity = {
   next?: string;
 };
 
-export const places: { id: PlaceId; name: string; blurb: string }[] = [
-  { id: "gate", name: "Cổng chùa", blurb: "Dừng lại một nhịp trước khi bước vào." },
-  { id: "courtyard", name: "Sân chùa", blurb: "Quét lá, để tâm lắng xuống." },
-  { id: "hall", name: "Chánh điện", blurb: "Nơi thắp một nén hương và ngồi yên." },
-  { id: "pond", name: "Hồ sen", blurb: "Thả một ngọn đèn lên mặt nước." },
-  { id: "veranda", name: "Hiên chùa", blurb: "Một chén trà trong tiếng gió." },
-  { id: "outside", name: "Bên ngoài", blurb: "Mang sự tỉnh thức trở lại đời thường." },
-];
+export const places: { id: PlaceId; name: string; blurb: string }[] = routes.map(({ id, name, blurb }) => ({ id, name, blurb }));
 
 export const activities: Activity[] = [
   { id: "breathing", place: "gate", label: "Thở", href: "/practices/breathing", ready: true },

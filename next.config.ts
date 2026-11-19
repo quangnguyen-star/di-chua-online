@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { redirects } from "./src/content/routes.ts";
 
 const csp = [
   "default-src 'self'",
@@ -18,13 +19,8 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   serverExternalPackages: ["pg"],
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
+  async redirects() {
+    return redirects.map(([source, destination]) => ({ source, destination, permanent: true }));
   },
   async headers() {
     return [
