@@ -6,14 +6,14 @@ import { readyRoutes, type PlaceId } from "@/content/routes";
 import { TamQuanStill } from "../art";
 import styles from "./map.module.css";
 
-/** Where each place sits on the oblique map, as percentages of the art frame. */
+/** Where each place's marker sits, as percentages of the art frame; all stay outside the gate's bounding shape. */
 const spots: Record<PlaceId, { left: number; top: number }> = {
-  gate: { left: 50, top: 74 },
-  courtyard: { left: 22, top: 62 },
-  hall: { left: 50, top: 34 },
-  pond: { left: 80, top: 62 },
-  veranda: { left: 82, top: 30 },
-  outside: { left: 18, top: 28 },
+  gate: { left: 50, top: 94 },
+  courtyard: { left: 7, top: 60 },
+  hall: { left: 50, top: 11 },
+  pond: { left: 93, top: 60 },
+  veranda: { left: 93, top: 20 },
+  outside: { left: 7, top: 20 },
 };
 
 export function TempleMap() {
