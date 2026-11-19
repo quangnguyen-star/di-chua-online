@@ -5,6 +5,8 @@ import "@fontsource/be-vietnam-pro/400.css";
 import "@fontsource/be-vietnam-pro/600.css";
 import "../styles/globals.css";
 import "../styles/evening.css";
+import { MainNav } from "../components/nav/MainNav";
+import { AtmosphereProvider, SoundControl } from "../components/atmosphere";
 import { SiteFooter } from "../components/shell/SiteFooter";
 
 const notoSerif = Noto_Serif({
@@ -28,19 +30,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi" className={notoSerif.variable}>
       <body>
+        <AtmosphereProvider>
         <header className="site-header">
           <div className="site-header__inner">
             <Link href="/" className="brand">
               Chánh niệm mỗi ngày
             </Link>
-            <nav className="nav" aria-label="Điều hướng chính">
-              <Link href="/">Hôm nay</Link>
-              <Link href="/practices">Thực hành</Link>
-            </nav>
+            <MainNav />
+            <SoundControl />
           </div>
         </header>
-        <main className="container">{children}</main>
+        <main className="container reading">{children}</main>
         <SiteFooter />
+        </AtmosphereProvider>
       </body>
     </html>
   );
