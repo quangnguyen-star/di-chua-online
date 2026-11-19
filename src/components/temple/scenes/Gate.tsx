@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Embed } from "@/lib/visit/embed";
+import StageZones from "@/components/visit/StageZones";
+import { useInstruction } from "@/components/visit/useInstruction";
+import { TamQuanStill } from "../art";
 import styles from "./gate.module.css";
 
 const INHALE_MS = 4000;
@@ -11,6 +14,12 @@ const BREATHS = 3;
 const COUNT_AT = 0.75;
 const DOLLY_MS = 1400;
 const MAX_ZOOM = 0.22;
+
+const LINES = [
+  "Nếu có thể, hãy đeo tai nghe để nghe rõ tiếng chùa.",
+  "Nhấn giữ chuột hoặc ngón tay, hoặc giữ phím Space để hít vào 4 nhịp; thả ra để thở ra 6 nhịp.",
+  "Cổng giữa đã mở.",
+] as const;
 
 type Props = {
   embed?: Embed;
@@ -33,6 +42,8 @@ export default function Gate({ embed, onNext }: Props) {
   const mistRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const level = useRef(0);
+  /** Mist clearness 0..1; only ever rises, so the mist never thickens again on an exhale. */
+  const floor = useRef(0);
   const peak = useRef(0);
   const holdRef = useRef(false);
   const pointer = useRef({ x: 0, y: 0, seen: false });
@@ -53,8 +64,10 @@ export default function Gate({ embed, onNext }: Props) {
 
   const paint = useCallback((still: boolean, dolly: number) => {
     const l = level.current;
-    const shown = still ? breathsRef.current / BREATHS : l;
-    if (mistRef.current) mistRef.current.style.opacity = String(0.85 - 0.8 * shown);
+    const target = still ? breathsRef.current / BREATHS : (breathsRef.current + l) / BREATHS;
+    floor.current = Math.max(floor.current, Math.min(1, target));
+    const gone = doneRef.current || steppingRef.current;
+    if (mistRef.current) mistRef.current.style.opacity = gone ? "0" : String(0.85 - 0.8 * floor.current);
     if (cameraRef.current) cameraRef.current.style.transform = `scale(${1 + (still ? 0 : MAX_ZOOM * l) + dolly * 1.4})`;
     const ring = ringRef.current;
     if (ring) {
@@ -161,7 +174,18 @@ export default function Gate({ embed, onNext }: Props) {
     setHolding(false);
   };
 
-  const cue = ready ? "Cổng giữa đã mở." : holding ? "Hít vào…" : breaths > 0 ? "Thở ra…" : "Giữ để hít vào";
+  const instruction = useInstruction(LINES);
+  const { advance } = instruction;
+  const started = useRef(false);
+  useEffect(() => {
+    if (holding && !started.current) {
+      started.current = true;
+      advance();
+    }
+  }, [holding, advance]);
+  useEffect(() => {
+    if (ready) advance();
+  }, [ready, advance]);
 
   return (
     <div
@@ -178,39 +202,30 @@ export default function Gate({ embed, onNext }: Props) {
       onContextMenu={(e) => e.preventDefault()}
     >
       <div ref={cameraRef} className={styles.camera} aria-hidden="true">
-        <div className={styles.gates}>
-          <div className={styles.passage} />
-          <div className={`${styles.passage} ${styles.middle} ${ready ? styles.lit : ""}`} data-testid="gate-middle" data-lit={ready}>
-            <div className={styles.glow} />
-          </div>
-          <div className={styles.passage} />
+        <div className={styles.art}>
+          <TamQuanStill label="" className={styles.tamQuan} testId="gate-art" />
+          <div className={`${styles.glow} ${ready ? styles.lit : ""}`} data-testid="gate-middle" data-lit={ready} />
         </div>
         <div ref={mistRef} className={styles.mist} />
       </div>
       <div ref={ringRef} className={styles.ring} aria-hidden="true" data-testid="gate-ring" />
 
-      <div className={styles.panel}>
-        <p className={styles.cue} aria-live="polite" data-testid="gate-cue">
-          {cue}
-        </p>
+      <StageZones
+        instruction={instruction}
+        actions={
+          ready ? (
+            <button type="button" onClick={step} disabled={stepping} data-testid="gate-step">
+              Bước qua cổng
+            </button>
+          ) : undefined
+        }
+      >
         <ol className={styles.count} aria-label={`${breaths} trên ${BREATHS} hơi thở`} data-testid="gate-count">
           {Array.from({ length: BREATHS }, (_, i) => (
             <li key={i} className={`${styles.dot} ${i < breaths ? styles.dotOn : ""}`} data-on={i < breaths} />
           ))}
         </ol>
-        {ready ? (
-          <button type="button" className={styles.step} onClick={step} disabled={stepping} data-testid="gate-step">
-            Bước qua cổng
-          </button>
-        ) : (
-          <p className={styles.hint} data-testid="gate-hint">
-            Nhấn giữ chuột hoặc ngón tay, hoặc giữ phím Space để hít vào 4 nhịp; thả ra để thở ra 6 nhịp.
-          </p>
-        )}
-        <p className={styles.headphones} data-testid="gate-headphones">
-          Nếu có thể, hãy đeo tai nghe để nghe rõ tiếng chùa.
-        </p>
-      </div>
+      </StageZones>
     </div>
   );
 }
