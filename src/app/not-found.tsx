@@ -16,7 +16,7 @@ export default function NotFound() {
       <h1>Cổng này đang đóng</h1>
       <p className="muted">Trang bạn tìm không có ở đây. Mời bạn quay lại bản đồ để chọn một lối khác.</p>
       <div className="error-state__actions">
-        <Link href="/visit" className="button" data-testid="not-found-map">
+        <Link href="/" className="button" data-testid="not-found-map">
           Về bản đồ
         </Link>
       </div>

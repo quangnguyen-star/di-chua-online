@@ -25,6 +25,11 @@ const stageScene: Record<string, Scene> = {
   outside: "outside",
 };
 
+/*
+ * Navigation rule: while a stop runs in the tour, ArrowRight / swipe left go on and ArrowLeft / swipe right go back.
+ * An activity that claims a key (the courtyard sweep claims both arrows and calls preventDefault) wins, so there the
+ * shell skips swipe and the labeled "Đi tiếp" button, always shown, is the way on. Typing never navigates.
+ */
 const isEditable = (t: EventTarget | null) =>
   t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
 
@@ -140,7 +145,10 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
     else next();
   }, [single, next]);
 
-  const atNudge = !single && !untimed && due && (nudge === "shown" || nudge === "faded");
+  const canNavigate = !single && !untimed && phase === "running";
+  const claimsArrows = stage?.id === "courtyard";
+  const showNudge = canNavigate && due && nudge === "shown";
+  const showArrow = canNavigate && !showNudge && ((due && nudge !== "idle") || claimsArrows);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -149,7 +157,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
         leave();
         return;
       }
-      if (!atNudge || isEditable(e.target) || phase !== "running") return;
+      if (!canNavigate || isEditable(e.target)) return;
       if (e.key === "ArrowRight") {
         e.preventDefault();
         advance();
@@ -160,7 +168,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [atNudge, phase, leave, advance, prev]);
+  }, [canNavigate, leave, advance, prev]);
 
   if (!stage) return <VisitFailure onRetry={() => router.refresh()} />;
 
@@ -171,12 +179,12 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
 
   const onPointerDown = (e: React.PointerEvent) => {
     poke();
-    swipeStart.current = atNudge && !isEditable(e.target) ? { x: e.clientX, y: e.clientY } : null;
+    swipeStart.current = canNavigate && !claimsArrows && !isEditable(e.target) ? { x: e.clientX, y: e.clientY } : null;
   };
   const onPointerUp = (e: React.PointerEvent) => {
     const start = swipeStart.current;
     swipeStart.current = null;
-    if (!start || !atNudge) return;
+    if (!start || !canNavigate) return;
     const dx = e.clientX - start.x;
     const dy = e.clientY - start.y;
     if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dy) > Math.abs(dx) / 2) return;
@@ -223,7 +231,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
         </p>
       </div>
 
-      {atNudge && nudge === "shown" && (
+      {showNudge && (
         <div className={styles.nudge} role="group" aria-label="Đi tiếp" data-testid="visit-nudge">
           <button type="button" onClick={advance} data-testid="visit-nudge-next">
             Sẵn sàng thì đi tiếp → {nextStage ? nextStage.label : "khép chuyến đi"}
@@ -233,7 +241,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
           </button>
         </div>
       )}
-      {atNudge && nudge === "faded" && (
+      {showArrow && (
         <button type="button" className={styles.arrow} onClick={advance} aria-label="Đi tiếp" data-testid="visit-nudge-arrow">
           →
         </button>

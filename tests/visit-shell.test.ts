@@ -70,3 +70,15 @@ test("the shell offers the closing and single-stop choices", () => {
   }
   assert.match(src, /aria-live="polite"/);
 });
+
+test("arrows and swipe navigate whenever a stop runs; typing and the courtyard sweep keep their keys", () => {
+  const src = readFileSync(new URL("../src/components/visit/VisitShell.tsx", import.meta.url), "utf8");
+  assert.match(src, /canNavigate = !single && !untimed && phase === "running"/);
+  assert.ok(!src.includes("atNudge"));
+  assert.match(src, /!canNavigate \|\| isEditable\(e\.target\)/);
+  assert.match(src, /claimsArrows/);
+  const notFound = readFileSync(new URL("../src/app/not-found.tsx", import.meta.url), "utf8");
+  assert.match(notFound, /href="\/" className="button" data-testid="not-found-map"/);
+  const css = readFileSync(new URL("../src/components/visit/visit.module.css", import.meta.url), "utf8");
+  assert.match(css, /animation-duration: 600ms !important/);
+});

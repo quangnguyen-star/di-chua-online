@@ -35,6 +35,6 @@
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .enter, .leave, .closing, .nudge, .arrow { animation-duration: 600ms; }
-  .hud { transition-duration: 1ms; }
+  .enter, .leave, .closing, .nudge, .arrow { animation-duration: 600ms !important; }
+  .hud { transition-duration: 300ms !important; }
 }
