@@ -4,7 +4,7 @@ import styles from "./compositions.module.css";
 export function TeaCup({ running }: { running: boolean }) {
   const steam = (extra: string) => `${styles.steam} ${running ? styles.steamLive : ""} ${extra}`;
   return (
-    <svg className={styles.tea} viewBox="0 0 240 180" role="img" aria-label="Tách trà đặt trên đĩa, hơi nước bốc lên" data-testid="composition-tea">
+    <svg className={styles.tea} viewBox="0 0 240 180" role="img" aria-label="Chén trà sứ đặt trên đĩa, hơi nước bốc lên" data-testid="composition-tea">
       <ellipse cx="120" cy="156" rx="86" ry="10" fill="var(--text)" opacity="0.18" />
       <ellipse cx="120" cy="146" rx="80" ry="12" fill="var(--border)" stroke="var(--wood)" strokeWidth="3" />
       <path d="M62 78 H178 Q178 140 120 140 Q62 140 62 78 Z" fill="var(--surface)" stroke="var(--wood)" strokeWidth="4" strokeLinejoin="round" />

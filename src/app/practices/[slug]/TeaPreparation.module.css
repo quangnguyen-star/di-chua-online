@@ -1,3 +1,9 @@
-.wrap { margin: 1.5rem 0; }
+.wrap { margin: 1.5rem 0; max-width: 40rem; display: flex; flex-direction: column; gap: 1rem; }
+.art { width: 100%; max-width: 28rem; border-radius: var(--radius); overflow: hidden; }
 .panel { padding: 1.25rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .panel h2 { margin-top: 0; }
+.sips { display: flex; gap: 0.5rem; list-style: none; padding: 0; }
+.sip { width: 0.9rem; height: 0.9rem; border-radius: 50%; border: 2px solid var(--wood); }
+.sipDone { background: var(--moss); }
+.clock { font-size: 1.75rem; margin: 0.5rem 0; }
+.hint { font-size: 0.9rem; }
