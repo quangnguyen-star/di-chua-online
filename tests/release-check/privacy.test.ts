@@ -30,7 +30,12 @@ test("analytics payload type has no free-text field", () => {
 });
 
 test("lantern module never tracks, fetches, stores or logs the thought", () => {
-  for (const f of ["app/places/pond/lantern/page.tsx", "app/places/pond/lantern/LanternFlow.tsx"]) {
+  for (const f of [
+    "app/places/pond/lantern/page.tsx",
+    "app/places/pond/lantern/LanternFlow.tsx",
+    "components/temple/river/RiverScene.tsx",
+    "components/temple/river/index.ts",
+  ]) {
     const src = read(f);
     assert.doesNotMatch(src, /analytics|track\(/i, f);
     assert.doesNotMatch(src, /fetch\(|sendBeacon|XMLHttpRequest|axios/, f);
@@ -38,4 +43,16 @@ test("lantern module never tracks, fetches, stores or logs the thought", () => {
     assert.doesNotMatch(src, /console\./, f);
     assert.doesNotMatch(src, /useSearchParams|router\.(push|replace)\([^)]*thought/, f);
   }
+});
+
+test("river renderer has no renderer dependency, network, storage or text input", () => {
+  const src = read("components/temple/river/RiverScene.tsx");
+  assert.doesNotMatch(src, /pixi|import\(|from "(?!@\/components\/temple\/art|\.\/river\.module\.css|react)/, "river imports");
+  assert.doesNotMatch(src, /thought|textarea|useState|localStorage|sessionStorage|fetch\(|console\./);
+});
+
+test("lantern flow clears the thought on fold and keeps it out of URLs", () => {
+  const src = read("app/places/pond/lantern/LanternFlow.tsx");
+  assert.match(src, /setThought\(""\);\s*setPhase\("releasing"\)/);
+  assert.doesNotMatch(src, /href=\{[^}]*thought|useEffect\([^)]*thought/);
 });

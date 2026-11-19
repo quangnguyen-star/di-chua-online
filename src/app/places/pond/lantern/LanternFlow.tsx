@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { activities } from "@/content/places";
+import { routes } from "@/content/routes";
+import { RiverScene, type RiverPhase } from "@/components/temple/river";
 import { useAtmosphere } from "@/components/atmosphere";
 import styles from "./lantern.module.css";
 
 const MAX_LENGTH = 500;
 const RELEASE_MS = 4000;
 
-type Phase = "writing" | "releasing" | "released";
+type Phase = RiverPhase;
 
-/** The one optional continuation, read from the registry's next field on the lantern activity. */
-const nextId = activities.find((a) => a.id === "lantern")?.next;
-const nextStep = activities.find((a) => a.id === nextId && a.ready);
+/** The one next-place preview, read from the route table. */
+const river = routes.find((r) => r.id === "pond");
+const nextPlace = routes.find((r) => r.id === river?.next && r.ready);
 
 export default function LanternFlow() {
   const router = useRouter();
@@ -36,11 +37,11 @@ export default function LanternFlow() {
 
   const release = () => {
     if (phase !== "writing") return;
+    setThought("");
     setPhase("releasing");
     cue("water");
     timer.current = setTimeout(() => {
       timer.current = null;
-      setThought("");
       setPhase("released");
     }, RELEASE_MS);
   };
@@ -54,17 +55,14 @@ export default function LanternFlow() {
 
   return (
     <div className={styles.root}>
-      <h1>Thả hoa đăng</h1>
+      <h1>Bến sông</h1>
       <div className={styles.live} role="status" aria-live="polite" data-testid="lantern-announcement">
         {phase === "releasing" ? "Ngọn đèn đang trôi đi" : phase === "released" ? "Ngọn đèn đã trôi đi" : ""}
       </div>
 
-      <div className={styles.pond} data-phase={phase} data-testid="lantern-scene" aria-hidden="true">
-        <div className={styles.water} />
-        <div className={styles.lantern} />
-      </div>
+      <RiverScene phase={phase} />
 
-      {phase !== "released" && (
+      {phase === "writing" && (
         <>
           <p className={styles.prompt}>
             Nếu muốn, hãy viết một điều bạn muốn buông xuống. Điều này chỉ ở trên màn hình này, không được lưu hay gửi đi
@@ -76,7 +74,6 @@ export default function LanternFlow() {
               value={thought}
               maxLength={MAX_LENGTH}
               rows={4}
-              readOnly={phase === "releasing"}
               autoComplete="off"
               spellCheck={false}
               data-testid="lantern-thought"
@@ -87,11 +84,13 @@ export default function LanternFlow() {
             <button
               type="button"
               className="button"
-              disabled={phase === "releasing"}
               data-testid="lantern-release"
               onClick={release}
             >
-              {phase === "releasing" ? "Đèn đang trôi đi…" : "Thả đèn"}
+              Gấp thành đèn và thả
+            </button>
+            <button type="button" className="button button--quiet" data-testid="lantern-skip" onClick={release}>
+              Bỏ qua, chỉ thả đèn
             </button>
             <button type="button" className="button button--quiet" data-testid="lantern-exit" onClick={leave}>
               Thoát
@@ -106,18 +105,21 @@ export default function LanternFlow() {
             Ngọn đèn đã trôi đi
           </h2>
           <p className={styles.prompt}>Điều bạn viết đã được buông xuống và không còn ở đâu cả.</p>
-          {nextStep && (
+          {nextPlace && (
             <div className={styles.next}>
-              <p>Nếu muốn, bạn có thể ở lại thêm một chút:</p>
+              <p>Nếu muốn, bạn có thể ở lại thêm một chút: {nextPlace.blurb}</p>
               <div className={styles.controls}>
-                <Link className="button button--quiet" href={nextStep.href} data-testid="lantern-next">
-                  {nextStep.label}
+                <Link className="button button--quiet" href={nextPlace.href} data-testid="lantern-next">
+                  {nextPlace.name}
                 </Link>
               </div>
             </div>
           )}
           <div className={styles.controls}>
-            <button type="button" className="button" data-testid="lantern-exit" onClick={leave}>
+            <Link className="button" href="/" data-testid="lantern-map">
+              Bản đồ chùa
+            </Link>
+            <button type="button" className="button button--quiet" data-testid="lantern-exit" onClick={leave}>
               Về trang chủ
             </button>
           </div>
