@@ -28,3 +28,7 @@
   .panel { animation: none; }
   .ripple { animation: none; }
 }
+
+.activity {
+  margin: 1rem 0;
+}

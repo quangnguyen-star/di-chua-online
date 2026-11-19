@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
 import { ArtCanvas, Ground, PaperTexture, Sky } from "@/components/temple/art";
 import { useActivity } from "@/lib/activity/useActivity";
@@ -19,6 +19,7 @@ import {
   type BreathCue,
   type Variant,
 } from "./incense";
+import type { Embed } from "@/lib/visit/embed";
 import styles from "./hall.module.css";
 
 const TITLES: Record<Variant, string> = {
@@ -62,12 +63,24 @@ function Scene({ progress, phase, spent }: { progress: number; phase: string; sp
   );
 }
 
-function Session({ variant, seconds, onChoose }: { variant: Variant; seconds: number; onChoose(seconds: number): void }) {
+function Session({
+  variant,
+  seconds,
+  onChoose,
+  embed,
+}: {
+  variant: Variant;
+  seconds: number;
+  onChoose(seconds: number): void;
+  embed?: Embed;
+}) {
   const { scene, cue, soundOn } = useAtmosphere();
   const { state, send, pause, resume } = useActivity(incenseActivity, { seconds });
   const [breath, setBreath] = useState<BreathCue>(() => variantDefaults(variant).cue);
   const [spentBefore, setSpentBefore] = useState(false);
   const { phase, remainingMs } = state;
+  const frozenByTour = useRef(false);
+  const Title = embed ? "h3" : "h1";
 
   useEffect(() => {
     scene("hall");
@@ -87,8 +100,23 @@ function Session({ variant, seconds, onChoose }: { variant: Variant; seconds: nu
 
   useEffect(() => {
     if (phase !== "spent") return;
-    if (soundOn) cue("bell");
-  }, [phase, soundOn, cue]);
+    if (soundOn && !embed) cue("bell");
+  }, [phase, soundOn, cue, embed]);
+
+  // Embedded, the tour clock decides: freeze the burn with it and resume only what the tour froze.
+  const tourPaused = embed?.paused ?? false;
+  useEffect(() => {
+    if (!embed) return;
+    if (tourPaused && phase === "burning") {
+      frozenByTour.current = true;
+      send({ type: "pause" });
+      pause();
+    } else if (!tourPaused && frozenByTour.current && phase === "paused") {
+      frozenByTour.current = false;
+      send({ type: "resume" });
+      resume();
+    }
+  }, [embed, tourPaused, phase, send, pause, resume]);
 
   const light = () => {
     if (phase !== "ready") return;
@@ -122,9 +150,9 @@ function Session({ variant, seconds, onChoose }: { variant: Variant; seconds: nu
   return (
     <PaperTexture>
       <section className={styles.root} aria-labelledby="hall-title" data-testid="incense-page" data-phase={phase} data-variant={variant}>
-        <h1 id="hall-title">{TITLES[variant]}</h1>
+        <Title id="hall-title">{TITLES[variant]}</Title>
         <Scene progress={progress} phase={phase} spent={spentBefore} />
-        {phase === "ready" && (
+        {phase === "ready" && !embed && (
           <>
             <fieldset className={styles.group} data-testid="incense-sticks">
               <legend>Chọn nén hương</legend>
@@ -172,12 +200,12 @@ function Session({ variant, seconds, onChoose }: { variant: Variant; seconds: nu
               Thắp nhang
             </button>
           )}
-          {phase === "burning" && (
+          {phase === "burning" && !embed && (
             <button type="button" className="button" onClick={doPause} data-testid="incense-pause">
               Tạm dừng
             </button>
           )}
-          {phase === "paused" && (
+          {phase === "paused" && !embed && (
             <button type="button" className="button" onClick={doResume} data-testid="incense-resume">
               Tiếp tục
             </button>
@@ -192,13 +220,13 @@ function Session({ variant, seconds, onChoose }: { variant: Variant; seconds: nu
               Đặt nhang vào lư
             </button>
           )}
-          {phase !== "placed" && (
+          {phase !== "placed" && !embed && (
             <Link href="/" className="button button--quiet" data-testid="incense-leave">
               Rời đi
             </Link>
           )}
         </div>
-        {phase === "placed" && (
+        {phase === "placed" && !embed && (
           <div data-testid="incense-finished">
             <p>Bạn có thể ngồi yên một lát, hoặc quay lại khi muốn.</p>
             <p className="actions">
@@ -216,7 +244,8 @@ function Session({ variant, seconds, onChoose }: { variant: Variant; seconds: nu
   );
 }
 
-export default function IncenseHall({ variant = "incense" }: { variant?: Variant }) {
+export default function IncenseHall({ variant = "incense", embed }: { variant?: Variant; embed?: Embed }) {
   const [seconds, setSeconds] = useState(() => variantDefaults(variant).seconds);
-  return <Session key={seconds} variant={variant} seconds={seconds} onChoose={setSeconds} />;
+  const total = embed?.seconds ?? seconds;
+  return <Session key={total} variant={variant} seconds={total} onChoose={setSeconds} embed={embed} />;
 }

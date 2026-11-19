@@ -8,6 +8,7 @@ import { activities } from "@/content/places";
 import { useAtmosphere, type Scene } from "@/components/atmosphere";
 import { useVisit } from "@/lib/visit/useVisit";
 import { VisitFailure } from "./VisitErrorBoundary";
+import StopActivity, { embeddedStops } from "./StopActivity";
 import VisitScene from "./VisitScene";
 import styles from "./visit.module.css";
 
@@ -36,7 +37,7 @@ export default function VisitFlow() {
   const rang = useRef({ start: false, end: false });
   const { scene, cue } = useAtmosphere();
 
-  // A private thought is never kept: the tour holds none, and an explicit start begins from nothing.
+  // A private thought is never kept: the tour holds none, and each lantern stop mounts fresh and empty.
   useEffect(() => setReady(true), []);
 
   const { phase, stageIndex, remainingMs, skipped } = state;
@@ -119,6 +120,11 @@ export default function VisitFlow() {
           <p className={styles.prompt} data-testid="visit-prompt">
             {stage.prompt}
           </p>
+          {(embeddedStops as readonly string[]).includes(stage.id) && (
+            <div className={styles.activity} data-testid="visit-activity" data-stop={stage.id}>
+              <StopActivity key={stage.id} stopId={stage.id} seconds={stage.config.seconds} paused={phase === "paused"} />
+            </div>
+          )}
           <progress
             className={styles.progress}
             max={100}

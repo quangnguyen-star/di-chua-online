@@ -25,6 +25,7 @@ import {
   type SweepState,
 } from "./logic";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
+import type { Embed } from "@/lib/visit/embed";
 import styles from "./sweeping.module.css";
 
 const definition: ActivityDefinition<SweepState, SweepEvent> = {
@@ -52,8 +53,9 @@ function Helper({ x, label }: { x: number; label: string }) {
   );
 }
 
-export default function Sweeping() {
-  const { state, send, resume } = useActivity(definition);
+export default function Sweeping({ embed }: { embed?: Embed } = {}) {
+  const { state, send, pause, resume } = useActivity(definition);
+  const frozen = embed?.paused ?? false;
   const { scene, cue } = useAtmosphere();
   const yard = useRef<HTMLDivElement>(null);
   const broomEl = useRef<HTMLSpanElement>(null);
@@ -90,8 +92,9 @@ export default function Sweeping() {
   // The quiet pause only runs while the set is cleared; hidden tabs pause it via useActivity.
   const waiting = isWaiting(state);
   useEffect(() => {
-    if (waiting) resume();
-  }, [waiting, resume]);
+    if (frozen) pause();
+    else if (waiting) resume();
+  }, [frozen, waiting, pause, resume]);
 
   const cueSweep = () => {
     const now = Date.now();
@@ -101,6 +104,7 @@ export default function Sweeping() {
   };
 
   const apply = (event: SweepEvent) => {
+    if (frozen) return;
     const before = stateRef.current;
     send(event);
     if (stateRef.current !== before || event.type !== "sweep") cueSweep();
@@ -150,7 +154,7 @@ export default function Sweeping() {
 
   return (
     <div className={styles.root} data-testid="sweep-root">
-      <h1>Quét sân</h1>
+      {!embed && <h1>Quét sân</h1>}
       <p className={styles.prompt}>
         Kéo ngón tay hoặc con trỏ qua sân để quét lá, hoặc dùng nút &ldquo;Quét một nhịp&rdquo;. Không tính giờ, không điểm.
       </p>
@@ -160,7 +164,7 @@ export default function Sweeping() {
           className={styles.yard}
           data-testid="sweep-yard"
           onPointerDown={(e) => {
-            if (reduced) return;
+            if (reduced || frozen) return;
             e.currentTarget.setPointerCapture?.(e.pointerId);
             const point = pointToTarget(e);
             if (point) {
@@ -219,10 +223,10 @@ export default function Sweeping() {
       </p>
       {!done && (
         <div className={styles.controls}>
-          <button type="button" className="button" data-testid="sweep-stroke" onClick={() => apply({ type: "stroke" })}>
+          <button type="button" className="button" data-testid="sweep-stroke" disabled={frozen} onClick={() => apply({ type: "stroke" })}>
             Quét một nhịp
           </button>
-          <button type="button" className="button button--quiet" data-testid="sweep-pass" onClick={() => apply({ type: "pass" })}>
+          <button type="button" className="button button--quiet" data-testid="sweep-pass" disabled={frozen} onClick={() => apply({ type: "pass" })}>
             Quét một lượt
           </button>
         </div>
@@ -237,7 +241,7 @@ export default function Sweeping() {
           Sân đã sạch lá.
         </h2>
       )}
-      {done && nextPlace && (
+      {!embed && done && nextPlace && (
         <div className={styles.next} data-testid="sweep-next-preview">
           <p>Nếu muốn, bạn có thể bước tiếp: {nextPlace.name}. {nextPlace.blurb}</p>
           <div className={styles.controls}>
@@ -247,12 +251,16 @@ export default function Sweeping() {
           </div>
         </div>
       )}
-      <div className={styles.controls}>
-        <Link className="button button--quiet" href="/" data-testid="sweep-map">
-          Bản đồ chùa
-        </Link>
-      </div>
-      <SceneLinks from="courtyard" />
+      {!embed && (
+        <>
+          <div className={styles.controls}>
+            <Link className="button button--quiet" href="/" data-testid="sweep-map">
+              Bản đồ chùa
+            </Link>
+          </div>
+          <SceneLinks from="courtyard" />
+        </>
+      )}
     </div>
   );
 }

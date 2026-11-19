@@ -6,6 +6,7 @@ import { useAtmosphere } from "@/components/atmosphere";
 import { routes } from "@/content/routes";
 import { useActiveTimer } from "@/lib/useActiveTimer";
 import { VerandaArt } from "../../places/veranda/VerandaArt";
+import type { Embed } from "@/lib/visit/embed";
 import type { PracticeKind } from "../labels";
 import { TeaCup } from "./compositions/TeaCup";
 import styles from "./TeaPreparation.module.css";
@@ -58,6 +59,8 @@ type Props = {
   closingLine: string;
   kind: PracticeKind;
   next: { href: string; title: string } | null;
+  /** Set by the tour: skip the preparation, drink for the stop's seconds, and let the tour own pause and skip. */
+  embed?: Embed;
 };
 
 function SteepWait() {
@@ -87,7 +90,17 @@ function SteepWait() {
   );
 }
 
-function Enjoyment({ seconds, closingLine, onBack }: { seconds: number; closingLine: string; onBack: () => void }) {
+function Enjoyment({
+  seconds,
+  closingLine,
+  onBack,
+  embed,
+}: {
+  seconds: number;
+  closingLine: string;
+  onBack: () => void;
+  embed?: Embed;
+}) {
   const { cue } = useAtmosphere();
   const { remainingMs, running, done, start, pause, reset } = useActiveTimer(seconds);
   const total = seconds * 1000;
@@ -95,11 +108,18 @@ function Enjoyment({ seconds, closingLine, onBack }: { seconds: number; closingL
   const elapsed = total - remainingMs;
   const sips = done ? SIPS : untouched ? 0 : Math.min(SIPS, Math.floor(elapsed / (total / SIPS)) + 1);
   const next = routes.find((r) => r.id === "veranda")?.next;
-  const nextPlace = routes.find((r) => r.id === next);
+  const nextPlace = embed ? undefined : routes.find((r) => r.id === next);
 
   useEffect(() => {
     if (sips > 0 && !done) cue("cup");
   }, [sips, done, cue]);
+
+  const tourPaused = embed?.paused;
+  useEffect(() => {
+    if (tourPaused === undefined) return;
+    if (tourPaused) pause();
+    else start();
+  }, [tourPaused, start, pause]);
 
   return (
     <section aria-labelledby="tea-drink-title" data-testid="tea-drinking">
@@ -117,7 +137,7 @@ function Enjoyment({ seconds, closingLine, onBack }: { seconds: number; closingL
         {done ? "Đã xong" : running ? `Ngụm ${sips} trên ${SIPS}` : untouched ? "Sẵn sàng" : "Đang tạm dừng"}
       </p>
       <div className="actions">
-        {done ? (
+        {embed ? null : done ? (
           <button type="button" className="button" onClick={reset} data-testid="tea-restart">
             Thưởng trà lại
           </button>
@@ -126,7 +146,7 @@ function Enjoyment({ seconds, closingLine, onBack }: { seconds: number; closingL
             {running ? "Tạm dừng" : untouched ? "Bắt đầu" : "Tiếp tục"}
           </button>
         )}
-        {!done && untouched && (
+        {!embed && !done && untouched && (
           <button type="button" className="button button--quiet" onClick={onBack} data-testid="tea-prep-back">
             Quay lại
           </button>
@@ -148,9 +168,9 @@ function Enjoyment({ seconds, closingLine, onBack }: { seconds: number; closingL
   );
 }
 
-export function TeaPreparation({ seconds, closingLine }: Props) {
+export function TeaPreparation({ seconds, closingLine, embed }: Props) {
   const { scene } = useAtmosphere();
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(embed ? DRINK : 0);
   const drinking = index >= DRINK;
 
   useEffect(() => {
@@ -200,12 +220,16 @@ export function TeaPreparation({ seconds, closingLine }: Props) {
           <p className={`muted ${styles.hint}`}>Phím mũi tên phải để tiếp tục, mũi tên trái để quay lại.</p>
         </section>
       )}
-      {drinking && <Enjoyment seconds={seconds} closingLine={closingLine} onBack={() => setIndex(DRINK - 1)} />}
-      <p className="actions">
-        <Link href="/" className="button button--quiet" data-testid="veranda-map">
-          Về bản đồ chùa
-        </Link>
-      </p>
+      {drinking && (
+        <Enjoyment seconds={embed?.seconds ?? seconds} closingLine={closingLine} onBack={() => setIndex(DRINK - 1)} embed={embed} />
+      )}
+      {!embed && (
+        <p className="actions">
+          <Link href="/" className="button button--quiet" data-testid="veranda-map">
+            Về bản đồ chùa
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
