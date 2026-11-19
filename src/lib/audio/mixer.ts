@@ -1,5 +1,5 @@
 import { AudioEngine } from "./engine.ts";
-import { clamp01, type Bus, type Cue, type Scene } from "./mix.ts";
+import { clamp01, type Bus, type Cue, type CueOptions, type Scene } from "./mix.ts";
 
 export const CROSSFADE_MS = 2500;
 
@@ -22,7 +22,7 @@ export interface MixerSource {
   close(): Promise<void>;
   setBus(bus: Bus, level: number): void;
   setScene(scene: Scene, seconds: number): void;
-  cue(cue: Cue): void;
+  cue(cue: Cue, options?: CueOptions): void;
   readonly contextState: MixerContextState;
 }
 
@@ -72,9 +72,9 @@ export class Mixer {
     if (this.enabled) this.source?.setScene(placeId, CROSSFADE_MS / 1000);
   }
 
-  cue(name: Cue): void {
+  cue(name: Cue, options?: CueOptions): void {
     if (!this.enabled || this.levels.cues <= 0) return;
-    this.source?.cue(name);
+    this.source?.cue(name, options);
   }
 
   reportAssetFailure(): void {

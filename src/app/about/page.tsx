@@ -34,9 +34,12 @@ export default function AboutPage() {
           bên thứ ba.
         </p>
         <p>
-          Âm thanh (tiếng chuông, gió, mưa, tiếng nước) do chính trang tạo ra ngay trên thiết bị của bạn,
-          không dùng bản ghi âm nào từ bên ngoài. Âm thanh là tuỳ chọn và luôn tắt theo mặc định; bạn chỉ
-          nghe khi tự bật. Nguồn gốc từng hình ảnh được ghi trong tệp ASSETS.md của dự án.
+          Âm thanh (tiếng chuông, gió, lá, nước, nhạc nền) do chính trang tạo ra ngay trên thiết bị của
+          bạn bằng bộ tổng hợp âm thanh, không dùng bản ghi âm nào từ bên ngoài. Mỗi điểm dừng có ba lớp:
+          tiếng nền, tiếng cử chỉ và nhạc rất nhẹ; không có lời tụng. Chuông nhỏ chỉ ngân khi trang nhắc
+          đi tiếp, chuông lớn chỉ ngân khi bước vào và khi kết thúc. Âm thanh là tuỳ chọn và luôn tắt theo
+          mặc định; bạn chỉ nghe khi tự bật. Nếu sau này có bản ghi thật, tác giả và giấy phép sẽ được ghi
+          trong tệp ASSETS.md của dự án. Nguồn gốc từng hình ảnh cũng được ghi ở đó.
         </p>
       </section>
       <section data-testid="about-calendar">

@@ -8,11 +8,12 @@ import {
   initialAudioState,
   type Appearance,
   type Cue,
+  type CueOptions,
   type Scene,
 } from "../../lib/audio/mix.ts";
 import { SoundControl } from "./SoundControl";
 
-export type { Appearance, Cue, Scene };
+export type { Appearance, Cue, CueOptions, Scene };
 
 export interface Atmosphere {
   soundOn: boolean;
@@ -27,7 +28,7 @@ export interface Atmosphere {
   /** Live mixer/AudioContext state, refreshed while sound is on. */
   status: MixerStatus;
   scene(s: Scene): void;
-  cue(c: Cue): void;
+  cue(c: Cue, options?: CueOptions): void;
   failed: boolean;
   appearance: Appearance;
   setAppearance(a: Appearance): void;
@@ -113,8 +114,8 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
     if (canPlay(latest.current)) mixer.setScene(s);
   }, []);
 
-  const cue = useCallback((c: Cue) => {
-    if (canPlay(latest.current)) mixer.cue(c);
+  const cue = useCallback((c: Cue, options?: CueOptions) => {
+    if (canPlay(latest.current)) mixer.cue(c, options);
   }, []);
 
   const value = useMemo<Atmosphere>(

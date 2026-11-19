@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
+import { panFromPercent } from "@/lib/audio/mix.ts";
 import { SceneStage } from "@/components/temple/stage";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import type { Embed } from "@/lib/visit/embed";
@@ -94,7 +95,7 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
     const now = Date.now();
     if (!canCue(now, lastCue.current)) return;
     lastCue.current = now;
-    cue("sweep");
+    cue("sweep", { pan: panFromPercent(broom.current.x) });
   };
 
   useEffect(() => {

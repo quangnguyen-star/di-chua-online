@@ -21,8 +21,8 @@ function describe(a: { soundOn: boolean; failed: boolean; status: MixerStatus })
 export function SoundPopover() {
   const a = useAtmosphere();
   const sliders = [
-    { id: "ambience", label: "Tiếng nền", value: a.ambience, set: a.setAmbience },
-    { id: "cues", label: "Tiếng chuông, nước", value: a.cues, set: a.setCues },
+    { id: "ambience", label: "Không gian", value: a.ambience, set: a.setAmbience },
+    { id: "cues", label: "Hiệu ứng", value: a.cues, set: a.setCues },
     { id: "music", label: "Nhạc", value: a.music, set: a.setMusic },
   ];
 

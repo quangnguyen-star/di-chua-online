@@ -2,6 +2,9 @@ import {
   AMBIENCE_CEILING,
   CROSSFADE_SECONDS,
   CUE_PITCHES,
+  clampPan,
+  cueIntensity,
+  pickVariant,
   MASTER_GAIN,
   MUSIC_CEILING,
   ambienceGain,
@@ -12,6 +15,7 @@ import {
   sceneMixes,
   type Bus,
   type Cue,
+  type CueOptions,
   type Scene,
 } from "./mix.ts";
 import type { MixerSource } from "./mixer.ts";
@@ -35,6 +39,8 @@ export class AudioEngine implements MixerSource {
   private leaves!: GainNode;
   private windFilter!: BiquadFilterNode;
   private sceneMusic!: GainNode;
+  private reverbSend!: GainNode;
+  private musicShift = 0;
   private noise: AudioBuffer | null = null;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private degree = 2;
@@ -76,6 +82,13 @@ export class AudioEngine implements MixerSource {
     this.ambience.connect(master);
     this.music.connect(master);
     this.cues.connect(master);
+    this.reverbSend = ctx.createGain();
+    this.reverbSend.gain.value = 0;
+    const room = ctx.createConvolver();
+    room.buffer = this.impulse(ctx);
+    this.music.connect(this.reverbSend);
+    this.cues.connect(this.reverbSend);
+    this.reverbSend.connect(room).connect(master);
     this.cues.gain.value = 0;
     this.ambience.gain.value = 0;
     this.music.gain.value = 0;
@@ -106,6 +119,17 @@ export class AudioEngine implements MixerSource {
     this.sceneMusic = ctx.createGain();
     this.sceneMusic.gain.value = 0;
     this.sceneMusic.connect(this.music);
+  }
+
+  /** A short decaying-noise room impulse; the per-scene send decides how much of it is heard. */
+  private impulse(ctx: AudioContext): AudioBuffer {
+    const length = Math.floor(ctx.sampleRate * 2.2);
+    const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const data = buffer.getChannelData(c);
+      for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length) ** 3;
+    }
+    return buffer;
   }
 
   private bed(): AudioBufferSourceNode {
@@ -142,18 +166,26 @@ export class AudioEngine implements MixerSource {
     this.leaves.gain.setTargetAtTime(mix.leaves, t, timeConstant);
     this.windFilter.frequency.setTargetAtTime(mix.windCutoff, t, timeConstant);
     this.sceneMusic.gain.setTargetAtTime(mix.music, t, timeConstant);
+    this.reverbSend.gain.setTargetAtTime(mix.reverb, t, timeConstant);
+    this.musicShift = mix.musicShift;
   }
 
-  cue(cue: Cue): void {
+  cue(cue: Cue, options: CueOptions = {}): void {
     const ctx = this.ctx;
     if (!ctx || ctx.state !== "running" || this.levels.cues <= 0) return;
-    const { freq, decay, noise } = CUE_PITCHES[cue];
+    const base = CUE_PITCHES[cue];
+    const variant = pickVariant(Math.random);
+    const freq = base.freq * variant.pitch;
+    const { decay, noise } = base;
     const t = ctx.currentTime;
     const env = ctx.createGain();
+    const peak = Math.max(0.0002, variant.volume * cueIntensity(options.intensity));
     env.gain.setValueAtTime(0.0001, t);
-    env.gain.exponentialRampToValueAtTime(1, t + 0.02);
+    env.gain.exponentialRampToValueAtTime(peak, t + 0.02);
     env.gain.exponentialRampToValueAtTime(0.0001, t + decay);
-    env.connect(this.cues);
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = clampPan(options.pan);
+    env.connect(panner).connect(this.cues);
     if (noise) {
       const src = ctx.createBufferSource();
       src.buffer = this.noise;
@@ -191,7 +223,7 @@ export class AudioEngine implements MixerSource {
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
       osc.type = "sine";
-      osc.frequency.value = noteFrequency(MUSIC_ROOT, note.degree);
+      osc.frequency.value = noteFrequency(MUSIC_ROOT * 2 ** (this.musicShift / 12), note.degree);
       const env = ctx.createGain();
       env.gain.setValueAtTime(0.0001, t);
       env.gain.exponentialRampToValueAtTime(1, t + 0.8);

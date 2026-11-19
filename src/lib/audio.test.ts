@@ -171,3 +171,28 @@ test("dispose stops everything and later cues are inert", async () => {
   assert.deepEqual(mixer.status.enabled, false);
   assert.equal(mixer.status.contextState, "none");
 });
+
+test("cue variants are 3-5, bounded, and panning/intensity are clamped", async () => {
+  const { CUE_VARIANTS, pickVariant, clampPan, panFromPercent, cueIntensity, sceneMixes: mixes } = await import("./audio/mix.ts");
+  assert.ok(CUE_VARIANTS.length >= 3 && CUE_VARIANTS.length <= 5);
+  for (const r of [0, 0.3, 0.99, 5, -1]) assert.ok(CUE_VARIANTS.includes(pickVariant(() => r)));
+  assert.equal(clampPan(4), 1);
+  assert.equal(clampPan(undefined), 0);
+  assert.equal(panFromPercent(0), -1);
+  assert.equal(panFromPercent(50), 0);
+  assert.equal(cueIntensity(undefined), 1);
+  assert.equal(cueIntensity(-2), 0);
+  assert.equal(mixes.gate.reverb, 0);
+  assert.equal(mixes.outside.reverb, 0);
+  assert.ok(mixes.hall.reverb > mixes.pond.reverb);
+});
+
+test("mixer forwards cue options", async () => {
+  const seen: unknown[] = [];
+  const { src } = fakeSource();
+  src.cue = (_c, o) => void seen.push(o);
+  const m = new Mixer(() => src);
+  await m.enable();
+  m.cue("sweep", { pan: -0.5, intensity: 0.4 });
+  assert.deepEqual(seen, [{ pan: -0.5, intensity: 0.4 }]);
+});

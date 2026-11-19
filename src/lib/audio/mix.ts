@@ -1,6 +1,14 @@
 export type Scene = "gate" | "courtyard" | "hall" | "pond" | "veranda" | "outside";
 export type Bus = "ambience" | "cues" | "music";
-export type Cue = "bell" | "sweep" | "water" | "cup";
+/** "bell" is the small nudge bell; "bigBell" rings only on entering and at the end. */
+export type Cue = "bell" | "bigBell" | "sweep" | "water" | "cup";
+
+export interface CueOptions {
+  /** Stereo position, -1 (left) to 1 (right). */
+  pan?: number;
+  /** Strength 0..1; scales the cue's loudness. */
+  intensity?: number;
+}
 export type Appearance = "system" | "day" | "evening";
 
 export interface AudioState {
@@ -63,15 +71,19 @@ export interface SceneMix {
   windCutoff: number;
   /** Music level, 0..1 of the music channel. */
   music: number;
+  /** Reverb send, 0 (dry) to 1; outdoors stays dry, the hall is warm. */
+  reverb: number;
+  /** Music root shift in semitones, so each stop has its own quiet tonal colour. */
+  musicShift: number;
 }
 
 export const sceneMixes: Record<Scene, SceneMix> = {
-  gate: { wind: 0.5, leaves: 0.3, windCutoff: 500, music: 0.7 },
-  courtyard: { wind: 0.4, leaves: 0.6, windCutoff: 700, music: 0.6 },
-  hall: { wind: 0.15, leaves: 0.1, windCutoff: 300, music: 0.9 },
-  pond: { wind: 0.25, leaves: 0.35, windCutoff: 450, music: 0.7 },
-  veranda: { wind: 0.45, leaves: 0.5, windCutoff: 600, music: 0.6 },
-  outside: { wind: 0.6, leaves: 0.2, windCutoff: 800, music: 0.3 },
+  gate: { wind: 0.5, leaves: 0.3, windCutoff: 500, music: 0.7, reverb: 0, musicShift: 0 },
+  courtyard: { wind: 0.4, leaves: 0.6, windCutoff: 700, music: 0.6, reverb: 0, musicShift: 2 },
+  hall: { wind: 0.15, leaves: 0.1, windCutoff: 300, music: 0.9, reverb: 0.55, musicShift: -5 },
+  pond: { wind: 0.25, leaves: 0.35, windCutoff: 450, music: 0.7, reverb: 0.05, musicShift: 4 },
+  veranda: { wind: 0.45, leaves: 0.5, windCutoff: 600, music: 0.6, reverb: 0.1, musicShift: 7 },
+  outside: { wind: 0.6, leaves: 0.2, windCutoff: 800, music: 0.3, reverb: 0, musicShift: 0 },
 };
 
 /** Master ceiling so the summed channels never approach clipping. */
@@ -118,7 +130,8 @@ export function nextNote(prev: number, rand: () => number): { degree: number; wa
 }
 
 export const CUE_PITCHES: Record<Cue, { freq: number; decay: number; noise: boolean }> = {
-  bell: { freq: 523.25, decay: 3.2, noise: false },
+  bell: { freq: 784, decay: 2.2, noise: false },
+  bigBell: { freq: 130.81, decay: 7, noise: false },
   sweep: { freq: 330, decay: 1.6, noise: true },
   water: { freq: 880, decay: 0.5, noise: false },
   cup: { freq: 698.46, decay: 1.2, noise: false },
@@ -131,4 +144,32 @@ export function shouldSuspend(hidden: boolean): boolean {
 
 export function nextAppearance(current: Appearance): Appearance {
   return current === "system" ? "day" : current === "day" ? "evening" : "system";
+}
+
+/** Pitch and volume variants per cue; each firing picks one, so repeats never sound identical. */
+export const CUE_VARIANTS: readonly { pitch: number; volume: number }[] = [
+  { pitch: 1, volume: 1 },
+  { pitch: 0.944, volume: 0.88 },
+  { pitch: 1.059, volume: 0.94 },
+  { pitch: 1.122, volume: 0.8 },
+];
+
+/** `rand` is in [0,1). */
+export function pickVariant(rand: () => number): { pitch: number; volume: number } {
+  const i = Math.min(CUE_VARIANTS.length - 1, Math.floor(clamp01(rand()) * CUE_VARIANTS.length));
+  return CUE_VARIANTS[i];
+}
+
+export function clampPan(pan: number | undefined): number {
+  if (pan === undefined || !Number.isFinite(pan)) return 0;
+  return Math.min(1, Math.max(-1, pan));
+}
+
+/** Stereo pan for a scene position given as a percentage across the stage (0 left, 100 right). */
+export function panFromPercent(x: number): number {
+  return clampPan((x - 50) / 50);
+}
+
+export function cueIntensity(intensity: number | undefined): number {
+  return intensity === undefined ? 1 : clamp01(intensity);
 }

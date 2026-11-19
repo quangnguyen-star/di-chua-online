@@ -103,11 +103,27 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
     void import("pixi.js");
   }, [stageIndex]);
 
+  // Small bell marks only the nudge.
+  const nudgeShown = due && nudge === "shown";
   useEffect(() => {
-    if (due && soundOn) cue("bell");
-  }, [due, soundOn, cue]);
+    if (nudgeShown && soundOn) cue("bell");
+  }, [nudgeShown, soundOn, cue]);
+
+  // Large bell: once on entering, once at the end.
+  const enterRung = useRef(false);
+  useEffect(() => {
+    if (!soundOn || enterRung.current) return;
+    enterRung.current = true;
+    cue("bigBell", { intensity: 0.7 });
+  }, [soundOn, cue]);
 
   const finished = phase === "complete" && !leaving;
+  const endRung = useRef(false);
+  useEffect(() => {
+    if (!finished || !soundOn || endRung.current) return;
+    endRung.current = true;
+    cue("bigBell");
+  }, [finished, soundOn, cue]);
   useEffect(() => {
     if (finished) closingRef.current?.focus({ preventScroll: true });
   }, [finished]);
