@@ -4,7 +4,7 @@ import { practices } from "@/content";
 import { ErrorState } from "@/components/shell/ErrorState";
 import { kindBySlug, nextPractice } from "../labels";
 import { PracticeTimer } from "./PracticeTimer";
-import { TeaPreparationSlot } from "./compositions/TeaPreparationSlot";
+import { TeaPreparation } from "./TeaPreparation";
 
 export const dynamicParams = false;
 
@@ -70,7 +70,6 @@ export default async function PracticeDetailPage({ params }: { params: Promise<{
             ))}
           </ol>
         )}
-        {kind === "tea" && <TeaPreparationSlot />}
       </section>
       {practice.alternative && (
         <section aria-labelledby="alt-title">
@@ -78,7 +77,14 @@ export default async function PracticeDetailPage({ params }: { params: Promise<{
           <p data-testid={`practice-alternative-${practice.slug}`}>{practice.alternative}</p>
         </section>
       )}
-      {practice.timerSeconds ? (
+      {practice.timerSeconds && kind === "tea" ? (
+        <TeaPreparation
+          slug={practice.slug} seconds={practice.timerSeconds}
+          closingLine={practice.closingLine}
+          kind={kind}
+          next={nextPractice(practice.slug)}
+        />
+      ) : practice.timerSeconds ? (
         <PracticeTimer
           slug={practice.slug} seconds={practice.timerSeconds}
           closingLine={practice.closingLine}

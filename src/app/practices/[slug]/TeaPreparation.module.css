@@ -1,0 +1,3 @@
+.wrap { margin: 1.5rem 0; }
+.panel { padding: 1.25rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.panel h2 { margin-top: 0; }
