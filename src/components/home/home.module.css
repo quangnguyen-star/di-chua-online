@@ -1,7 +1,6 @@
 .home { text-align: center; padding-bottom: 1rem; }
 
 .hero { display: flex; flex-direction: column; align-items: center; }
-.gate { display: block; width: min(100%, 38rem); height: auto; margin: 0 auto; }
 .title { margin: 0.5rem 0 0; }
 .intro { max-width: 32rem; margin: 0.5rem auto 0; }
 .actions { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 1.25rem 0 2rem; }
@@ -22,19 +21,6 @@
 .placeLink:hover { border-color: var(--gold); }
 .placeName { font-family: var(--font-heading); font-size: 1.125rem; color: var(--lacquer); }
 .placeBlurb { font-size: 0.95rem; color: var(--text-muted); }
-
-/* Gate illustration: colours come from theme tokens, so the evening variant needs no overrides. */
-.sky { fill: var(--surface); }
-.glow { fill: var(--gold); opacity: 0.35; }
-.far { fill: var(--moss); opacity: 0.35; }
-.beyondHall { fill: var(--wood); opacity: 0.45; }
-.ground { fill: var(--border); }
-.roof { fill: var(--lacquer); }
-.roofEdge { fill: none; stroke: var(--wood); stroke-width: 3; stroke-linecap: round; }
-.beam { fill: var(--wood); }
-.column { fill: var(--wood); }
-.opening { fill: var(--paper); }
-.light { fill: var(--gold); opacity: 0.5; }
 
 @media (max-width: 40rem) {
   .wordText { font-size: clamp(3.5rem, 15vw, 5rem); }

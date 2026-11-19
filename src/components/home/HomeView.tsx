@@ -3,7 +3,7 @@ import { wordForDate } from "@/content";
 import type { DailyWord as DailyWordData } from "@/content";
 import { ErrorState } from "@/components/shell/ErrorState";
 import { DailyWord } from "./DailyWord";
-import { GateMotif } from "./GateMotif";
+import { TempleMap } from "@/components/temple/map";
 import { LunarNote } from "./LunarNote";
 import { PlaceLinks } from "./PlaceLinks";
 import styles from "./home.module.css";
@@ -22,7 +22,7 @@ export function HomeView() {
   return (
     <div className={`scene ${styles.home}`}>
       <div className={styles.hero}>
-        <GateMotif />
+        <TempleMap />
         <h1 className={styles.title}>Đi Chùa Online</h1>
         <p className={styles.intro}>Một khoảng dừng ngắn, chậm rãi và yên tĩnh, để bạn thở và lắng lại giữa ngày bận rộn.</p>
         <div className={styles.actions}>
