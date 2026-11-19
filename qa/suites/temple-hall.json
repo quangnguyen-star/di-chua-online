@@ -1,5 +1,5 @@
 {
-  "_about": "Hall: one ritual, keyboard Light/Extinguish/Place, residue note, leave.",
+  "_about": "Hall stop inside the v2 shell: one ritual, keyboard Light/Extinguish/Place, residue note, exit.",
   "schema_version": "1.1.0",
   "run_id": "temple-hall",
   "config": {
@@ -26,8 +26,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/hall",
-          "url": "/places/hall"
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
         },
         {
           "kind": "assert",
@@ -164,8 +164,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/hall",
-          "url": "/places/hall"
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
         },
         {
           "kind": "action",
@@ -215,8 +215,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/hall",
-          "url": "/places/hall"
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
         },
         {
           "kind": "action",
@@ -266,8 +266,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/hall",
-          "url": "/places/hall"
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
         },
         {
           "kind": "action",
@@ -330,7 +330,7 @@
       "teardown": []
     },
     {
-      "name": "Leaving the hall mid-burn goes to the map",
+      "name": "Leaving the hall mid-burn by Thoát goes to the map",
       "tags": [
         "hall",
         "navigation"
@@ -340,13 +340,13 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/hall",
-          "url": "/places/hall"
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
         },
         {
           "kind": "action",
           "op": "click",
-          "intent": "light",
+          "intent": "incense-light",
           "target": {
             "by": "testid",
             "name": "incense-light"
@@ -355,16 +355,16 @@
         {
           "kind": "action",
           "op": "click",
-          "intent": "Rời đi",
+          "intent": "Thoát",
           "target": {
             "by": "testid",
-            "name": "incense-leave"
+            "name": "visit-exit"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "map shown",
+          "intent": "temple-map shown",
           "expected": {
             "kind": "visible",
             "target": {

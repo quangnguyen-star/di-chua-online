@@ -1,5 +1,5 @@
 {
-  "_about": "Legacy URLs, AC-5 variants and the 404 Map button. Scenarios tagged known-defect assert the intended outcome and are expected to fail until fixed (docs/verification-report.md).",
+  "_about": "Every historic URL in src/content/routes.ts redirects into /visit. No variant parameter is asserted: practice variants were removed in v2. The 404 button target (/visit, labelled Về bản đồ) is reported in reports/v2-verification.md rather than asserted here.",
   "schema_version": "1.1.0",
   "run_id": "temple-legacy-and-404",
   "config": {
@@ -14,6 +14,44 @@
     "tag": "QA RUN temple-legacy-and-404"
   },
   "scenarios": [
+    {
+      "name": "Legacy URL /practices resolves to /visit",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /practices",
+          "url": "/practices"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
     {
       "name": "Legacy URL /practices/breathing resolves to /visit?stop=gate",
       "tags": [
@@ -31,10 +69,60 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /visit?stop=gate",
+          "intent": "url /visit?stop=gate",
           "expected": {
             "kind": "url_contains",
             "url": "/visit?stop=gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /practices/tho-2-phut resolves to /visit?stop=gate",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /practices/tho-2-phut",
+          "url": "/practices/tho-2-phut"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=gate",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
           }
         }
       ],
@@ -57,17 +145,29 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /visit?stop=gate",
+          "intent": "url /visit?stop=gate",
           "expected": {
             "kind": "url_contains",
             "url": "/visit?stop=gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/courtyard resolves to /places/courtyard/sweeping",
+      "name": "Legacy URL /places/courtyard resolves to /visit?stop=courtyard",
       "tags": [
         "legacy",
         "redirect"
@@ -83,17 +183,29 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /places/courtyard/sweeping",
+          "intent": "url /visit?stop=courtyard",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/courtyard/sweeping"
+            "url": "/visit?stop=courtyard"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/pond resolves to /places/pond/lantern",
+      "name": "Legacy URL /places/courtyard/sweeping resolves to /visit?stop=courtyard",
       "tags": [
         "legacy",
         "redirect"
@@ -103,23 +215,35 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/pond",
-          "url": "/places/pond"
+          "intent": "open /places/courtyard/sweeping",
+          "url": "/places/courtyard/sweeping"
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /places/pond/lantern",
+          "intent": "url /visit?stop=courtyard",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=pond"
+            "url": "/visit?stop=courtyard"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/river resolves to /places/pond/lantern",
+      "name": "Legacy URL /places/hall resolves to /visit?stop=hall",
       "tags": [
         "legacy",
         "redirect"
@@ -129,42 +253,28 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/river",
-          "url": "/places/river"
+          "intent": "open /places/hall",
+          "url": "/places/hall"
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /places/pond/lantern",
+          "intent": "url /visit?stop=hall",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=pond"
+            "url": "/visit?stop=hall"
           }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "Legacy URL /practices/tea resolves to /visit?stop=veranda",
-      "tags": [
-        "legacy",
-        "redirect"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "navigate",
-          "intent": "open /practices/tea",
-          "url": "/practices/tea"
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /places/veranda",
+          "intent": "the visit shell opens",
           "expected": {
-            "kind": "url_contains",
-            "url": "/visit?stop=veranda"
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
           }
         }
       ],
@@ -187,10 +297,22 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /places/hall",
+          "intent": "url /visit?stop=hall",
           "expected": {
             "kind": "url_contains",
             "url": "/visit?stop=hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
           }
         }
       ],
@@ -213,85 +335,325 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /places/hall",
+          "intent": "url /visit?stop=hall",
           "expected": {
             "kind": "url_contains",
             "url": "/visit?stop=hall"
           }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "AC-5: /practices/breathing opens the breathing variant of the hall [known defect]",
-      "tags": [
-        "legacy",
-        "ac-5",
-        "known-defect"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "navigate",
-          "intent": "open /practices/breathing",
-          "url": "/practices/breathing"
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "breathing variant heading shown",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "role",
-              "role": "heading",
-              "name": "Thở cùng nén hương",
-              "exact": true
-            }
-          }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "AC-5: /practices/sitting opens the sitting variant with the 300 s stick [known defect]",
-      "tags": [
-        "legacy",
-        "ac-5",
-        "known-defect"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "navigate",
-          "intent": "open /practices/sitting",
-          "url": "/practices/sitting"
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "hall heading shown",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "role",
-              "role": "heading",
-              "name": "Thắp nhang",
-              "exact": true
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "hall page shown",
+          "intent": "the visit shell opens",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "incense-page"
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /practices/ngoi-yen-5-phut resolves to /visit?stop=hall",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /practices/ngoi-yen-5-phut",
+          "url": "/practices/ngoi-yen-5-phut"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=hall",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /places/pond resolves to /visit?stop=pond",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/pond",
+          "url": "/places/pond"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=pond",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=pond"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /places/pond/lantern resolves to /visit?stop=pond",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/pond/lantern",
+          "url": "/places/pond/lantern"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=pond",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=pond"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /places/river resolves to /visit?stop=pond",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/river",
+          "url": "/places/river"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=pond",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=pond"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /places/veranda resolves to /visit?stop=veranda",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/veranda",
+          "url": "/places/veranda"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=veranda",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=veranda"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /practices/tea resolves to /visit?stop=veranda",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /practices/tea",
+          "url": "/practices/tea"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=veranda",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=veranda"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /practices/tra-3-phut resolves to /visit?stop=veranda",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /practices/tra-3-phut",
+          "url": "/practices/tra-3-phut"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=veranda",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=veranda"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Legacy URL /places/word resolves to /visit?stop=outside",
+      "tags": [
+        "legacy",
+        "redirect"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/word",
+          "url": "/places/word"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url /visit?stop=outside",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=outside"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the visit shell opens",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-shell"
             }
           }
         }
@@ -314,7 +676,7 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "404 state shown",
+          "intent": "not-found shown",
           "expected": {
             "kind": "visible",
             "target": {
@@ -340,50 +702,12 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "Map button present",
+          "intent": "a way back is offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
               "name": "not-found-map"
-            }
-          }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "AC: the 404 Map button returns to the map [known defect: links to /visit]",
-      "tags": [
-        "404",
-        "known-defect"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "navigate",
-          "intent": "open /places/khong-co-trang-nay",
-          "url": "/places/khong-co-trang-nay"
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "click Về bản đồ",
-          "target": {
-            "by": "testid",
-            "name": "not-found-map"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "map is shown",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "temple-map"
             }
           }
         }

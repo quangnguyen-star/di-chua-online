@@ -1,5 +1,5 @@
 {
-  "_about": "Daily word booth, month calendar and .ics. Stable-word and .ics content checks need probe modes that do not exist yet; the .ics is covered node-side by src/lib/ics.test.ts and qa/suites/state.test.ts.",
+  "_about": "Outside stop inside the v2 shell: the word opens. The month calendar and .ics live on the removed standalone booth and are covered node-side (src/lib/ics.test.ts, qa/suites/state.test.ts).",
   "schema_version": "1.1.0",
   "run_id": "temple-word",
   "config": {
@@ -24,8 +24,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/word",
-          "url": "/places/word"
+          "intent": "open /visit?stop=outside",
+          "url": "/visit?stop=outside"
         },
         {
           "kind": "assert",
@@ -88,60 +88,6 @@
       "teardown": []
     },
     {
-      "name": "Month calendar is a grid with the .ics download",
-      "tags": [
-        "word",
-        "calendar"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "navigate",
-          "intent": "open /places/word",
-          "url": "/places/word"
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "month grid",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "month-calendar"
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "download button",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "ics-download"
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "button text",
-          "expected": {
-            "kind": "text_equals",
-            "target": {
-              "by": "testid",
-              "name": "ics-download"
-            },
-            "text": "Tải lịch mùng một và rằm (.ics)"
-          }
-        }
-      ],
-      "teardown": []
-    },
-    {
       "name": "Home shows the daily word and the lunar note",
       "tags": [
         "word",
@@ -165,41 +111,6 @@
               "by": "testid",
               "name": "lunar-note"
             }
-          }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "No horizontal scroll at 360px on the word booth",
-      "tags": [
-        "word",
-        "layout"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "shell",
-          "intent": "measure overflow",
-          "script": "browser_probe.sh",
-          "args": [
-            "overflow",
-            "{{run_id}}",
-            "/places/word"
-          ],
-          "capture": {
-            "over": "$.overflow_px"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "not wider than viewport",
-          "expected": {
-            "kind": "capture_equals",
-            "capture_name": "over",
-            "value": "0"
           }
         }
       ],

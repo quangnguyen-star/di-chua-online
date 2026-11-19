@@ -1,5 +1,5 @@
 {
-  "_about": "Courtyard sweeping: paving, banyan, falling leaves, broom, keyboard sweep.",
+  "_about": "Courtyard stop inside the v2 shell: sweep by arrow keys, no counter, no pass button, exit.",
   "schema_version": "1.1.0",
   "run_id": "temple-courtyard",
   "config": {
@@ -25,8 +25,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/courtyard/sweeping",
-          "url": "/places/courtyard/sweeping"
+          "intent": "open /visit?stop=courtyard",
+          "url": "/visit?stop=courtyard"
         },
         {
           "kind": "assert",
@@ -102,8 +102,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/courtyard/sweeping",
-          "url": "/places/courtyard/sweeping"
+          "intent": "open /visit?stop=courtyard",
+          "url": "/visit?stop=courtyard"
         },
         {
           "kind": "action",
@@ -143,16 +143,16 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/courtyard/sweeping",
-          "url": "/places/courtyard/sweeping"
+          "intent": "open /visit?stop=courtyard",
+          "url": "/visit?stop=courtyard"
         },
         {
           "kind": "action",
           "op": "click",
-          "intent": "Bản đồ chùa",
+          "intent": "Thoát",
           "target": {
             "by": "testid",
-            "name": "sweep-map"
+            "name": "visit-exit"
           }
         },
         {
@@ -165,41 +165,6 @@
               "by": "testid",
               "name": "temple-map"
             }
-          }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "No horizontal scroll at 360px on the courtyard",
-      "tags": [
-        "courtyard",
-        "layout"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "shell",
-          "intent": "measure overflow",
-          "script": "browser_probe.sh",
-          "args": [
-            "overflow",
-            "{{run_id}}",
-            "/places/courtyard/sweeping"
-          ],
-          "capture": {
-            "over": "$.overflow_px"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "not wider than viewport",
-          "expected": {
-            "kind": "capture_equals",
-            "capture_name": "over",
-            "value": "0"
           }
         }
       ],

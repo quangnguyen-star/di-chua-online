@@ -1,5 +1,5 @@
 {
-  "_about": "Home map, text place list and the map nav icon.",
+  "_about": "Home map hotspots and the text place list open each stop's /visit?stop= URL (src/content/routes.ts).",
   "schema_version": "1.1.0",
   "run_id": "temple-map",
   "config": {
@@ -171,10 +171,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/courtyard/sweeping",
+          "intent": "landed on /visit?stop=courtyard",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/courtyard/sweeping"
+            "url": "/visit?stop=courtyard"
           }
         }
       ],
@@ -219,10 +219,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/courtyard/sweeping",
+          "intent": "landed on /visit?stop=courtyard",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/courtyard/sweeping"
+            "url": "/visit?stop=courtyard"
           }
         }
       ],
@@ -278,10 +278,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/hall",
+          "intent": "landed on /visit?stop=hall",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/hall"
+            "url": "/visit?stop=hall"
           }
         }
       ],
@@ -326,10 +326,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/hall",
+          "intent": "landed on /visit?stop=hall",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/hall"
+            "url": "/visit?stop=hall"
           }
         }
       ],
@@ -385,10 +385,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/pond/lantern",
+          "intent": "landed on /visit?stop=pond",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/pond/lantern"
+            "url": "/visit?stop=pond"
           }
         }
       ],
@@ -433,10 +433,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/pond/lantern",
+          "intent": "landed on /visit?stop=pond",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/pond/lantern"
+            "url": "/visit?stop=pond"
           }
         }
       ],
@@ -492,10 +492,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/veranda",
+          "intent": "landed on /visit?stop=veranda",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/veranda"
+            "url": "/visit?stop=veranda"
           }
         }
       ],
@@ -540,10 +540,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/veranda",
+          "intent": "landed on /visit?stop=veranda",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/veranda"
+            "url": "/visit?stop=veranda"
           }
         }
       ],
@@ -599,10 +599,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/word",
+          "intent": "landed on /visit?stop=outside",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/word"
+            "url": "/visit?stop=outside"
           }
         }
       ],
@@ -647,17 +647,17 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /places/word",
+          "intent": "landed on /visit?stop=outside",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/word"
+            "url": "/visit?stop=outside"
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Map link in the nav returns home from a place",
+      "name": "Map link in the nav returns home from a page",
       "tags": [
         "map",
         "nav"
@@ -667,8 +667,8 @@
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /places/hall",
-          "url": "/places/hall"
+          "intent": "open /about",
+          "url": "/about"
         },
         {
           "kind": "action",

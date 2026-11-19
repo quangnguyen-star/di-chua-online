@@ -86,7 +86,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on /visit",
+      "name": "360px: no horizontal scroll on /visit?stop=hall",
       "tags": [
         "layout",
         "responsive"
@@ -96,12 +96,12 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure overflow on /visit",
+          "intent": "measure overflow on /visit?stop=hall",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
             "{{run_id}}",
-            "/visit"
+            "/visit?stop=hall"
           ],
           "capture": {
             "over": "$.overflow_px"
@@ -121,7 +121,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on /places/hall",
+      "name": "360px: no horizontal scroll on /visit?stop=courtyard",
       "tags": [
         "layout",
         "responsive"
@@ -131,12 +131,12 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure overflow on /places/hall",
+          "intent": "measure overflow on /visit?stop=courtyard",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
             "{{run_id}}",
-            "/places/hall"
+            "/visit?stop=courtyard"
           ],
           "capture": {
             "over": "$.overflow_px"
@@ -156,7 +156,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on /places/courtyard/sweeping",
+      "name": "360px: no horizontal scroll on /visit?stop=pond",
       "tags": [
         "layout",
         "responsive"
@@ -166,12 +166,12 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure overflow on /places/courtyard/sweeping",
+          "intent": "measure overflow on /visit?stop=pond",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
             "{{run_id}}",
-            "/places/courtyard/sweeping"
+            "/visit?stop=pond"
           ],
           "capture": {
             "over": "$.overflow_px"
@@ -191,7 +191,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on /places/pond/lantern",
+      "name": "360px: no horizontal scroll on /visit?stop=veranda",
       "tags": [
         "layout",
         "responsive"
@@ -201,12 +201,12 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure overflow on /places/pond/lantern",
+          "intent": "measure overflow on /visit?stop=veranda",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
             "{{run_id}}",
-            "/places/pond/lantern"
+            "/visit?stop=veranda"
           ],
           "capture": {
             "over": "$.overflow_px"
@@ -226,7 +226,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on /places/veranda",
+      "name": "360px: no horizontal scroll on /visit?stop=outside",
       "tags": [
         "layout",
         "responsive"
@@ -236,47 +236,12 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure overflow on /places/veranda",
+          "intent": "measure overflow on /visit?stop=outside",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
             "{{run_id}}",
-            "/places/veranda"
-          ],
-          "capture": {
-            "over": "$.overflow_px"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "not wider than viewport",
-          "expected": {
-            "kind": "capture_equals",
-            "capture_name": "over",
-            "value": "0"
-          }
-        }
-      ],
-      "teardown": []
-    },
-    {
-      "name": "360px: no horizontal scroll on /places/word",
-      "tags": [
-        "layout",
-        "responsive"
-      ],
-      "setup": [],
-      "steps": [
-        {
-          "kind": "action",
-          "op": "shell",
-          "intent": "measure overflow on /places/word",
-          "script": "browser_probe.sh",
-          "args": [
-            "overflow",
-            "{{run_id}}",
-            "/places/word"
+            "/visit?stop=outside"
           ],
           "capture": {
             "over": "$.overflow_px"

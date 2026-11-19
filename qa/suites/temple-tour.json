@@ -1,5 +1,5 @@
 {
-  "_about": "Guided tour.The full 300 s run is a manual trace (docs/verification-report.md); the arithmetic is covered node-side by qa/suites/state.test.ts.",
+  "_about": "v2 visit shell (DCO-48..56). Time-based behaviour (30 s due, nudge, 8 s fade, arrow-key/swipe nudge navigation, closing screen) is not scripted: the suite format has no wait op that is safe for a 30 s+ stop. It is covered node-side by tests/visit-shell.test.ts and recorded in reports/v2-verification.md.",
   "schema_version": "1.1.0",
   "run_id": "temple-tour",
   "config": {
@@ -15,9 +15,9 @@
   },
   "scenarios": [
     {
-      "name": "Tour: six stops, 300 s, begins on the first stop",
+      "name": "Tour opens on stop 1 with the shell HUD and a six-segment progress bar",
       "tags": [
-        "tour",
+        "visit",
         "happy-path"
       ],
       "setup": [],
@@ -31,287 +31,257 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "tour heading",
+          "intent": "visit-shell shown",
           "expected": {
             "kind": "visible",
             "target": {
-              "by": "role",
-              "role": "heading",
-              "name": "Ghé thăm chùa",
-              "exact": true
+              "by": "testid",
+              "name": "visit-shell"
             }
           }
         },
         {
-          "kind": "action",
-          "op": "click",
-          "intent": "Bắt đầu",
-          "target": {
-            "by": "testid",
-            "name": "visit-begin"
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "1/6 · Cổng chùa"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "stop 1",
+          "intent": "visit-progress shown",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-stage"
-            },
-            "text": "Cổng chùa"
+              "name": "visit-progress"
+            }
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "stop 1 count",
+          "intent": "segment gate",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-stop-count"
-            },
-            "text": "Chặng 1/6 · 30 giây"
+              "name": "visit-seg-gate"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "segment courtyard",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-seg-courtyard"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "segment hall",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-seg-hall"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "segment pond",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-seg-pond"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "segment veranda",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-seg-veranda"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "segment outside",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-seg-outside"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no nudge before the stop is due",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "visit-nudge"
+            }
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Skipping walks the six stops in order and closes the tour",
+      "name": "Deep link ?stop=gate runs that stop alone with its caption",
       "tags": [
-        "tour",
-        "skip"
+        "visit",
+        "stop",
+        "gate"
       ],
       "setup": [],
       "steps": [
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /visit",
-          "url": "/visit"
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "begin",
-          "target": {
-            "by": "testid",
-            "name": "visit-begin"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "skip stop 0",
-          "target": {
-            "by": "testid",
-            "name": "visit-skip"
-          }
+          "intent": "open /visit?stop=gate",
+          "url": "/visit?stop=gate"
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "stop 1 is Sân chùa",
+          "intent": "visit-where text",
           "expected": {
             "kind": "text_equals",
             "target": {
               "by": "testid",
-              "name": "visit-stage"
+              "name": "visit-where"
             },
-            "text": "Sân chùa"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "skip stop 1",
-          "target": {
-            "by": "testid",
-            "name": "visit-skip"
+            "text": "1/6 · Cổng chùa"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "stop 2 is Chánh điện",
+          "intent": "caption is the stop prompt as real text",
           "expected": {
             "kind": "text_equals",
             "target": {
               "by": "testid",
-              "name": "visit-stage"
+              "name": "visit-subtitle"
             },
-            "text": "Chánh điện"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "skip stop 2",
-          "target": {
-            "by": "testid",
-            "name": "visit-skip"
+            "text": "Dừng lại trước cổng. Thở chậm một nhịp và để những việc bên ngoài ở lại phía sau."
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "stop 3 is Bến sông",
-          "expected": {
-            "kind": "text_equals",
-            "target": {
-              "by": "testid",
-              "name": "visit-stage"
-            },
-            "text": "Bến sông"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "skip stop 3",
-          "target": {
-            "by": "testid",
-            "name": "visit-skip"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "stop 4 is Hiên chùa",
-          "expected": {
-            "kind": "text_equals",
-            "target": {
-              "by": "testid",
-              "name": "visit-stage"
-            },
-            "text": "Hiên chùa"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "skip stop 4",
-          "target": {
-            "by": "testid",
-            "name": "visit-skip"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "stop 5 is Bên ngoài",
-          "expected": {
-            "kind": "text_equals",
-            "target": {
-              "by": "testid",
-              "name": "visit-stage"
-            },
-            "text": "Bên ngoài"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "skip the last stop",
-          "target": {
-            "by": "testid",
-            "name": "visit-skip"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "complete",
+          "intent": "stop activity mounted",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-complete"
+              "name": "visit-activity"
             }
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "complete text",
+          "intent": "single stop shows no nudge",
           "expected": {
-            "kind": "text_equals",
+            "kind": "hidden",
             "target": {
               "by": "testid",
-              "name": "visit-complete"
-            },
-            "text": "Chuyến ghé thăm đã khép lại"
+              "name": "visit-nudge"
+            }
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Pause and resume",
+      "name": "Deep link ?stop=courtyard runs that stop alone with its caption",
       "tags": [
-        "tour",
-        "pause"
+        "visit",
+        "stop",
+        "courtyard"
       ],
       "setup": [],
       "steps": [
         {
           "kind": "action",
           "op": "navigate",
-          "intent": "open /visit",
-          "url": "/visit"
+          "intent": "open /visit?stop=courtyard",
+          "url": "/visit?stop=courtyard"
         },
         {
-          "kind": "action",
-          "op": "click",
-          "intent": "begin",
-          "target": {
-            "by": "testid",
-            "name": "visit-begin"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "Tạm dừng",
-          "target": {
-            "by": "testid",
-            "name": "visit-pause"
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "2/6 · Sân chùa"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "Tiếp tục offered",
+          "intent": "caption is the stop prompt as real text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-subtitle"
+            },
+            "text": "Bước chậm qua sân. Chú ý bàn chân chạm đất, tiếng chổi và ánh sáng xung quanh."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop activity mounted",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-resume"
+              "name": "visit-activity"
             }
           }
         },
         {
-          "kind": "action",
-          "op": "click",
-          "intent": "Tiếp tục",
-          "target": {
-            "by": "testid",
-            "name": "visit-resume"
-          }
-        },
-        {
           "kind": "assert",
           "op": "assert",
-          "intent": "pause offered again",
+          "intent": "single stop shows no nudge",
           "expected": {
-            "kind": "visible",
+            "kind": "hidden",
             "target": {
               "by": "testid",
-              "name": "visit-pause"
+              "name": "visit-nudge"
             }
           }
         }
@@ -319,9 +289,347 @@
       "teardown": []
     },
     {
-      "name": "Exit goes to the map",
+      "name": "Deep link ?stop=hall runs that stop alone with its caption",
       "tags": [
-        "tour",
+        "visit",
+        "stop",
+        "hall"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "3/6 · Chánh điện"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "caption is the stop prompt as real text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-subtitle"
+            },
+            "text": "Thắp một nén hương trong tâm, giữ sự chú ý nơi hơi thở. Khi tâm đi lạc, nhẹ nhàng quay về."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop activity mounted",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-activity"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "single stop shows no nudge",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "visit-nudge"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Deep link ?stop=pond runs that stop alone with its caption",
+      "tags": [
+        "visit",
+        "stop",
+        "pond"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=pond",
+          "url": "/visit?stop=pond"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "4/6 · Bến sông"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "caption is the stop prompt as real text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-subtitle"
+            },
+            "text": "Ngồi bên mặt nước. Để một ý nghĩ trôi đi theo ngọn đèn; ý nghĩ ấy chỉ ở lại trong bạn."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop activity mounted",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-activity"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "single stop shows no nudge",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "visit-nudge"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Deep link ?stop=veranda runs that stop alone with its caption",
+      "tags": [
+        "visit",
+        "stop",
+        "veranda"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=veranda",
+          "url": "/visit?stop=veranda"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "5/6 · Hiên chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "caption is the stop prompt as real text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-subtitle"
+            },
+            "text": "Cầm chén trà bằng hai tay, nhấp chậm từng ngụm và nghe tiếng gió."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop activity mounted",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-activity"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "single stop shows no nudge",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "visit-nudge"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Deep link ?stop=outside runs that stop alone with its caption",
+      "tags": [
+        "visit",
+        "stop",
+        "outside"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=outside",
+          "url": "/visit?stop=outside"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "6/6 · Bên ngoài"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "caption is the stop prompt as real text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-subtitle"
+            },
+            "text": "Hít một hơi sâu rồi bước ra chậm rãi, mang theo sự yên ổn này vào phần còn lại của ngày."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop activity mounted",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-activity"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "single stop shows no nudge",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "visit-nudge"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "An unknown stop falls back to the tour from stop 1",
+      "tags": [
+        "visit",
+        "fallback"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=nowhere",
+          "url": "/visit?stop=nowhere"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit-where text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "1/6 · Cổng chùa"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Esc leaves the visit for the map from any stop",
+      "tags": [
+        "visit",
+        "keyboard",
+        "exit"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=hall",
+          "url": "/visit?stop=hall"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "Esc leaves",
+          "key": "Escape"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Thoát button leaves the visit for the map",
+      "tags": [
+        "visit",
         "exit"
       ],
       "setup": [],
@@ -335,15 +643,6 @@
         {
           "kind": "action",
           "op": "click",
-          "intent": "begin",
-          "target": {
-            "by": "testid",
-            "name": "visit-begin"
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
           "intent": "Thoát",
           "target": {
             "by": "testid",
@@ -353,7 +652,7 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "map shown",
+          "intent": "home map shown",
           "expected": {
             "kind": "visible",
             "target": {
@@ -366,35 +665,196 @@
       "teardown": []
     },
     {
-      "name": "No horizontal scroll at 360px on the tour",
+      "name": "Sound is off until asked, and the HUD toggle reflects it",
       "tags": [
-        "tour",
-        "layout"
+        "visit",
+        "sound"
       ],
       "setup": [],
       "steps": [
         {
           "kind": "action",
-          "op": "shell",
-          "intent": "measure overflow",
-          "script": "browser_probe.sh",
-          "args": [
-            "overflow",
-            "{{run_id}}",
-            "/visit"
-          ],
-          "capture": {
-            "over": "$.overflow_px"
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "sound off by default",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-sound"
+            },
+            "text": "Bật âm thanh"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "turn sound on",
+          "target": {
+            "by": "testid",
+            "name": "visit-sound"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "not wider than viewport",
+          "intent": "toggle now offers mute",
           "expected": {
-            "kind": "capture_equals",
-            "capture_name": "over",
-            "value": "0"
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-sound"
+            },
+            "text": "Tắt tiếng"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "turn sound off",
+          "target": {
+            "by": "testid",
+            "name": "visit-sound"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "back to off",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-sound"
+            },
+            "text": "Bật âm thanh"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gate: keyboard route steps through the gate only after the breaths",
+      "tags": [
+        "visit",
+        "gate",
+        "keyboard"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=gate",
+          "url": "/visit?stop=gate"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hold-to-breathe hint is real text",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "gate-hint"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step button hidden before the breaths are taken",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "gate-step"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Veranda: the lift control is a real button",
+      "tags": [
+        "visit",
+        "veranda",
+        "keyboard"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=veranda",
+          "url": "/visit?stop=veranda"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Space/L route also has a button",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "tea-lift"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Outside: the word opens and the pocket button is reachable",
+      "tags": [
+        "visit",
+        "outside"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit?stop=outside",
+          "url": "/visit?stop=outside"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open the word",
+          "target": {
+            "by": "testid",
+            "name": "word-open"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "word-revealed shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "word-revealed"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "keyboard route to pocketing",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "word-pocket"
+            }
           }
         }
       ],
