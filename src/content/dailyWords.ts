@@ -10,4 +10,7 @@ export const dailyWords: DailyWord[] = [
   { word: "Lặng", reflection: "Trước khi nói, thử im lặng một nhịp để xem mình thật sự muốn nói gì.", credit: CREDIT },
   { word: "Biết ơn", reflection: "Nhớ lại ba điều nhỏ đã giúp bạn hôm nay: một bữa ăn, một lời hỏi han, một chỗ ngồi.", credit: CREDIT },
   { word: "Chậm", reflection: "Chọn một việc quen thuộc hôm nay, như rửa tay hay bước lên cầu thang, và làm nó chậm hơn thường lệ.", credit: CREDIT },
+  { word: "Thở", reflection: "Đặt một bàn tay lên bụng và theo dõi ba hơi thở tự nhiên, không cần sửa gì cả.", credit: CREDIT },
+  { word: "Hiện diện", reflection: "Khi ăn hay đi bộ hôm nay, thử chỉ làm đúng một việc ấy và để mắt, tai, tay cùng có mặt.", credit: CREDIT },
+  { word: "Từ tâm", reflection: "Nghĩ đến một người bạn gặp hôm nay và thầm chúc họ được bình an, như chúc cho chính mình.", credit: CREDIT },
 ];

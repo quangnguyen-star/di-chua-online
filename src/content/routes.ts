@@ -41,7 +41,7 @@ export const routes: Place[] = [
   },
   {
     id: "outside", slug: "word", name: "Bên ngoài", blurb: "Mang sự tỉnh thức trở lại đời thường.",
-    href: "/places/word", scene: "day", ready: false,
+    href: "/places/word", scene: "day", ready: true,
     legacyHrefs: [],
   },
 ];
