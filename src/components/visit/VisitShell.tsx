@@ -196,7 +196,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
         <SceneStage place={stage.id} paused={frozen} />
         {embedded && (
           <div className={styles.activity} data-testid="visit-activity" data-stop={stage.id}>
-            <StopActivity key={stage.id} stopId={stage.id} seconds={stage.config.seconds} paused={frozen} />
+            <StopActivity key={stage.id} stopId={stage.id} seconds={stage.config.seconds} paused={frozen} onNext={advance} />
           </div>
         )}
       </div>
