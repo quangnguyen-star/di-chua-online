@@ -5,15 +5,23 @@ import { useEffect, useRef, useState } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
 import { panFromPercent } from "@/lib/audio/mix.ts";
 import { SceneStage } from "@/components/temple/stage";
+import StageZones from "@/components/visit/StageZones";
+import { useInstruction } from "@/components/visit/useInstruction";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import type { Embed } from "@/lib/visit/embed";
 import {
+  KEY_ROW,
   KEY_SPEED,
   LEAF_CAP,
+  LEAF_TINTS,
+  MARK_CAP,
+  MARK_LIFE,
   PILE,
-  PILE_CAP,
+  broomTilt,
   canCue,
   clamp,
+  depthScale,
+  pileScale,
   freshWorld,
   relocateLeaves,
   settleLeaf,
@@ -25,9 +33,10 @@ import {
 import styles from "./sweeping.module.css";
 
 const SLOTS = Array.from({ length: LEAF_CAP }, (_, slot) => slot);
+const MARK_SLOTS = Array.from({ length: MARK_CAP }, (_, slot) => slot);
 const SETTLE_MS = 2200;
-const KEY_ROW = 74;
-const HINT = "Kéo chậm để gom lá về đống, kéo nhanh lá sẽ bay tung. Phím ← → để quét.";
+const LINES = ["Kéo chổi trên sân để gom lá về góc.", "Phím ← → cũng quét được."] as const;
+const HINT = "Kéo chổi để gom lá về góc sân. Phím ← → để quét.";
 
 const prefersReduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -42,12 +51,21 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
   const yard = useRef<HTMLDivElement>(null);
   const broomEl = useRef<HTMLSpanElement>(null);
   const pileEl = useRef<HTMLSpanElement>(null);
+  const markEls = useRef<(HTMLSpanElement | null)[]>([]);
   const leafEls = useRef<(HTMLSpanElement | null)[]>([]);
   const world = useRef<World>(freshWorld);
   const broom = useRef<Broom>({ x: 50, y: KEY_ROW, vx: 0, vy: 0 });
   const target = useRef<{ x: number; y: number } | null>(null);
   const keyDir = useRef<-1 | 0 | 1>(0);
   const lastCue = useRef<number | null>(null);
+  const instruction = useInstruction(LINES);
+  const advanced = useRef(false);
+  const advance = instruction.advance;
+  const swept = () => {
+    if (advanced.current) return;
+    advanced.current = true;
+    advance();
+  };
 
   useEffect(() => {
     scene("courtyard");
@@ -80,15 +98,30 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
       el.style.display = "block";
       el.style.left = `${leaf.x}%`;
       el.style.top = `${leaf.y}%`;
-      el.style.transform = `rotate(${leaf.rot}deg)`;
+      el.style.background = LEAF_TINTS[leaf.kind];
+      el.style.transform = `scale(${depthScale(leaf.y)}) rotate(${leaf.rot}deg)`;
+    });
+    MARK_SLOTS.forEach((slot) => {
+      const el = markEls.current[slot];
+      const mark = w.marks[slot];
+      if (!el) return;
+      if (!mark) {
+        el.style.display = "none";
+        return;
+      }
+      el.style.display = "block";
+      el.style.left = `${mark.x}%`;
+      el.style.top = `${mark.y + 4}%`;
+      el.style.opacity = String(0.35 * (1 - mark.age / MARK_LIFE));
+      el.style.transform = `rotate(${mark.angle}deg)`;
     });
     const el = broomEl.current;
     if (el) {
       el.style.left = `${broom.current.x}%`;
       el.style.top = `${broom.current.y}%`;
+      el.style.transform = `rotate(${broomTilt(broom.current)}deg)`;
     }
-    if (pileEl.current) pileEl.current.style.transform = `scale(${0.5 + (w.pile / PILE_CAP) * 1.1})`;
-    yard.current?.setAttribute("data-leaves", String(w.leaves.length));
+    if (pileEl.current) pileEl.current.style.transform = `scale(${pileScale(w.pile)})`;
   };
 
   const cueSweep = () => {
@@ -112,8 +145,12 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
       } else {
         broom.current = stepBroom(broom.current, target.current, dt);
       }
-      if (Math.hypot(broom.current.vx, broom.current.vy) > 4 && (dir !== 0 || target.current !== null)) cueSweep();
-      world.current = stepWorld(world.current, broom.current, dt, Math.random);
+      const sweeping = dir !== 0 || target.current !== null || Math.hypot(broom.current.vx, broom.current.vy) > 4;
+      if (sweeping && Math.hypot(broom.current.vx, broom.current.vy) > 4) {
+        cueSweep();
+        swept();
+      }
+      world.current = stepWorld(world.current, broom.current, dt, Math.random, sweeping);
       paint();
       raf = requestAnimationFrame(tick);
     };
@@ -147,6 +184,7 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
         world.current = relocateLeaves(world.current, x, dir);
         paint();
         cueSweep();
+        swept();
       } else {
         keyDir.current = dir;
         target.current = null;
@@ -183,7 +221,6 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
       ref={yard}
       className={styles.yard}
       data-testid="sweep-yard"
-      data-leaves="0"
       onPointerDown={(e) => {
         if (reduced || !running) return;
         e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -202,20 +239,16 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
         target.current = null;
       }}
     >
-      <div className={styles.paving} aria-hidden="true" />
-      <svg className={styles.banyan} viewBox="0 0 200 200" aria-hidden="true" data-testid="sweep-banyan">
-        <path className={styles.trunk} d="M92 200 Q88 130 96 84 L112 84 Q118 130 116 200 Z" />
-        <path className={styles.root} d="M70 96 Q66 140 70 200 M82 98 Q80 150 84 200 M132 98 Q138 140 134 200 M146 94 Q150 150 146 200" />
-        <ellipse className={styles.canopy} cx="104" cy="58" rx="92" ry="52" />
-        <ellipse className={styles.canopyLight} cx="84" cy="44" rx="52" ry="30" />
-      </svg>
-      <div className={styles.beams} aria-hidden="true" data-testid="sweep-sunbeams" />
-      <span className={styles.helper} aria-hidden="true" data-testid="sweep-helper" />
       <span ref={pileEl} className={styles.pile} style={{ left: `${PILE.x}%`, top: `${PILE.y}%` }} aria-hidden="true" data-testid="sweep-pile" />
+      {MARK_SLOTS.map((slot) => (
+        <span key={slot} ref={(el) => { markEls.current[slot] = el; }} className={styles.mark} style={{ display: "none" }} aria-hidden="true" />
+      ))}
       {SLOTS.map((slot) => (
         <span key={slot} ref={(el) => { leafEls.current[slot] = el; }} className={styles.leaf} style={{ display: "none" }} aria-hidden="true" />
       ))}
-      <span ref={broomEl} className={styles.broom} aria-hidden="true" data-testid="sweep-broom" />
+      <span ref={broomEl} className={styles.broom} aria-hidden="true" data-testid="sweep-broom">
+        <span className={styles.bristles} />
+      </span>
     </div>
   );
 
@@ -223,9 +256,7 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
     return (
       <div className={styles.fullscreen} data-testid="sweep-root">
         {body}
-        <p className={styles.hint} role="status" data-testid="sweep-hint">
-          {HINT}
-        </p>
+        <StageZones instruction={instruction} />
       </div>
     );
   }
@@ -238,7 +269,7 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
         {body}
       </div>
       <p className={styles.hint} data-testid="sweep-hint">
-        {HINT} Không tính giờ, không điểm.
+        {HINT}
       </p>
       {!embed && (
         <>

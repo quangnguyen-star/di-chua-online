@@ -2,23 +2,31 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   CUE_INTERVAL_MS,
-  FAST_SPEED,
+  GROUND_BOTTOM,
+  GROUND_TOP,
   LEAF_CAP,
+  LEAF_TINTS,
+  MARK_CAP,
+  MARK_LIFE,
   PILE,
   PILE_CAP,
-  SLOW_SPEED,
+  broomTilt,
   canCue,
+  depthScale,
   freshWorld,
+  pileScale,
   relocateLeaves,
   settleLeaf,
   spawnLeaf,
   stepBroom,
+  stepMarks,
   stepWorld,
   type World,
 } from "../app/places/courtyard/sweeping/logic.ts";
 
 const rand = () => 0.5;
-const landedAt = (x: number, y: number): World => ({ ...freshWorld, spawnIn: 99, nextId: 2, leaves: [{ id: 1, x, y, vx: 0, vy: 0, rot: 0, landed: true }] });
+const still = { x: 0, y: 0, vx: 0, vy: 0 };
+const landedAt = (x: number, y: number): World => ({ ...freshWorld, spawnIn: 99, nextId: 2, leaves: [{ id: 1, x, y, vx: 0, vy: 0, rot: 0, spin: 0, kind: 0, landed: true }] });
 
 test("leaves keep falling and never exceed the live cap", () => {
   let w = freshWorld;
@@ -26,43 +34,79 @@ test("leaves keep falling and never exceed the live cap", () => {
   assert.equal(w.leaves.length, LEAF_CAP);
   assert.equal(spawnLeaf(w, rand), w);
   let s: World = { ...freshWorld, spawnIn: 0 };
-  for (let i = 0; i < 4000; i++) s = stepWorld(s, { x: 0, y: 0, vx: 0, vy: 0 }, 0.05, rand);
+  for (let i = 0; i < 4000; i++) s = stepWorld(s, still, 0.05, rand);
   assert.ok(s.leaves.length <= LEAF_CAP);
   assert.ok(s.leaves.length > 0);
 });
 
-test("a falling leaf lands on the ground and stays there", () => {
-  let w = spawnLeaf(freshWorld, rand);
-  for (let i = 0; i < 400; i++) w = { ...stepWorld({ ...w, spawnIn: 99 }, { x: 0, y: 0, vx: 0, vy: 0 }, 0.05, rand) };
-  assert.equal(w.leaves[0].landed, true);
+test("leaves carry one of the tints and land inside the ground band", () => {
+  const w = spawnLeaf(freshWorld, () => 0.99);
+  assert.ok(w.leaves[0].kind < LEAF_TINTS.length);
+  let s = w;
+  for (let i = 0; i < 400; i++) s = stepWorld({ ...s, spawnIn: 99 }, still, 0.05, rand);
+  assert.equal(s.leaves[0].landed, true);
+  assert.ok(s.leaves[0].y >= GROUND_TOP && s.leaves[0].y <= GROUND_BOTTOM);
 });
 
-test("a slow broom gathers a leaf toward the pile", () => {
-  const w = landedAt(50, 70);
-  const next = stepWorld(w, { x: 50, y: 70, vx: SLOW_SPEED / 2, vy: 0 }, 0.05, rand);
-  const before = Math.hypot(PILE.x - 50, PILE.y - 70);
-  assert.ok(Math.hypot(PILE.x - next.leaves[0].x, PILE.y - next.leaves[0].y) < before);
-});
-
-test("a fast broom scatters a leaf away from it", () => {
-  const w = landedAt(55, 70);
-  const next = stepWorld(w, { x: 50, y: 70, vx: FAST_SPEED * 2, vy: 0 }, 0.05, rand);
+test("a moving broom pushes a leaf along its direction", () => {
+  const next = stepWorld(landedAt(55, 60), { x: 50, y: 60, vx: 40, vy: 0 }, 0.05, rand);
   assert.ok(next.leaves[0].x > 55);
-  assert.ok(Math.abs(next.leaves[0].vx) > SLOW_SPEED);
+  assert.ok(next.leaves[0].vx > 0);
+});
+
+test("a pushed leaf keeps sliding after the broom stops, and friction brings it to rest", () => {
+  let w = stepWorld(landedAt(55, 60), { x: 50, y: 60, vx: 60, vy: 0 }, 0.05, rand);
+  const pushed = w.leaves[0].vx;
+  const x = w.leaves[0].x;
+  w = stepWorld(w, still, 0.05, rand);
+  assert.ok(w.leaves[0].x > x, "inertia carries it on");
+  assert.ok(w.leaves[0].vx < pushed, "friction slows it");
+  for (let i = 0; i < 200; i++) w = stepWorld(w, still, 0.05, rand);
+  assert.ok(Math.abs(w.leaves[0].vx) < 0.01);
 });
 
 test("a leaf in reach of a resting broom stays where it is", () => {
-  const next = stepWorld(landedAt(50, 70), { x: 50, y: 70, vx: 0, vy: 0 }, 0.05, rand);
+  const next = stepWorld(landedAt(50, 60), { x: 50, y: 60, vx: 0, vy: 0 }, 0.05, rand);
   assert.equal(next.leaves[0].x, 50);
 });
 
-test("a leaf reaching the pile joins it, and the pile is bounded", () => {
+test("a leaf far from the broom is not pushed", () => {
+  const next = stepWorld(landedAt(10, 60), { x: 80, y: 60, vx: 80, vy: 0 }, 0.05, rand);
+  assert.equal(next.leaves[0].vx, 0);
+});
+
+test("leaves gathered into the corner raise the pile, which is capped", () => {
   let w = landedAt(PILE.x, PILE.y);
-  w = stepWorld(w, { x: 0, y: 0, vx: 0, vy: 0 }, 0.05, rand);
+  w = stepWorld(w, still, 0.05, rand);
   assert.equal(w.leaves.length, 0);
   assert.equal(w.pile, 1);
-  const full = stepWorld({ ...landedAt(PILE.x, PILE.y), pile: PILE_CAP }, { x: 0, y: 0, vx: 0, vy: 0 }, 0.05, rand);
+  assert.ok(pileScale(w.pile) > pileScale(0));
+  const full = stepWorld({ ...landedAt(PILE.x, PILE.y), pile: PILE_CAP }, still, 0.05, rand);
   assert.equal(full.pile, PILE_CAP);
+  assert.equal(pileScale(PILE_CAP * 3), pileScale(PILE_CAP));
+});
+
+test("the broom tilts with the drag direction and the tilt is bounded", () => {
+  assert.ok(broomTilt({ x: 0, y: 0, vx: 20, vy: 0 }) > 0);
+  assert.ok(broomTilt({ x: 0, y: 0, vx: -20, vy: 0 }) < 0);
+  assert.equal(broomTilt(still), 0);
+  assert.equal(broomTilt({ x: 0, y: 0, vx: 9999, vy: 0 }), 35);
+});
+
+test("sweep marks appear while sweeping, fade out and stay capped", () => {
+  const fast = { x: 10, y: 60, vx: 40, vy: 0 };
+  let marks = stepMarks([], fast, 0.016, true);
+  assert.equal(marks.length, 1);
+  assert.deepEqual(stepMarks([], fast, 0.016, false), []);
+  assert.deepEqual(stepMarks([], still, 0.016, true), []);
+  marks = stepMarks(marks, still, MARK_LIFE + 0.1, true);
+  assert.equal(marks.length, 0);
+  for (let i = 0; i < MARK_CAP * 3; i++) marks = stepMarks(marks, { ...fast, x: i * 5 }, 0.001, true);
+  assert.ok(marks.length <= MARK_CAP);
+});
+
+test("leaves nearer the viewer are drawn larger", () => {
+  assert.ok(depthScale(GROUND_BOTTOM) > depthScale(GROUND_TOP));
 });
 
 test("reduced motion: leaves arrive landed and arrows relocate them in whole hops", () => {
