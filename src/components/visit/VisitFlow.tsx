@@ -1,345 +1,124 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { track } from "@/lib/analytics";
-import {
-  BREATHING_MS,
-  INTENTION_MAX,
-  SKIPPABLE,
-  STEPS,
-  breathElapsed,
-  durationBucket,
-  initialState,
-  stepIndex,
-  visitReducer,
-  type Step,
-} from "@/lib/visitMachine";
-import type { VisitSnapshot } from "@/lib/content";
-import Illustration from "./Illustration";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { visitStages } from "@/content";
+import { useVisit } from "@/lib/visit/useVisit";
+import { VisitFailure } from "./VisitErrorBoundary";
+import VisitScene from "./VisitScene";
+import styles from "./visit.module.css";
 
-const END_CONFIRM_VI = "Kết thúc chuyến ghé thăm? Điều bạn định tâm sẽ bị xóa.";
-const END_CONFIRM_EN = "End this visit? Your intention will be cleared.";
-
-const STEP_LABEL: Record<Step, string> = {
-  arrive: "Đến chùa",
-  offering: "Dâng hương",
-  intention: "Định tâm",
-  breathing: "Hít thở",
-  reflection: "Lời nhắc",
-  close: "Kết thúc",
-};
-
-const reducedMotionCss = `
-@media (prefers-reduced-motion: no-preference) {
-  .visit-ember { animation: visit-glow 2s ease-in-out infinite; }
-}
-@keyframes visit-glow { 50% { opacity: 0.4; } }
-`;
-
-const SNAPSHOT_TIMEOUT_MS = 10_000;
-
-type Load = { status: "loading" } | { status: "error" } | { status: "ready"; snapshot: VisitSnapshot };
+const totalSeconds = visitStages.reduce((sum, s) => sum + s.seconds, 0);
+const totalMs = totalSeconds * 1000;
 
 export default function VisitFlow() {
-  const [load, setLoad] = useState<Load>({ status: "loading" });
-  const fetched = useRef(false);
+  const router = useRouter();
+  const { state, begin, pause, resume, skip, exit } = useVisit(visitStages);
+  const [pulse, setPulse] = useState(0);
+  const lastStage = useRef(-1);
+
+  const { phase, stageIndex, remainingMs, skipped } = state;
+  const stage = visitStages[stageIndex];
+  const active = phase === "running" || phase === "paused";
 
   useEffect(() => {
-    if (fetched.current) return;
-    fetched.current = true;
-    const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), SNAPSHOT_TIMEOUT_MS);
-    fetch("/api/visit-snapshot", { signal: ctl.signal })
-      .then((r) => (r.ok ? (r.json() as Promise<VisitSnapshot>) : Promise.reject(new Error("snapshot"))))
-      .then((snapshot) => setLoad({ status: "ready", snapshot }))
-      .catch(() => setLoad({ status: "error" }))
-      .finally(() => clearTimeout(timer));
-  }, []);
+    if (!active || lastStage.current === stageIndex) return;
+    lastStage.current = stageIndex;
+    setPulse((n) => n + 1);
+  }, [active, stageIndex]);
 
-  if (load.status === "loading") return <p role="status">Đang chuẩn bị chuyến ghé thăm…</p>;
-  if (load.status === "error") {
-    return (
-      <section>
-        <h1>Chưa thể mở chuyến ghé thăm</h1>
-        <p>Nội dung chưa sẵn sàng. Vui lòng thử lại sau.</p>
-        <Link href="/" className="button">
-          Về trang chủ
-        </Link>
-      </section>
-    );
-  }
-  return <Visit snapshot={load.snapshot} />;
-}
+  if (!stage) return <VisitFailure onRetry={() => router.refresh()} />;
 
-function Visit({ snapshot }: { snapshot: VisitSnapshot }) {
-  const [state, dispatch] = useReducer(visitReducer, initialState);
-  const [now, setNow] = useState(() => Date.now());
-  const [announce, setAnnounce] = useState("");
-  const [audioOn, setAudioOn] = useState(false);
-  const [audioFailed, setAudioFailed] = useState(false);
-  const [audioKey, setAudioKey] = useState(0);
-  const visitId = useRef(crypto.randomUUID());
-  const startedAt = useRef(Date.now());
-  const { step, breath } = state;
-  const index = stepIndex(step);
-  const practiceId = snapshot.breathing.id;
-  const base = { contentVersion: snapshot.version, visitId: visitId.current };
+  const doneMs = visitStages.slice(0, stageIndex).reduce((sum, s) => sum + s.seconds * 1000, 0);
+  const elapsedMs =
+    phase === "complete" ? totalMs : phase === "ready" ? 0 : doneMs + stage.seconds * 1000 - remainingMs;
+  const percent = Math.min(100, Math.round((elapsedMs / totalMs) * 100));
 
-  const next = useCallback(() => dispatch({ type: "next", now: Date.now() }), []);
-  const skip = useCallback(() => dispatch({ type: "skip", now: Date.now() }), []);
+  const leave = () => {
+    exit();
+    router.push("/");
+  };
 
-  useEffect(() => {
-    track("visit_started", base);
-  }, []);
-
-  const prevStep = useRef<Step | null>(null);
-  useEffect(() => {
-    if (state.ended) return;
-    const prev = prevStep.current;
-    prevStep.current = step;
-    if (prev && prev !== step) track("step_completed", { ...base, step: stepIndex(prev) + 1 });
-    track("step_viewed", { ...base, step: index + 1 });
-    if (step === "breathing") track("practice_opened", { ...base, practiceId });
-    if (step === "close") {
-      track("visit_completed", {
-        ...base,
-        durationBucket: durationBucket(Date.now() - startedAt.current),
-      });
-    }
-    setAnnounce(step === "close" ? "Chuyến ghé thăm đã hoàn tất." : `Bước ${index + 1}: ${STEP_LABEL[step]}`);
-  }, [step, state.ended]);
-
-  useEffect(() => {
-    if (step !== "breathing" || breath.paused) return;
-    const id = setInterval(() => {
-      const t = Date.now();
-      setNow(t);
-      dispatch({ type: "tick", now: t });
-    }, 250);
-    return () => clearInterval(id);
-  }, [step, breath.paused]);
-
-  useEffect(() => {
-    const onVis = () => {
-      if (document.visibilityState === "hidden") dispatch({ type: "hidden", now: Date.now() });
-    };
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
-
-  useEffect(() => {
-    if (step !== "breathing") {
-      setAudioOn(false);
-      setAudioFailed(false);
-    }
-  }, [step]);
-
-  const firstStep = useRef(true);
-  useEffect(() => {
-    if (firstStep.current) {
-      firstStep.current = false;
-      return;
-    }
-    document.getElementById("visit-title")?.focus();
-  }, [step]);
-
-  useEffect(() => () => dispatch({ type: "clear" }), []);
-
-  if (state.ended) {
-    return (
-      <section>
-        <h1>Đã kết thúc chuyến ghé thăm</h1>
-        <p>Hẹn gặp lại bạn.</p>
-        <Link href="/" className="button">
-          Về trang chủ
-        </Link>
-      </section>
-    );
-  }
-
-  const remainingSec = Math.ceil((BREATHING_MS - breathElapsed(breath, now)) / 1000);
-  const mm = String(Math.floor(remainingSec / 60)).padStart(2, "0");
-  const ss = String(remainingSec % 60).padStart(2, "0");
-  const audioUrl = snapshot.breathing.audioUrl;
+  const announcement = active ? `Chặng ${stageIndex + 1} trên ${visitStages.length}: ${stage.label}` : "";
 
   return (
-    <section aria-labelledby="visit-title">
-      <style>{reducedMotionCss}</style>
-      <div role="status" aria-live="polite" style={SR_ONLY}>
-        {announce}
+    <div className={styles.root}>
+      <h1>Ghé thăm chùa</h1>
+      <VisitScene index={stageIndex} pulse={pulse} />
+      <div className={styles.live} role="status" aria-live="polite" data-testid="visit-announcement">
+        {announcement}
       </div>
-      <p>
-        Bước {index + 1}/{STEPS.length}
-      </p>
-      <h1 id="visit-title" tabIndex={-1}>{STEP_LABEL[step]}</h1>
 
-      {step === "arrive" && (
+      {phase === "ready" && (
         <>
-          <p>Hãy dừng lại một chút. Bạn có hai phút cho chính mình.</p>
-          <button type="button" className="button" onClick={next}>
-            Bắt đầu
-          </button>
-        </>
-      )}
-
-      {step === "offering" && (
-        <>
-          <Illustration lit={state.offered} />
-          {state.offered ? (
-            <p data-testid="offered-state">Bạn đã dâng hương.</p>
-          ) : (
-            <button
-              type="button"
-              className="button"
-              onClick={() => dispatch({ type: "offer" })}
-              disabled={state.offered}
-            >
-              Dâng hương
+          <p className={styles.prompt}>
+            Một chuyến ghé thăm chùa qua bốn chặng: cổng, sân, chánh điện và trở ra. Không đăng nhập, không âm thanh,
+            không lưu gì.
+          </p>
+          <div className={styles.controls}>
+            <button type="button" className="button" data-testid="visit-begin" onClick={begin}>
+              Bắt đầu
             </button>
-          )}
-          <button type="button" className="button" onClick={next} disabled={!state.offered}>
-            Tiếp tục
-          </button>
+            <button type="button" className="button button--quiet" data-testid="visit-exit" onClick={leave}>
+              Thoát
+            </button>
+          </div>
         </>
       )}
 
-      {step === "intention" && (
+      {active && (
         <>
-          <label htmlFor="intention">Điều bạn muốn gửi gắm hôm nay</label>
-          <textarea
-            id="intention"
-            rows={4}
-            maxLength={INTENTION_MAX}
-            autoComplete="off"
-            spellCheck={false}
-            value={state.intention}
-            onChange={(e) => dispatch({ type: "setIntention", text: e.target.value })}
+          <h2 className={styles.label} data-testid="visit-stage">
+            {stage.label}
+          </h2>
+          <p className={styles.prompt} data-testid="visit-prompt">
+            {stage.prompt}
+          </p>
+          <progress
+            className={styles.progress}
+            max={100}
+            value={percent}
+            aria-label="Tiến trình chuyến ghé thăm"
+            data-testid="visit-progress"
           />
-          <p>
-            {state.intention.length}/{INTENTION_MAX}
-          </p>
-          <button type="button" className="button" onClick={next}>
-            Tiếp tục
-          </button>
-        </>
-      )}
-
-      {step === "breathing" && (
-        <>
-          <p>{snapshot.breathing.title}</p>
-          <p>{snapshot.breathing.body}</p>
-          <p data-testid="breathing-timer" aria-label="Thời gian còn lại">
-            {mm}:{ss}
-          </p>
-          {breath.paused ? (
-            <button type="button" className="button" onClick={() => dispatch({ type: "resume", now: Date.now() })}>
-              Tiếp tục thở
-            </button>
-          ) : (
-            <button type="button" className="button" onClick={() => dispatch({ type: "pause", now: Date.now() })}>
-              Tạm dừng
-            </button>
-          )}
-          {audioUrl && !audioOn && (
-            <button type="button" className="button" onClick={() => {
-              setAudioFailed(false);
-              setAudioOn(true);
-            }}>
-              Nghe âm thanh
-            </button>
-          )}
-          {audioUrl && audioOn && (
-            <audio
-              key={audioKey}
-              src={audioUrl}
-              controls
-              onPlay={() => track("audio_played", { ...base, practiceId })}
-              onEnded={() => track("audio_completed", { ...base, practiceId })}
-              onError={() => setAudioFailed(true)}
-            />
-          )}
-          {audioFailed && (
-            <p role="alert">
-              Không phát được âm thanh. Bạn vẫn có thể đọc lời hướng dẫn ở trên.{" "}
-              <button
-                type="button"
-                className="button"
-                onClick={() => {
-                  setAudioFailed(false);
-                  setAudioKey((k) => k + 1);
-                }}
-              >
-                Retry Audio
+          <div className={styles.controls}>
+            {phase === "running" ? (
+              <button type="button" className="button" data-testid="visit-pause" onClick={pause}>
+                Tạm dừng
               </button>
-            </p>
-          )}
+            ) : (
+              <button type="button" className="button" data-testid="visit-resume" onClick={resume}>
+                Tiếp tục
+              </button>
+            )}
+            <button type="button" className="button button--quiet" data-testid="visit-skip" onClick={skip}>
+              Bỏ qua chặng này
+            </button>
+            <button type="button" className="button button--quiet" data-testid="visit-exit" onClick={leave}>
+              Thoát
+            </button>
+          </div>
         </>
       )}
 
-      {step === "reflection" && (
+      {phase === "complete" && (
         <>
-          <blockquote>
-            <p>{snapshot.reflection.text}</p>
-            <footer>{snapshot.reflection.attribution}</footer>
-          </blockquote>
-          <button type="button" className="button" onClick={next}>
-            Tiếp tục
-          </button>
-        </>
-      )}
-
-      {step === "close" && (
-        <>
-          <p>Cảm ơn bạn đã dừng lại. Chúc bạn một ngày bình an.</p>
-          <Link href="/" className="button">
-            Về trang chủ
-          </Link>
-        </>
-      )}
-
-      {SKIPPABLE.includes(step) && (
-        <button type="button" className="button" onClick={skip}>
-          Bỏ qua
-        </button>
-      )}
-      {step !== "close" && (
-        <button type="button" className="button" onClick={() => dispatch({ type: "requestEnd" })}>
-          Kết thúc chuyến ghé thăm
-        </button>
-      )}
-
-      {state.confirmingEnd && (
-        <div
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="end-confirm"
-          onKeyDown={(e) => {
-            if (e.key === "Escape") dispatch({ type: "cancelEnd" });
-          }}
-        >
-          <p id="end-confirm">
-            {END_CONFIRM_VI}
-            <br />
-            <span lang="en">{END_CONFIRM_EN}</span>
+          <h2 className={styles.label} data-testid="visit-complete">
+            Chuyến ghé thăm đã khép lại
+          </h2>
+          <p className={styles.prompt}>
+            {skipped
+              ? "Bạn đã đi qua chùa theo nhịp của riêng mình. Mang theo sự yên ổn này vào phần còn lại của ngày."
+              : `Bạn đã dành ${Math.round(totalSeconds / 60)} phút ghé thăm chùa. Mang theo sự yên ổn này vào phần còn lại của ngày.`}
           </p>
-          <button type="button" className="button" onClick={() => dispatch({ type: "confirmEnd" })}>
-            Kết thúc
-          </button>
-          <button type="button" className="button" autoFocus onClick={() => dispatch({ type: "cancelEnd" })}>
-            Ở lại
-          </button>
-        </div>
+          <progress className={styles.progress} max={100} value={100} aria-label="Tiến trình chuyến ghé thăm" data-testid="visit-progress" />
+          <div className={styles.controls}>
+            <button type="button" className="button" data-testid="visit-exit" onClick={leave}>
+              Về trang chủ
+            </button>
+          </div>
+        </>
       )}
-    </section>
+    </div>
   );
 }
-
-const SR_ONLY: React.CSSProperties = {
-  position: "absolute",
-  width: 1,
-  height: 1,
-  overflow: "hidden",
-  clip: "rect(0 0 0 0)",
-  whiteSpace: "nowrap",
-};

@@ -1,11 +1,25 @@
 "use client";
 
 import { Component, type ReactNode } from "react";
+import { ErrorState } from "@/components/shell/ErrorState";
 
 type Props = { children: ReactNode };
 type State = { failed: boolean };
 
-/** Never logs the error or component stack: either could carry the visitor's intention. */
+export function VisitFailure({ onRetry }: { onRetry: () => void }) {
+  return (
+    <ErrorState
+      title="Cổng chùa đang khép."
+      body="Chuyến ghé thăm đã dừng lại và không có gì được lưu. Bạn có thể thử lại hoặc xem các bài thực hành."
+      actions={[
+        { label: "Thử lại", onClick: onRetry },
+        { label: "Các bài thực hành", href: "/practices" },
+      ]}
+    />
+  );
+}
+
+/** Never logs the error or component stack. */
 export default class VisitErrorBoundary extends Component<Props, State> {
   state: State = { failed: false };
 
@@ -13,16 +27,10 @@ export default class VisitErrorBoundary extends Component<Props, State> {
     return { failed: true };
   }
 
+  retry = () => this.setState({ failed: false });
+
   render() {
     if (!this.state.failed) return this.props.children;
-    return (
-      <section role="alert">
-        <h1>Có sự cố xảy ra</h1>
-        <p>Chuyến ghé thăm đã dừng lại và không có gì được lưu. Bạn có thể bắt đầu lại.</p>
-        <a href="/visit" className="button">
-          Bắt đầu lại
-        </a>
-      </section>
-    );
+    return <VisitFailure onRetry={this.retry} />;
   }
 }
