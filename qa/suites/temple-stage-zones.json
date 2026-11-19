@@ -1,0 +1,64 @@
+{
+  "_about": "Shell zones and one gate. Every stop renders the stage zones; the gate stop and the home map draw the same Tam Quan art. Asserts nothing about the removed river leak, per-stop fog or standalone lantern look. Not executed in the authoring session (no browser).",
+  "schema_version": "1.1.0",
+  "run_id": "temple-stage-zones",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-stage-zones",
+    "email": "qa+temple-stage-zones@gomu.ai",
+    "tag": "QA RUN temple-stage-zones"
+  },
+  "scenarios": [
+    {
+      "name": "Gate stop shows the stage zones, the scene and the Tam Quan art",
+      "tags": ["stage-zones", "gate"],
+      "setup": [],
+      "steps": [
+        { "kind": "action", "op": "navigate", "intent": "open /visit?stop=gate", "url": "/visit?stop=gate" },
+        { "kind": "assert", "op": "assert", "intent": "stage zones present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "stage-zones" } } },
+        { "kind": "assert", "op": "assert", "intent": "instruction zone present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "zone-instruction" } } },
+        { "kind": "assert", "op": "assert", "intent": "gate art present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "gate-art" } } },
+        { "kind": "assert", "op": "assert", "intent": "scene stage present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "scene-stage" } } }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Home map draws the Tam Quan art",
+      "tags": ["stage-zones", "home"],
+      "setup": [],
+      "steps": [
+        { "kind": "action", "op": "navigate", "intent": "open /", "url": "/" },
+        { "kind": "assert", "op": "assert", "intent": "map art present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "map-art" } } }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Courtyard stop shows the stage zones and a scene",
+      "tags": ["stage-zones", "courtyard"],
+      "setup": [],
+      "steps": [
+        { "kind": "action", "op": "navigate", "intent": "open /visit?stop=courtyard", "url": "/visit?stop=courtyard" },
+        { "kind": "assert", "op": "assert", "intent": "stage zones present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "stage-zones" } } },
+        { "kind": "assert", "op": "assert", "intent": "instruction text present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "instruction-text" } } },
+        { "kind": "assert", "op": "assert", "intent": "scene stage present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "scene-stage" } } }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Outside stop shows the stage zones and a scene",
+      "tags": ["stage-zones", "outside"],
+      "setup": [],
+      "steps": [
+        { "kind": "action", "op": "navigate", "intent": "open /visit?stop=outside", "url": "/visit?stop=outside" },
+        { "kind": "assert", "op": "assert", "intent": "stage zones present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "stage-zones" } } },
+        { "kind": "assert", "op": "assert", "intent": "scene stage present", "expected": { "kind": "visible", "target": { "by": "testid", "name": "scene-stage" } } }
+      ],
+      "teardown": []
+    }
+  ]
+}

@@ -756,12 +756,12 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "hold-to-breathe hint is real text",
+          "intent": "gate instruction line is real text in the instruction zone",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "gate-hint"
+              "name": "instruction-text"
             }
           }
         },
