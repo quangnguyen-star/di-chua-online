@@ -1,14 +1,23 @@
 :root {
-  --bg: #faf6ee;
-  --surface: #fffdf8;
-  --text: #3a2e22;
-  --text-muted: #6b5b4a;
-  --wood: #8b5e3c;
-  --wood-dark: #6a4529;
-  --saffron: #d9a441;
-  --border: #e6dccb;
+  --paper: #f4eee2;
+  --wood: #5a4030;
+  --lacquer: #7a2e22;
+  --gold: #b08a3e;
+  --moss: #6b7255;
+  /* gold and moss fail 4.5:1 as text on paper; use the -text variants for words */
+  --gold-text: #7a5a1c;
+  --moss-text: #4f5740;
+  --bg: var(--paper);
+  --surface: #fbf7ee;
+  --text: #34281f;
+  --text-muted: #5f4d3e;
+  --wood-dark: var(--wood);
+  --saffron: var(--gold);
+  --border: #ddd1bb;
   --target: 44px;
   --radius: 12px;
+  --font-body: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-heading: var(--font-noto-serif), "Noto Serif", Georgia, serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -21,27 +30,30 @@ body {
   overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
   font-size: 1.0625rem;
   line-height: 1.6;
 }
 
 img, video, audio { max-width: 100%; }
 
-h1, h2, h3 { line-height: 1.25; overflow-wrap: anywhere; }
+h1, h2, h3 { font-family: var(--font-heading); font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
 
-a { color: var(--wood-dark); }
+a { color: var(--lacquer); }
 
 a, button, input, select, textarea, [role="button"] { min-height: var(--target); }
 
 :focus-visible {
-  outline: 3px solid var(--saffron);
+  outline: 3px solid var(--lacquer);
   outline-offset: 2px;
 }
 
 .site-header {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: transparent;
 }
 
 .site-header__inner {
@@ -76,6 +88,8 @@ a, button, input, select, textarea, [role="button"] { min-height: var(--target);
 
 .nav a:hover { background: var(--border); }
 
+main { flex: 1 0 auto; width: 100%; }
+
 .container {
   max-width: 48rem;
   margin: 0 auto;
@@ -97,7 +111,7 @@ a, button, input, select, textarea, [role="button"] { min-height: var(--target);
   cursor: pointer;
 }
 
-.button:hover { background: #c8922f; }
+.button:hover { background: #c19a4d; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -123,3 +137,20 @@ a, button, input, select, textarea, [role="button"] { min-height: var(--target);
 .player__field input { width: 100%; }
 textarea, input[type="text"] { width: 100%; max-width: 100%; font: inherit; }
 h1:focus { outline: none; }
+
+.site-footer { border-top: 1px solid var(--border); flex-shrink: 0; }
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+}
+.site-footer__nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.site-footer__nav a { display: inline-flex; align-items: center; padding: 0 0.75rem; border-radius: var(--radius); }
+.site-footer__note { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+.error-state { text-align: center; padding: 2rem 0; }
+.error-state__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 1.5rem; }

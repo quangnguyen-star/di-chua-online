@@ -1,8 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { Noto_Serif } from "next/font/google";
 import "@fontsource/be-vietnam-pro/400.css";
 import "@fontsource/be-vietnam-pro/600.css";
 import "../styles/globals.css";
+import { SiteFooter } from "../components/shell/SiteFooter";
+
+const notoSerif = Noto_Serif({
+  subsets: ["latin", "vietnamese"],
+  weight: "500",
+  variable: "--font-noto-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Chánh niệm mỗi ngày",
@@ -16,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
+    <html lang="vi" className={notoSerif.variable}>
       <body>
         <header className="site-header">
           <div className="site-header__inner">
@@ -30,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <main className="container">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );
