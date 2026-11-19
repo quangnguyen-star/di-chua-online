@@ -4,6 +4,7 @@ import type { DailyWord as DailyWordData } from "@/content";
 import { ErrorState } from "@/components/shell/ErrorState";
 import { DailyWord } from "./DailyWord";
 import { GateMotif } from "./GateMotif";
+import { LunarNote } from "./LunarNote";
 import { PlaceLinks } from "./PlaceLinks";
 import styles from "./home.module.css";
 
@@ -41,6 +42,7 @@ export function HomeView() {
           body="Bạn vẫn có thể ghé thăm hoặc xem các bài thực hành bất cứ lúc nào."
         />
       )}
+      <LunarNote />
       <PlaceLinks />
     </div>
   );
