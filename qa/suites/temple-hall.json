@@ -1,0 +1,496 @@
+{
+  "_about": "Hall: incense states driven by keyboard, sticks, variants, spent note.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-hall",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-hall",
+    "email": "qa+temple-hall@gomu.ai",
+    "tag": "QA RUN temple-hall"
+  },
+  "scenarios": [
+    {
+      "name": "Hall states by keyboard: ready, burning, paused, burning, extinguished, placed",
+      "tags": [
+        "hall",
+        "keyboard",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall",
+          "url": "/places/hall"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hall shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "incense-page"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "ready state",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-state"
+            },
+            "text": "Một nén hương đang chờ bạn."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "default stick is 300 s",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-remaining"
+            },
+            "text": "5:00"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Thắp nhang",
+          "target": {
+            "by": "testid",
+            "name": "incense-light"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "Enter activates Thắp nhang",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "burning",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-state"
+            },
+            "text": "Nén hương đang cháy. Cứ thở nhẹ."
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tạm dừng",
+          "target": {
+            "by": "testid",
+            "name": "incense-pause"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "Enter activates Tạm dừng",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "paused",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-state"
+            },
+            "text": "Đã tạm dừng. Nén hương chờ bạn."
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tiếp tục",
+          "target": {
+            "by": "testid",
+            "name": "incense-resume"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "Enter activates Tiếp tục",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "burning again",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-state"
+            },
+            "text": "Nén hương đang cháy. Cứ thở nhẹ."
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tắt lửa",
+          "target": {
+            "by": "testid",
+            "name": "incense-extinguish"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "Enter activates Tắt lửa",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "extinguished",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-state"
+            },
+            "text": "Ngọn lửa đã tắt. Bạn có thể đặt nén hương vào lư."
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Đặt nhang vào lư",
+          "target": {
+            "by": "testid",
+            "name": "incense-place"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "Enter activates Đặt nhang vào lư",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "placed",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-state"
+            },
+            "text": "Nén hương đã được đặt vào lư."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "finished block shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "incense-finished"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Choosing the 120 s and 600 s sticks changes the clock",
+      "tags": [
+        "hall",
+        "sticks"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall",
+          "url": "/places/hall"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "choose 2 phút",
+          "target": {
+            "by": "testid",
+            "name": "incense-stick-120"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "2:00 shown",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-remaining"
+            },
+            "text": "2:00"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "choose 10 phút",
+          "target": {
+            "by": "testid",
+            "name": "incense-stick-600"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "10:00 shown",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-remaining"
+            },
+            "text": "10:00"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Breathing variant defaults to 120 s with paced cue",
+      "tags": [
+        "hall",
+        "variant"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall?variant=breathing",
+          "url": "/places/hall?variant=breathing"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "breathing title",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Thở cùng nén hương",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "120 s",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-remaining"
+            },
+            "text": "2:00"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Sitting variant defaults to 300 s",
+      "tags": [
+        "hall",
+        "variant"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall?variant=sitting",
+          "url": "/places/hall?variant=sitting"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "sitting title",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Ngồi yên bên nén hương",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "300 s",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-remaining"
+            },
+            "text": "5:00"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "A placed stick leaves only a note on this device",
+      "tags": [
+        "hall",
+        "storage"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall",
+          "url": "/places/hall"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "light",
+          "target": {
+            "by": "testid",
+            "name": "incense-light"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "extinguish",
+          "target": {
+            "by": "testid",
+            "name": "incense-extinguish"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "place",
+          "target": {
+            "by": "testid",
+            "name": "incense-place"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "reload",
+          "intent": "reload the page"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "spent note shown after reload",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "incense-spent-note"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "note text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "incense-spent-note"
+            },
+            "text": "Một nén hương đã được đặt ở đây trước đó."
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Leaving the hall mid-burn goes to the map",
+      "tags": [
+        "hall",
+        "exit"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall",
+          "url": "/places/hall"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "light",
+          "target": {
+            "by": "testid",
+            "name": "incense-light"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Rời đi",
+          "target": {
+            "by": "testid",
+            "name": "incense-leave"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

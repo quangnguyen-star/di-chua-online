@@ -1,0 +1,198 @@
+{
+  "_about": "River lantern: release flow and thought privacy. The request/storage scan of the lantern text needs a probe mode that does not exist yet; see docs/verification-report.md section 6.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-lantern",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-lantern",
+    "email": "qa+temple-lantern@gomu.ai",
+    "tag": "QA RUN temple-lantern"
+  },
+  "scenarios": [
+    {
+      "name": "Lantern release shows the released state and goes on to the veranda",
+      "tags": [
+        "lantern",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/pond/lantern",
+          "url": "/places/pond/lantern"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "thought field shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "lantern-thought"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "write a thought",
+          "target": {
+            "by": "testid",
+            "name": "lantern-thought"
+          },
+          "value": "{{run_id}} let go"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Gấp thành đèn và thả",
+          "target": {
+            "by": "testid",
+            "name": "lantern-release"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "announcement while releasing",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "lantern-announcement"
+            },
+            "text": "Ngọn đèn đang trôi đi"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "released heading after the drift",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "lantern-released"
+            },
+            "text": "Ngọn đèn đã trôi đi"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "thought field is gone",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "lantern-thought"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Hiên chùa",
+          "target": {
+            "by": "testid",
+            "name": "lantern-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "veranda opened",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/veranda"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Skip releases a lantern without text",
+      "tags": [
+        "lantern"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/pond/lantern",
+          "url": "/places/pond/lantern"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Bỏ qua, chỉ thả đèn",
+          "target": {
+            "by": "testid",
+            "name": "lantern-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "released",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "lantern-released"
+            },
+            "text": "Ngọn đèn đã trôi đi"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Exit leaves to the map without a trace",
+      "tags": [
+        "lantern",
+        "exit"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/pond/lantern",
+          "url": "/places/pond/lantern"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Thoát",
+          "target": {
+            "by": "testid",
+            "name": "lantern-exit"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "_about": "Courtyard sweeping: paving, broom, leaf set, closing line.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-courtyard",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-courtyard",
+    "email": "qa+temple-courtyard@gomu.ai",
+    "tag": "QA RUN temple-courtyard"
+  },
+  "scenarios": [
+    {
+      "name": "Sweeping: first set of 8 leaves, one pass clears it and the line appears",
+      "tags": [
+        "courtyard",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/courtyard/sweeping",
+          "url": "/places/courtyard/sweeping"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "8 leaves to start",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sweep-status"
+            },
+            "text": "Còn 8 chiếc lá"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no line yet",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "sweep-line"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Quét một lượt",
+          "target": {
+            "by": "testid",
+            "name": "sweep-pass"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "cleared heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "sweep-complete"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "closing line text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sweep-line"
+            },
+            "text": "Lá vẫn rơi. Cứ quét chậm thôi."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "complete text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sweep-complete"
+            },
+            "text": "Sân đã sạch lá."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "next place preview",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "sweep-next-preview"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "go to the hall",
+          "target": {
+            "by": "testid",
+            "name": "sweep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hall opened",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/hall"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Sweeping by keyboard strokes reduces the leaf count",
+      "tags": [
+        "courtyard",
+        "keyboard"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/courtyard/sweeping",
+          "url": "/places/courtyard/sweeping"
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Quét một nhịp",
+          "target": {
+            "by": "testid",
+            "name": "sweep-stroke"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "stroke 1",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "status no longer says 8",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "text",
+              "name": "Còn 8 chiếc lá"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map button on the courtyard returns home",
+      "tags": [
+        "courtyard",
+        "nav"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/courtyard/sweeping",
+          "url": "/places/courtyard/sweeping"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Bản đồ chùa",
+          "target": {
+            "by": "testid",
+            "name": "sweep-map"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "No horizontal scroll at 360px on the courtyard",
+      "tags": [
+        "courtyard",
+        "layout"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/places/courtyard/sweeping"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

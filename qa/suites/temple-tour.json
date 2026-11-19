@@ -1,0 +1,404 @@
+{
+  "_about": "Guided tour.The full 300 s run is a manual trace (docs/verification-report.md); the arithmetic is covered node-side by qa/suites/state.test.ts.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-tour",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-tour",
+    "email": "qa+temple-tour@gomu.ai",
+    "tag": "QA RUN temple-tour"
+  },
+  "scenarios": [
+    {
+      "name": "Tour: six stops, 300 s, begins on the first stop",
+      "tags": [
+        "tour",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "tour heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Ghé thăm chùa",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Bắt đầu",
+          "target": {
+            "by": "testid",
+            "name": "visit-begin"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 1",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stage"
+            },
+            "text": "Cổng chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 1 count",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stop-count"
+            },
+            "text": "Chặng 1/6 · 30 giây"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Skipping walks the six stops in order and closes the tour",
+      "tags": [
+        "tour",
+        "skip"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "testid",
+            "name": "visit-begin"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip stop 0",
+          "target": {
+            "by": "testid",
+            "name": "visit-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 1 is Sân chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stage"
+            },
+            "text": "Sân chùa"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip stop 1",
+          "target": {
+            "by": "testid",
+            "name": "visit-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 2 is Chánh điện",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stage"
+            },
+            "text": "Chánh điện"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip stop 2",
+          "target": {
+            "by": "testid",
+            "name": "visit-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 3 is Bến sông",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stage"
+            },
+            "text": "Bến sông"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip stop 3",
+          "target": {
+            "by": "testid",
+            "name": "visit-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 4 is Hiên chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stage"
+            },
+            "text": "Hiên chùa"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip stop 4",
+          "target": {
+            "by": "testid",
+            "name": "visit-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stop 5 is Bên ngoài",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-stage"
+            },
+            "text": "Bên ngoài"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip the last stop",
+          "target": {
+            "by": "testid",
+            "name": "visit-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "complete",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-complete"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "complete text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-complete"
+            },
+            "text": "Chuyến ghé thăm đã khép lại"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Pause and resume",
+      "tags": [
+        "tour",
+        "pause"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "testid",
+            "name": "visit-begin"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Tạm dừng",
+          "target": {
+            "by": "testid",
+            "name": "visit-pause"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Tiếp tục offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-resume"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Tiếp tục",
+          "target": {
+            "by": "testid",
+            "name": "visit-resume"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "pause offered again",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "visit-pause"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Exit goes to the map",
+      "tags": [
+        "tour",
+        "exit"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "testid",
+            "name": "visit-begin"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Thoát",
+          "target": {
+            "by": "testid",
+            "name": "visit-exit"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "No horizontal scroll at 360px on the tour",
+      "tags": [
+        "tour",
+        "layout"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/visit"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

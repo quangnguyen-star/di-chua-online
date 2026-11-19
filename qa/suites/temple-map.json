@@ -1,0 +1,793 @@
+{
+  "_about": "Home map, text place list and the map nav icon.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-map",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-map",
+    "email": "qa+temple-map@gomu.ai",
+    "tag": "QA RUN temple-map"
+  },
+  "scenarios": [
+    {
+      "name": "Map hotspot for Cổng chùa opens its place",
+      "tags": [
+        "map",
+        "places"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot Cổng chùa present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-gate"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click hotspot Cổng chùa",
+          "target": {
+            "by": "testid",
+            "name": "map-place-gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /practices/tho-2-phut",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/practices/tho-2-phut"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Text place list entry for Cổng chùa opens its place",
+      "tags": [
+        "map",
+        "places",
+        "no-pointer"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "text list entry Cổng chùa present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-gate"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click list entry Cổng chùa",
+          "target": {
+            "by": "testid",
+            "name": "home-place-gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /practices/tho-2-phut",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/practices/tho-2-phut"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map hotspot for Sân chùa opens its place",
+      "tags": [
+        "map",
+        "places"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot Sân chùa present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-courtyard"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click hotspot Sân chùa",
+          "target": {
+            "by": "testid",
+            "name": "map-place-courtyard"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/courtyard/sweeping",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/courtyard/sweeping"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Text place list entry for Sân chùa opens its place",
+      "tags": [
+        "map",
+        "places",
+        "no-pointer"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "text list entry Sân chùa present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-courtyard"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click list entry Sân chùa",
+          "target": {
+            "by": "testid",
+            "name": "home-place-courtyard"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/courtyard/sweeping",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/courtyard/sweeping"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map hotspot for Chánh điện opens its place",
+      "tags": [
+        "map",
+        "places"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot Chánh điện present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-hall"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click hotspot Chánh điện",
+          "target": {
+            "by": "testid",
+            "name": "map-place-hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/hall",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/hall"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Text place list entry for Chánh điện opens its place",
+      "tags": [
+        "map",
+        "places",
+        "no-pointer"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "text list entry Chánh điện present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-hall"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click list entry Chánh điện",
+          "target": {
+            "by": "testid",
+            "name": "home-place-hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/hall",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/hall"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map hotspot for Bến sông opens its place",
+      "tags": [
+        "map",
+        "places"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot Bến sông present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-pond"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click hotspot Bến sông",
+          "target": {
+            "by": "testid",
+            "name": "map-place-pond"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/pond/lantern",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/pond/lantern"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Text place list entry for Bến sông opens its place",
+      "tags": [
+        "map",
+        "places",
+        "no-pointer"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "text list entry Bến sông present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-pond"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click list entry Bến sông",
+          "target": {
+            "by": "testid",
+            "name": "home-place-pond"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/pond/lantern",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/pond/lantern"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map hotspot for Hiên chùa opens its place",
+      "tags": [
+        "map",
+        "places"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot Hiên chùa present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-veranda"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click hotspot Hiên chùa",
+          "target": {
+            "by": "testid",
+            "name": "map-place-veranda"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/veranda",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/veranda"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Text place list entry for Hiên chùa opens its place",
+      "tags": [
+        "map",
+        "places",
+        "no-pointer"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "text list entry Hiên chùa present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-veranda"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click list entry Hiên chùa",
+          "target": {
+            "by": "testid",
+            "name": "home-place-veranda"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/veranda",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/veranda"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map hotspot for Bên ngoài opens its place",
+      "tags": [
+        "map",
+        "places"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot Bên ngoài present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-outside"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click hotspot Bên ngoài",
+          "target": {
+            "by": "testid",
+            "name": "map-place-outside"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/word",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/word"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Text place list entry for Bên ngoài opens its place",
+      "tags": [
+        "map",
+        "places",
+        "no-pointer"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "text list entry Bên ngoài present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-outside"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click list entry Bên ngoài",
+          "target": {
+            "by": "testid",
+            "name": "home-place-outside"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on /places/word",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places/word"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Map link in the nav returns home from a place",
+      "tags": [
+        "map",
+        "nav"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/hall",
+          "url": "/places/hall"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click the map icon",
+          "target": {
+            "by": "testid",
+            "name": "nav-map"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map is shown again",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Hotspot labels are the place names",
+      "tags": [
+        "map",
+        "a11y"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot gate reads Cổng chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "map-place-gate"
+            },
+            "text": "Cổng chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot courtyard reads Sân chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "map-place-courtyard"
+            },
+            "text": "Sân chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot hall reads Chánh điện",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "map-place-hall"
+            },
+            "text": "Chánh điện"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot pond reads Bến sông",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "map-place-pond"
+            },
+            "text": "Bến sông"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot veranda reads Hiên chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "map-place-veranda"
+            },
+            "text": "Hiên chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hotspot outside reads Bên ngoài",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "map-place-outside"
+            },
+            "text": "Bên ngoài"
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

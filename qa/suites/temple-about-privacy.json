@@ -1,0 +1,270 @@
+{
+  "_about": "About and Privacy copy structure. Wording is reviewed by a person; the suite proves the sections exist and are reachable.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-about-privacy",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-about-privacy",
+    "email": "qa+temple-about-privacy@gomu.ai",
+    "tag": "QA RUN temple-about-privacy"
+  },
+  "scenarios": [
+    {
+      "name": "About page sections",
+      "tags": [
+        "about"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /about",
+          "url": "/about"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section about-inspiration",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-inspiration"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section about-independence",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-independence"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section about-authorship",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-authorship"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section about-media",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-media"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section about-calendar",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-calendar"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section about-donation",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-donation"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "title",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Giới thiệu",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Privacy page sections",
+      "tags": [
+        "privacy"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /privacy",
+          "url": "/privacy"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section privacy-anonymous",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "privacy-anonymous"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section privacy-storage",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "privacy-storage"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section privacy-preferences",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "privacy-preferences"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section privacy-lantern",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "privacy-lantern"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "section privacy-telemetry",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "privacy-telemetry"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "title",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Quyền riêng tư",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Privacy states the lantern text is never kept",
+      "tags": [
+        "privacy"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /privacy",
+          "url": "/privacy"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "lantern section heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Lời trong đèn lồng",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "About says no donations",
+      "tags": [
+        "about"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /about",
+          "url": "/about"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no-donation heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Không quyên góp",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

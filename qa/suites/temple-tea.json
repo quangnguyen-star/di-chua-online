@@ -1,0 +1,516 @@
+{
+  "_about": "Veranda tea: seven steps and the 180 s drink with three sips. Completion after 180 active seconds is covered by the timed trace in docs/verification-report.md, not by a 3-minute suite step.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-tea",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-tea",
+    "email": "qa+temple-tea@gomu.ai",
+    "tag": "QA RUN temple-tea"
+  },
+  "scenarios": [
+    {
+      "name": "Tea: seven preparation steps then a 180 s drink",
+      "tags": [
+        "tea",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/veranda",
+          "url": "/places/veranda"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "veranda shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "tea-preparation"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 1 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 1 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "next to step 2",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 2 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 2 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "next to step 3",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 3 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 3 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "next to step 4",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 4 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 4 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "next to step 5",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 5 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 5 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "steep wait shown at step 5",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "tea-steep"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "next to step 6",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 6 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 6 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "next to step 7",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 7 of 7",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 7 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "to drinking",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "drinking shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "tea-drinking"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "180 s clock",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-remaining"
+            },
+            "text": "3:00"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "ready",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-state"
+            },
+            "text": "Sẵn sàng"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Chỉ thưởng trà skips straight to 3:00",
+      "tags": [
+        "tea",
+        "skip"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/veranda",
+          "url": "/places/veranda"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Chỉ thưởng trà",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-skip"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "drinking shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "tea-drinking"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "180 s",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-remaining"
+            },
+            "text": "3:00"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Arrow keys move through the preparation steps",
+      "tags": [
+        "tea",
+        "keyboard"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/veranda",
+          "url": "/places/veranda"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "right arrow",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 2",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 2 trên 7 (không bắt buộc)"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "left arrow",
+          "key": "ArrowLeft"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 1",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 1 trên 7 (không bắt buộc)"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Starting the tea shows sip 1 of 3 and pausing holds it",
+      "tags": [
+        "tea",
+        "sips"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/veranda",
+          "url": "/places/veranda"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Chỉ thưởng trà",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-skip"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Bắt đầu",
+          "target": {
+            "by": "testid",
+            "name": "tea-start"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "sip 1",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-state"
+            },
+            "text": "Ngụm 1 trên 3"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Tạm dừng",
+          "target": {
+            "by": "testid",
+            "name": "tea-pause"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "paused",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-state"
+            },
+            "text": "Đang tạm dừng"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Steep wait is skippable and has its own 1:00 clock",
+      "tags": [
+        "tea",
+        "steep"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/veranda",
+          "url": "/places/veranda"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "2",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "3",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "4",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "5",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "60 s steep",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-steep-remaining"
+            },
+            "text": "1:00"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not started",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-steep-state"
+            },
+            "text": "Chưa bắt đầu chờ"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Bỏ qua chờ, tiếp tục",
+          "target": {
+            "by": "testid",
+            "name": "tea-prep-next"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 6",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "tea-prep-progress"
+            },
+            "text": "Chuẩn bị, bước 6 trên 7 (không bắt buộc)"
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

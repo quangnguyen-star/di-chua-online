@@ -1,0 +1,138 @@
+{
+  "_about": "Sound is opt-in. No claim about audible quality or loudness is made by this suite; none was measured.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-sound",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-sound",
+    "email": "qa+temple-sound@gomu.ai",
+    "tag": "QA RUN temple-sound"
+  },
+  "scenarios": [
+    {
+      "name": "Sound panel says it is off and the page is complete without it",
+      "tags": [
+        "sound"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open sound panel",
+          "target": {
+            "by": "testid",
+            "name": "sound-summary"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "off status",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sound-status"
+            },
+            "text": "Đang tắt tiếng. Trang vẫn đầy đủ khi không có âm thanh."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "toggle offers to turn on",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sound-toggle"
+            },
+            "text": "Bật âm thanh"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Turning sound on then off by click",
+      "tags": [
+        "sound"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open sound panel",
+          "target": {
+            "by": "testid",
+            "name": "sound-summary"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Bật âm thanh",
+          "target": {
+            "by": "testid",
+            "name": "sound-toggle"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "toggle now offers off",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sound-toggle"
+            },
+            "text": "Tắt tiếng"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Tắt tiếng",
+          "target": {
+            "by": "testid",
+            "name": "sound-toggle"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "off again",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "sound-status"
+            },
+            "text": "Đang tắt tiếng. Trang vẫn đầy đủ khi không có âm thanh."
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

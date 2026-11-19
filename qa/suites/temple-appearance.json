@@ -1,0 +1,281 @@
+{
+  "_about": "Appearance rules. Reading html[data-theme] needs a probe mode that does not exist (docs/verification-report.md section 6). Resolved day/evening and the 06:00/18:00 boundaries are covered node-side by qa/suites/state.test.ts.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-appearance",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-appearance",
+    "email": "qa+temple-appearance@gomu.ai",
+    "tag": "QA RUN temple-appearance"
+  },
+  "scenarios": [
+    {
+      "name": "Choosing Ban ngày is kept across a reload",
+      "tags": [
+        "appearance"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "select",
+          "intent": "pick Ban ngày",
+          "target": {
+            "by": "label",
+            "name": "Giao diện"
+          },
+          "value": "Ban ngày"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "select holds the choice",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            },
+            "value": "day"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "reload",
+          "intent": "reload the page"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings again",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "choice survived reload",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            },
+            "value": "day"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Choosing Buổi tối is kept across a reload",
+      "tags": [
+        "appearance"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "select",
+          "intent": "pick Buổi tối",
+          "target": {
+            "by": "label",
+            "name": "Giao diện"
+          },
+          "value": "Buổi tối"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "select holds the choice",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            },
+            "value": "evening"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "reload",
+          "intent": "reload the page"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings again",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "choice survived reload",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            },
+            "value": "evening"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Choosing Tự động theo giờ is kept across a reload",
+      "tags": [
+        "appearance"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "select",
+          "intent": "pick Tự động theo giờ",
+          "target": {
+            "by": "label",
+            "name": "Giao diện"
+          },
+          "value": "Tự động theo giờ"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "select holds the choice",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            },
+            "value": "system"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "reload",
+          "intent": "reload the page"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings again",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "choice survived reload",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            },
+            "value": "system"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Settings offer Auto, Day and Evening",
+      "tags": [
+        "appearance",
+        "a11y"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open settings",
+          "target": {
+            "by": "testid",
+            "name": "settings-summary"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "appearance select present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "label",
+              "name": "Giao diện"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

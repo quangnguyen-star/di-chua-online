@@ -1,5 +1,5 @@
 {
-  "_about": "Narrow-screen layout: 360px overflow via browser_probe.sh, plus a phone-device smoke.",
+  "_about": "Narrow-screen layout across every place, via browser_probe.sh overflow.",
   "schema_version": "1.1.0",
   "run_id": "temple-layout",
   "config": {
@@ -16,7 +16,7 @@
   },
   "scenarios": [
     {
-      "name": "360px: no horizontal scroll on home",
+      "name": "360px: no horizontal scroll on /",
       "tags": [
         "layout",
         "responsive"
@@ -26,7 +26,7 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure scrollWidth - clientWidth at 360px on /",
+          "intent": "measure overflow on /",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
@@ -40,7 +40,7 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "page is not wider than the viewport",
+          "intent": "not wider than viewport",
           "expected": {
             "kind": "capture_equals",
             "capture_name": "over",
@@ -51,30 +51,17 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on visit (every step)",
+      "name": "360px: no horizontal scroll on /visit",
       "tags": [
         "layout",
         "responsive"
       ],
-      "setup": [
-        {
-          "kind": "action",
-          "op": "api",
-          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
-          "method": "GET",
-          "api_path": "/api/visit-snapshot",
-          "capture": {
-            "b_title": "$.breathing.title",
-            "b_body": "$.breathing.body",
-            "r_text": "$.reflection.text"
-          }
-        }
-      ],
+      "setup": [],
       "steps": [
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure scrollWidth - clientWidth at 360px on /visit",
+          "intent": "measure overflow on /visit",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
@@ -88,7 +75,7 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "page is not wider than the viewport",
+          "intent": "not wider than viewport",
           "expected": {
             "kind": "capture_equals",
             "capture_name": "over",
@@ -99,7 +86,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on library",
+      "name": "360px: no horizontal scroll on /practices",
       "tags": [
         "layout",
         "responsive"
@@ -109,7 +96,7 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure scrollWidth - clientWidth at 360px on /practices",
+          "intent": "measure overflow on /practices",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
@@ -123,7 +110,7 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "page is not wider than the viewport",
+          "intent": "not wider than viewport",
           "expected": {
             "kind": "capture_equals",
             "capture_name": "over",
@@ -134,77 +121,245 @@
       "teardown": []
     },
     {
-      "name": "Phone: home primary actions reachable",
+      "name": "360px: no horizontal scroll on /places/hall",
       "tags": [
         "layout",
-        "phone"
+        "responsive"
       ],
-      "setup": [
-        {
-          "kind": "action",
-          "op": "api",
-          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
-          "method": "GET",
-          "api_path": "/api/visit-snapshot",
-          "capture": {
-            "b_title": "$.breathing.title",
-            "b_body": "$.breathing.body",
-            "r_text": "$.reflection.text"
-          }
-        }
-      ],
+      "setup": [],
       "steps": [
         {
           "kind": "action",
-          "op": "navigate",
-          "intent": "open /",
-          "url": "/"
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "visit action visible",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "home-visit"
-            }
+          "op": "shell",
+          "intent": "measure overflow on /places/hall",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/places/hall"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "explore action visible",
+          "intent": "not wider than viewport",
           "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "home-explore"
-            }
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
           }
-        },
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on /places/courtyard/sweeping",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
         {
           "kind": "action",
-          "op": "click",
-          "intent": "start from the phone home",
-          "target": {
-            "by": "testid",
-            "name": "home-visit"
+          "op": "shell",
+          "intent": "measure overflow on /places/courtyard/sweeping",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/places/courtyard/sweeping"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "visit begins",
+          "intent": "not wider than viewport",
           "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "role",
-              "role": "heading",
-              "name": "Đến chùa",
-              "exact": true
-            }
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on /places/pond/lantern",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow on /places/pond/lantern",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/places/pond/lantern"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on /places/veranda",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow on /places/veranda",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/places/veranda"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on /places/word",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow on /places/word",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/places/word"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on /about",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow on /about",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/about"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on /privacy",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure overflow on /privacy",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/privacy"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not wider than viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
           }
         }
       ],
