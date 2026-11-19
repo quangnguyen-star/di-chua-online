@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
+import { Smoke } from "@/components/temple/smoke";
 import { SceneStage } from "@/components/temple/stage";
+import StageZones from "@/components/visit/StageZones";
 import type { Embed } from "@/lib/visit/embed";
 import type { PracticeKind } from "../labels";
 import styles from "./TeaPreparation.module.css";
@@ -16,7 +18,6 @@ const COUNT_AT = 0.7;
 const LIFT_HOLD_MS = 1200;
 const CUP_TOP = 126;
 const CUP_BOTTOM = 178;
-const RAIN_RINGS = Array.from({ length: 7 }, (_, i) => i);
 
 type Phase = "pour" | "lift" | "sip" | "done";
 
@@ -193,14 +194,6 @@ export function TeaPreparation({ closingLine, embed }: Props) {
       onPointerCancel={onPointerEnd}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <div className={styles.pond} aria-hidden="true" data-paused={paused} data-testid="tea-pond">
-        {RAIN_RINGS.map((i) => (
-          <span key={i} className={styles.ring} style={{ left: `${8 + i * 13}%`, top: `${20 + ((i * 37) % 60)}%`, animationDelay: `${i * 0.7}s` }} />
-        ))}
-        <span className={styles.lotus} style={{ left: "22%" }} />
-        <span className={styles.lotus} style={{ left: "68%", top: "55%" }} />
-        <span className={styles.leaf} data-paused={paused} />
-      </div>
       <svg className={styles.set} viewBox="0 0 400 220" role="img" aria-label="Ấm trà và chén trà trên khay gỗ" data-testid="tea-set">
         <defs>
           <clipPath id="tea-cup-clip">
@@ -222,31 +215,35 @@ export function TeaPreparation({ closingLine, embed }: Props) {
           <path d="M290 132 Q316 132 312 152 Q308 166 284 162" fill="none" stroke="var(--wood)" strokeWidth="4" strokeLinecap="round" />
         </g>
       </svg>
+      <Smoke lit={!done} intensity={0.45} paused={paused} width={64} height={120} className={styles.steam} />
     </div>
   );
 
   const controls = (
-    <div className={styles.panel}>
+    <StageZones
+      actions={
+        phase === "lift" ? (
+          <button type="button" onClick={lift} data-testid="tea-lift">
+            Nâng chén
+          </button>
+        ) : null
+      }
+    >
       {done ? (
         <p className={styles.closing} role="status" data-testid="tea-closing">
           <em>{closingLine}</em>
         </p>
       ) : (
-        <>
+        <div className={styles.panel}>
           <p className={styles.cue} aria-live="polite" data-testid="tea-cue">
             {CUES[phase]}
           </p>
           <p className={styles.hint} data-testid="tea-hint">
             {HINTS[phase]}
           </p>
-          {phase === "lift" && (
-            <button type="button" className="button" onClick={lift} data-testid="tea-lift">
-              Nâng chén
-            </button>
-          )}
-        </>
+        </div>
       )}
-    </div>
+    </StageZones>
   );
 
   if (embed) {
