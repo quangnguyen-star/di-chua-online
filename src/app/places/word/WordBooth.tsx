@@ -9,6 +9,8 @@ import type { Embed } from "@/lib/visit/embed";
 import { WORD_KEY, parseRecord, pickWord, recordFor } from "./wordPick";
 import type { WordRecord } from "./wordPick";
 import { renderStoryCard } from "./storyCard";
+import StageZones from "@/components/visit/StageZones";
+import { useInstruction } from "@/components/visit/useInstruction";
 import styles from "./word.module.css";
 
 function load(today: string): WordRecord {
@@ -41,6 +43,11 @@ function download(blob: Blob, name: string) {
 }
 
 const POCKET_HOLD_MS = 900;
+const INSTRUCTION_LINES = [
+  "Một chữ đã được chọn cho bạn. Chạm vào tờ giấy đỏ để mở.",
+  "Giữ tờ giấy, hoặc bấm Cất vào túi, để mang chữ theo.",
+  "Chữ đã nằm trong túi bạn. Mang theo nhé.",
+] as const;
 
 /** Stop 6: the day's word arrives as a red paper. Tap to open it, hold (or press the pocket button) to keep it. */
 export default function WordBooth({ embed }: { embed?: Embed } = {}) {
@@ -51,6 +58,7 @@ export default function WordBooth({ embed }: { embed?: Embed } = {}) {
   const [pulled, setPulled] = useState(false);
   const [pocketed, setPocketed] = useState(false);
   const [holding, setHolding] = useState(false);
+  const instruction = useInstruction(INSTRUCTION_LINES);
   const holdTimer = useRef<number | null>(null);
   const tourPaused = embed?.paused ?? false;
 
@@ -75,13 +83,18 @@ export default function WordBooth({ embed }: { embed?: Embed } = {}) {
 
   useEffect(() => cancelHold, [cancelHold]);
 
+  const pocket = () => {
+    setPocketed(true);
+    instruction.advance();
+  };
+
   const startHold = () => {
     if (holdTimer.current !== null || tourPaused) return;
     setHolding(true);
     holdTimer.current = window.setTimeout(() => {
       holdTimer.current = null;
       setHolding(false);
-      setPocketed(true);
+      pocket();
     }, POCKET_HOLD_MS);
   };
 
@@ -90,6 +103,7 @@ export default function WordBooth({ embed }: { embed?: Embed } = {}) {
     const next = { ...rec, revealed: true };
     save(next);
     setRec(next);
+    instruction.advance();
   }
 
   async function exportPng() {
@@ -113,16 +127,20 @@ export default function WordBooth({ embed }: { embed?: Embed } = {}) {
   if (embed) {
     return (
       <div className={styles.fullscreen} data-testid="word-page" data-pulled={pulled} data-pocketed={pocketed}>
-        <div className={`${styles.camera} ${pulled ? styles.pulledBack : ""}`} aria-hidden="true">
-          <div className={styles.path} />
-          <div className={styles.gate} />
-        </div>
         <div className={`${styles.warm} ${pulled ? styles.warmed : ""}`} aria-hidden="true" />
-        <div className={styles.panel}>
-          {!word || !rec ? (
-            <p role="status">Đang chuẩn bị chữ cho bạn…</p>
-          ) : pocketed ? (
-            <p role="status" data-testid="word-pocketed">Chữ đã nằm trong túi bạn. Mang theo nhé.</p>
+        <StageZones
+          instruction={instruction}
+          actions={
+            word && rec && rec.revealed && !pocketed ? (
+              <>
+                <button type="button" className="button" onClick={pocket} data-testid="word-pocket">Cất vào túi</button>
+                <button type="button" className="button button--quiet" onClick={exportPng} data-testid="word-export">Lưu thành ảnh</button>
+              </>
+            ) : null
+          }
+        >
+          {!word || !rec ? null : pocketed ? (
+            <div className={styles.pocketed} data-testid="word-pocketed" />
           ) : rec.revealed ? (
             <>
               <button
@@ -139,18 +157,12 @@ export default function WordBooth({ embed }: { embed?: Embed } = {}) {
                 <span>{word.reflection}</span>
                 <small>{word.credit}</small>
               </button>
-              <div className={styles.actions}>
-                <button type="button" className="button" onClick={() => setPocketed(true)} data-testid="word-pocket">Cất vào túi</button>
-                <button type="button" className="button button--quiet" onClick={exportPng} data-testid="word-export">Lưu thành ảnh</button>
-              </div>
               {error ? <p role="alert">Chưa tạo được ảnh. Bạn thử lại nhé.</p> : null}
             </>
           ) : (
-            <button type="button" className={styles.paper} onClick={reveal} aria-label="Mở chữ" data-testid="word-open">
-              <span>Một chữ đã được chọn cho bạn. Chạm để mở.</span>
-            </button>
+            <button type="button" className={styles.paper} onClick={reveal} aria-label="Mở chữ" data-testid="word-open" />
           )}
-        </div>
+        </StageZones>
       </div>
     );
   }
