@@ -10,7 +10,8 @@
   position: absolute; left: 50%; top: 14%; width: 16%; height: 46%; transform: translateX(-50%);
   border-radius: 50% 50% 18% 18% / 34% 34% 10% 10%; background: linear-gradient(to bottom, #e8c15a, #a87b22); opacity: 0.85; box-shadow: 0 0 2rem rgba(255, 200, 90, 0.4);
 }
-.smoke { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.smoke { position: absolute; left: 50%; width: 64px; height: 120px; margin-left: calc(0.7rem - 32px); pointer-events: none; transition: bottom 400ms linear; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .lamp {
   position: absolute; left: 18%; bottom: 24%; width: 3.4rem; height: 2.4rem; border: 0; padding: 0; cursor: pointer;
   border-radius: 0 0 50% 50%; background: #6a3b1c; touch-action: none;
@@ -44,10 +45,7 @@
 }
 .emberDim { background: #d0431a; box-shadow: 0 0 0.4rem 0.1rem rgba(255, 90, 30, 0.6); }
 .vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 55%, transparent 40%, rgba(0, 0, 0, 0.7)); }
-.panel { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.75rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
-.panel > * { pointer-events: auto; }
 .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-.hint { margin: 0; text-align: center; color: var(--muted, #d8cbb5); }
 @keyframes flicker { from { transform: scale(1, 0.92); } to { transform: scale(0.9, 1.08); } }
 @media (prefers-reduced-motion: reduce) {
   .camera, .stick { transition: none; }

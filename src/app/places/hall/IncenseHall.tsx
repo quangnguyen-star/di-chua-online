@@ -8,14 +8,13 @@ import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import { useActivity } from "@/lib/activity/useActivity";
 import type { Embed } from "@/lib/visit/embed";
 import { DEFAULT_STICK, FLICK_SPEED, LIGHT_HOLD_MS, burnProgress, incenseActivity, markSpent, phaseLabels, readSpent } from "./incense";
+import { Smoke } from "@/components/temple/smoke";
+import StageZones from "@/components/visit/StageZones";
+import { useInstruction } from "@/components/visit/useInstruction";
 import styles from "./hall.module.css";
 
-const SMOKE_CAP = 70;
-const PUSH_RADIUS = 90;
 const PLACED_STICKS = [18, 30, 42, 58, 70, 82];
 const STICK_FULL = 5.2;
-
-type Puff = { x: number; y: number; vx: number; vy: number; life: number };
 
 const prefersReduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -32,10 +31,8 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
   const frozenByTour = useRef(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const smokeRef = useRef<HTMLCanvasElement>(null);
   const pointer = useRef({ x: -999, y: -999, t: 0, seen: false });
   const holdTimer = useRef<number | null>(null);
-  const puffs = useRef<Puff[]>([]);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
 
@@ -128,67 +125,11 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
   const length = phase === "placed" ? 1.6 : lit || phase === "extinguished" || phase === "pulled" ? STICK_FULL * (1 - progress) + 1.2 : STICK_FULL;
   const ember = lit || phase === "extinguished";
 
+  const instruction = useInstruction([phase === "ready" && spentBefore ? `${phaseLabels.ready} Một nén hương đã được đặt ở đây trước đó.` : phaseLabels[phase]]);
+  const replayInstruction = instruction.replay;
   useEffect(() => {
-    const canvas = smokeRef.current;
-    if (!canvas || !running || reduced) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = Math.min(now - last, 50) / 16;
-      last = now;
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-      }
-      const tip = rootRef.current?.querySelector<HTMLElement>("[data-testid=hall-ember]")?.getBoundingClientRect();
-      const box = canvas.getBoundingClientRect();
-      const burning = phaseRef.current === "burning";
-      const source = burning && tip ? { x: tip.left - box.left, y: tip.top - box.top } : { x: w * 0.5, y: h * 0.7 };
-      if (puffs.current.length < SMOKE_CAP && Math.random() < (burning ? 0.8 : 0.35)) {
-        puffs.current.push({ x: source.x + (Math.random() - 0.5) * 8, y: source.y, vx: (Math.random() - 0.5) * 0.3, vy: -0.5 - Math.random() * 0.4, life: 1 });
-      }
-      ctx.clearRect(0, 0, w, h);
-      const p = pointer.current;
-      puffs.current = puffs.current.filter((s) => {
-        const dx = s.x - p.x;
-        const dy = s.y - p.y;
-        const d = Math.hypot(dx, dy);
-        if (p.seen && d < PUSH_RADIUS && d > 0) {
-          const push = (1 - d / PUSH_RADIUS) * 0.6;
-          s.vx += (dx / d) * push;
-          s.vy += (dy / d) * push * 0.4;
-        }
-        s.vx = s.vx * 0.97 + Math.sin(now / 700 + s.y / 40) * 0.01;
-        s.x += s.vx * dt;
-        s.y += s.vy * dt;
-        s.life -= 0.006 * dt;
-        if (s.life <= 0) return false;
-        ctx.fillStyle = `rgba(230, 225, 215, ${0.22 * s.life})`;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, 4 + (1 - s.life) * 10, 0, Math.PI * 2);
-        ctx.fill();
-        return true;
-      });
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [running, reduced]);
-
-  const hint =
-    phase === "ready"
-      ? "Chạm vào nén hương có viền sáng để rút ra."
-      : phase === "pulled"
-        ? "Giữ nén hương bên ngọn đèn khoảng hai giây."
-        : lit
-          ? "Phẩy nhanh qua ngọn lửa để tắt, tàn hương vẫn đỏ."
-          : phase === "placed"
-            ? "Nén hương đã nằm trong lư."
-            : "Chạm vào lư để đặt nén hương xuống.";
+    replayInstruction();
+  }, [phase, replayInstruction]);
 
   const body = (
     <div
@@ -206,7 +147,9 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
           <span className={styles.halo} />
           <span className={styles.buddha} data-testid="hall-buddha" />
         </div>
-        <canvas ref={smokeRef} className={styles.smoke} aria-hidden="true" data-testid="hall-smoke" />
+        <div className={styles.smoke} style={{ bottom: `calc(8% + 3.2rem + ${length}rem)` }} data-testid="hall-smoke">
+          <Smoke lit={lit} paused={phase === "paused" || !running} intensity={0.6} />
+        </div>
         <button
           type="button"
           className={`${styles.lamp} ${holding ? styles.lampHeld : ""}`}
@@ -253,49 +196,43 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
   );
 
   const controls = (
-    <div className={styles.controls}>
+    <>
       {(phase === "ready" || phase === "pulled") && (
-        <button type="button" className="button" onClick={light} data-testid="incense-light">
+        <button type="button" onClick={light} data-testid="incense-light">
           Thắp nhang
         </button>
       )}
       {lit && (
-        <button type="button" className="button button--quiet" onClick={extinguish} data-testid="incense-extinguish">
+        <button type="button" onClick={extinguish} data-testid="incense-extinguish">
           Tắt lửa
         </button>
       )}
       {(phase === "extinguished" || phase === "spent") && (
-        <button type="button" className="button" onClick={place} data-testid="incense-place">
+        <button type="button" onClick={place} data-testid="incense-place">
           Đặt nhang vào lư
         </button>
       )}
-    </div>
+    </>
   );
 
-  const status = (
-    <>
-      <p className={styles.hint} role="status" data-testid="incense-state">
+  const zones = (
+    <StageZones instruction={instruction} actions={controls}>
+      <span className={styles.srOnly} role="status" data-testid="incense-state">
         {phaseLabels[phase]}
-      </p>
-      <p className={styles.hint} aria-hidden="true" data-testid="incense-hint">
-        {hint}
-      </p>
+      </span>
       {spentBefore && phase === "ready" && (
-        <p className={styles.hint} data-testid="incense-spent-note">
+        <span className={styles.srOnly} data-testid="incense-spent-note">
           Một nén hương đã được đặt ở đây trước đó.
-        </p>
+        </span>
       )}
-    </>
+    </StageZones>
   );
 
   if (embed) {
     return (
       <div className={styles.fullscreen} data-testid="incense-page" data-phase={phase}>
         {body}
-        <div className={styles.panel}>
-          {status}
-          {controls}
-        </div>
+        {zones}
       </div>
     );
   }
@@ -306,9 +243,8 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
       <div className={styles.frame}>
         <SceneStage place="hall" paused={!running} />
         {body}
+        {zones}
       </div>
-      {status}
-      {controls}
       <div className={styles.controls}>
         <Link className="button button--quiet" href="/" data-testid="incense-leave">
           Rời đi
