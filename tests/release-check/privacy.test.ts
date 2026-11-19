@@ -5,10 +5,10 @@ import { test } from "node:test";
 const read = (p: string) => readFileSync(new URL(`../../src/${p}`, import.meta.url), "utf8");
 
 const VISIT_FILES = [
-  "components/visit/VisitFlow.tsx",
-  "components/visit/VisitScene.tsx",
+  "components/visit/VisitShell.tsx",
   "components/visit/VisitErrorBoundary.tsx",
   "app/visit/page.tsx",
+  "lib/visit/deepLink.ts",
   "lib/visit/reducer.ts",
   "lib/visit/useVisit.ts",
 ];

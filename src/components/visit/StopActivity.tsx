@@ -17,7 +17,7 @@ export const embeddedStops = ["courtyard", "hall", "pond", "veranda"] as const;
  * entry mounts fresh: nothing (least of all the lantern thought) is carried from one stop to the next.
  */
 export default function StopActivity({ stopId, seconds, paused }: { stopId: string; seconds: number; paused: boolean }) {
-  const embed: Embed = { seconds, paused };
+  const embed: Embed = { seconds, paused, fullscreen: true };
   switch (stopId) {
     case "courtyard":
       return <Sweeping embed={embed} />;

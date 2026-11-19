@@ -1,18 +1,17 @@
-import VisitFlow from "@/components/visit/VisitFlow";
+import VisitShell from "@/components/visit/VisitShell";
 import VisitErrorBoundary from "@/components/visit/VisitErrorBoundary";
-import StopView from "@/components/visit/StopView";
 import { visitStages } from "@/content";
+import { resolveStart } from "@/lib/visit/deepLink";
 
 export const metadata = { title: "Ghé thăm chùa" };
 
 export default async function VisitPage({ searchParams }: { searchParams: Promise<{ stop?: string | string[] }> }) {
   const { stop } = await searchParams;
-  const stopId = typeof stop === "string" ? stop : undefined;
-  const known = stopId !== undefined && visitStages.some((s) => s.id === stopId);
+  const { single, index } = resolveStart(stop, visitStages);
 
   return (
     <VisitErrorBoundary>
-      {known ? <StopView stopId={stopId} /> : <VisitFlow />}
+      <VisitShell key={`${single ? "one" : "tour"}-${index}`} single={single} startIndex={index} />
     </VisitErrorBoundary>
   );
 }

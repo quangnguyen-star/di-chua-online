@@ -1,81 +1,82 @@
 export type Stage = { id: string; label: string; seconds: number; prompt: string };
 
+export type Phase = "running" | "paused" | "complete";
+/** idle: not due yet; shown: the gentle prompt; faded: the faint arrow; done: dismissed for this stop. */
+export type Nudge = "idle" | "shown" | "faded" | "done";
+
 export type VisitState = {
-  phase: "ready" | "running" | "paused" | "complete";
+  phase: Phase;
   stageIndex: number;
-  remainingMs: number;
-  skipped: boolean;
+  /** Active milliseconds spent on this stop; never counts while paused or hidden. */
+  activeMs: number;
+  /** Set once when activeMs reaches the stop's length; never advances the stage by itself. */
+  due: boolean;
+  nudge: Nudge;
 };
 
-export type Action = "begin" | "tick" | "pause" | "resume" | "skip" | "exit" | "hidden";
+export type Action =
+  | { type: "begin"; index: number }
+  | { type: "tick"; dt: number }
+  | { type: "pause" }
+  | { type: "resume" }
+  | { type: "next" }
+  | { type: "prev" }
+  | { type: "stay" }
+  | { type: "exit" }
+  | { type: "hidden" };
 
-/** The public state plus the clock reading the running stretch started at (null unless running). */
-export type EngineState = VisitState & { anchor: number | null };
+/** How long the nudge stays full-size after it appears before it shrinks to a faint arrow. */
+export const NUDGE_SHOWN_MS = 8000;
 
-export type Clock = () => number;
+const fresh = (stageIndex: number, phase: Phase = "running"): VisitState => ({
+  phase,
+  stageIndex,
+  activeMs: 0,
+  due: false,
+  nudge: "idle",
+});
 
-export const initialState: EngineState = {
-  phase: "ready",
-  stageIndex: 0,
-  remainingMs: 0,
-  skipped: false,
-  anchor: null,
-};
+export const initialState: VisitState = fresh(0);
 
-const stageMs = (stages: readonly Stage[], index: number) =>
-  Math.max(0, stages[index].seconds) * 1000;
-
-function enter(stages: readonly Stage[], state: EngineState, index: number, now: number): EngineState {
-  if (index >= stages.length) {
-    return { ...state, phase: "complete", stageIndex: stages.length - 1, remainingMs: 0, anchor: null };
-  }
-  const running = state.phase === "running";
-  return {
-    ...state,
-    stageIndex: index,
-    remainingMs: stageMs(stages, index),
-    anchor: running ? now : null,
-  };
-}
-
-/** Bank the active time elapsed since the anchor into remainingMs. */
-function settle(state: EngineState, now: number): EngineState {
-  if (state.phase !== "running" || state.anchor === null) return state;
-  const elapsed = Math.max(0, now - state.anchor);
-  return { ...state, remainingMs: Math.max(0, state.remainingMs - elapsed), anchor: now };
-}
-
-export function reduce(
-  stages: readonly Stage[],
-  state: EngineState,
-  action: Action,
-  now: number,
-): EngineState {
-  switch (action) {
+export function reduce(stages: readonly Stage[], state: VisitState, action: Action): VisitState {
+  switch (action.type) {
     case "begin": {
-      if (state.phase !== "ready") return state;
-      if (stages.length === 0) return { ...state, phase: "complete" };
-      return enter(stages, { ...state, phase: "running", skipped: false }, 0, now);
+      const index = Math.trunc(action.index);
+      if (!(index >= 0 && index < stages.length)) return { ...state, phase: "complete" };
+      return fresh(index);
     }
     case "tick": {
-      const next = settle(state, now);
-      if (next.phase !== "running" || next.remainingMs > 0) return next;
-      return enter(stages, next, next.stageIndex + 1, now);
+      if (state.phase !== "running") return state;
+      const stage = stages[state.stageIndex];
+      if (!stage) return state;
+      const activeMs = state.activeMs + Math.max(0, action.dt);
+      const dueAt = Math.max(0, stage.seconds) * 1000;
+      let { due, nudge } = state;
+      if (!due && activeMs >= dueAt) {
+        due = true;
+        nudge = "shown";
+      }
+      if (nudge === "shown" && activeMs >= dueAt + NUDGE_SHOWN_MS) nudge = "faded";
+      return { ...state, activeMs, due, nudge };
     }
     case "pause":
-    case "hidden": {
-      if (state.phase !== "running") return state;
-      return { ...settle(state, now), phase: "paused", anchor: null };
-    }
-    case "resume": {
-      if (state.phase !== "paused") return state;
-      return { ...state, phase: "running", anchor: now };
-    }
-    case "skip": {
-      if (state.phase !== "running" && state.phase !== "paused") return state;
-      return enter(stages, { ...state, skipped: true }, state.stageIndex + 1, now);
+    case "hidden":
+      return state.phase === "running" ? { ...state, phase: "paused" } : state;
+    case "resume":
+      return state.phase === "paused" ? { ...state, phase: "running" } : state;
+    case "next":
+      if (state.phase === "complete") return state;
+      if (state.stageIndex + 1 >= stages.length) return { ...state, phase: "complete", nudge: "done" };
+      return fresh(state.stageIndex + 1, state.phase);
+    case "prev":
+      if (state.phase === "complete" || state.stageIndex === 0) return state;
+      return fresh(state.stageIndex - 1, state.phase);
+    case "stay": {
+      if (state.nudge === "shown") return { ...state, nudge: "faded" };
+      if (state.nudge === "faded") return { ...state, nudge: "done" };
+      return state;
     }
     case "exit":
-      return initialState;
+      return { ...state, phase: "complete", nudge: "done" };
   }
 }

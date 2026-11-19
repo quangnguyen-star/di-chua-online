@@ -1,59 +1,63 @@
 "use client";
 
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import { initialState, reduce, type Action, type Clock, type Stage, type VisitState } from "./reducer.ts";
+import { reduce, type Action, type Stage, type VisitState } from "./reducer.ts";
 
 const TICK_MS = 250;
+/** A throttled background timer can report a huge gap; no single tick may count more than this. */
+const MAX_DT_MS = 1000;
 
-type Options = { clock?: Clock; onComplete?: () => void };
+type Options = { startIndex?: number; untimed?: boolean; clock?: () => number };
 
 export function useVisit(stages: readonly Stage[], options: Options = {}) {
-  const clock = options.clock ?? Date.now;
-  const clockRef = useRef(clock);
+  const { startIndex = 0, untimed = false } = options;
+  const clockRef = useRef(options.clock ?? Date.now);
+  clockRef.current = options.clock ?? Date.now;
   const stagesRef = useRef(stages);
-  const onCompleteRef = useRef(options.onComplete);
-  clockRef.current = clock;
   stagesRef.current = stages;
-  onCompleteRef.current = options.onComplete;
+  const hiddenPause = useRef(false);
 
-  const [engine, dispatch] = useReducer(
-    (s: typeof initialState, a: Action) => reduce(stagesRef.current, s, a, clockRef.current()),
-    initialState,
+  const [state, dispatch] = useReducer(
+    (s: VisitState, a: Action) => reduce(stagesRef.current, s, a),
+    startIndex,
+    (index): VisitState => reduce(stagesRef.current, { phase: "running", stageIndex: 0, activeMs: 0, due: false, nudge: "idle" }, { type: "begin", index }),
   );
 
-  const send = useCallback((a: Action) => dispatch(a), []);
-
+  const { phase } = state;
   useEffect(() => {
-    if (engine.phase !== "running") return;
-    const id = setInterval(() => send("tick"), TICK_MS);
+    if (phase !== "running" || untimed) return;
+    let last = clockRef.current();
+    const id = setInterval(() => {
+      const now = clockRef.current();
+      const dt = Math.min(MAX_DT_MS, Math.max(0, now - last));
+      last = now;
+      dispatch({ type: "tick", dt });
+    }, TICK_MS);
     return () => clearInterval(id);
-  }, [engine.phase, send]);
+  }, [phase, untimed]);
 
   useEffect(() => {
     const onVisibility = () => {
-      if (document.hidden) send("hidden");
+      if (document.hidden) {
+        hiddenPause.current = true;
+        dispatch({ type: "hidden" });
+      } else if (hiddenPause.current) {
+        hiddenPause.current = false;
+        dispatch({ type: "resume" });
+      }
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [send]);
-
-  useEffect(() => {
-    if (engine.phase === "complete") onCompleteRef.current?.();
-  }, [engine.phase]);
-
-  const state: VisitState = {
-    phase: engine.phase,
-    stageIndex: engine.stageIndex,
-    remainingMs: engine.remainingMs,
-    skipped: engine.skipped,
-  };
+  }, []);
 
   return {
     state,
-    begin: useCallback(() => send("begin"), [send]),
-    pause: useCallback(() => send("pause"), [send]),
-    resume: useCallback(() => send("resume"), [send]),
-    skip: useCallback(() => send("skip"), [send]),
-    exit: useCallback(() => send("exit"), [send]),
+    begin: useCallback((index: number) => dispatch({ type: "begin", index }), []),
+    pause: useCallback(() => dispatch({ type: "pause" }), []),
+    resume: useCallback(() => dispatch({ type: "resume" }), []),
+    next: useCallback(() => dispatch({ type: "next" }), []),
+    prev: useCallback(() => dispatch({ type: "prev" }), []),
+    stay: useCallback(() => dispatch({ type: "stay" }), []),
+    exit: useCallback(() => dispatch({ type: "exit" }), []),
   };
 }
