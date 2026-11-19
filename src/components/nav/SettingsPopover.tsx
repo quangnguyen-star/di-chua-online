@@ -17,28 +17,6 @@ export function SettingsPopover() {
       <summary>Tuỳ chỉnh</summary>
       <div className={styles.panel}>
         <label>
-          Tiếng nền
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={a.ambience}
-            onChange={(e) => a.setAmbience(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Nhạc
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={a.music}
-            onChange={(e) => a.setMusic(Number(e.target.value))}
-          />
-        </label>
-        <label>
           Giao diện
           <select value={a.appearance} onChange={(e) => a.setAppearance(e.target.value as Appearance)}>
             {appearances.map((o) => (

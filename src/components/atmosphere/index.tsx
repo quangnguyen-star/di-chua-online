@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { mixer } from "../../lib/audio/mixer.ts";
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { mixer, type MixerStatus } from "../../lib/audio/mixer.ts";
 import {
   audioReducer,
   canPlay,
@@ -22,12 +22,18 @@ export interface Atmosphere {
   music: number;
   setAmbience(n: number): void;
   setMusic(n: number): void;
+  cues: number;
+  setCues(n: number): void;
+  /** Live mixer/AudioContext state, refreshed while sound is on. */
+  status: MixerStatus;
   scene(s: Scene): void;
   cue(c: Cue): void;
   failed: boolean;
   appearance: Appearance;
   setAppearance(a: Appearance): void;
 }
+
+const idleStatus: MixerStatus = { enabled: false, contextState: "none", assetFailed: false, blocked: false };
 
 const silent: Atmosphere = {
   soundOn: false,
@@ -37,6 +43,9 @@ const silent: Atmosphere = {
   music: initialAudioState.music,
   setAmbience() {},
   setMusic() {},
+  cues: 0.75,
+  setCues() {},
+  status: idleStatus,
   scene() {},
   cue() {},
   failed: false,
@@ -54,13 +63,25 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
   const [state, dispatch] = useReducer(audioReducer, initialAudioState);
   const latest = useRef(state);
   const lastScene = useRef<Scene>("gate");
+  const [cues, setCues] = useState(0.75);
+  const [status, setStatus] = useState<MixerStatus>(idleStatus);
+  const refreshStatus = useCallback(() => setStatus(mixer.status), []);
 
   useEffect(() => {
     latest.current = state;
     mixer.setBus("ambience", state.ambience);
     mixer.setBus("music", state.music);
-    mixer.setBus("cues", 0.5 + 0.5 * state.ambience);
   }, [state]);
+
+  useEffect(() => {
+    mixer.setBus("cues", cues);
+  }, [cues]);
+
+  useEffect(() => {
+    if (!state.soundOn) return;
+    const id = window.setInterval(refreshStatus, 1000);
+    return () => window.clearInterval(id);
+  }, [state.soundOn, refreshStatus]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -70,16 +91,17 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
 
   const disable = useCallback(() => {
     dispatch({ type: "disable" });
-    void mixer.disable();
-  }, []);
+    void mixer.disable().finally(refreshStatus);
+  }, [refreshStatus]);
 
   const enable = useCallback(() => {
     mixer.setScene(lastScene.current);
     mixer
       .enable()
       .then(() => dispatch({ type: "enable" }))
-      .catch(() => dispatch({ type: "fail" }));
-  }, []);
+      .catch(() => dispatch({ type: "fail" }))
+      .finally(refreshStatus);
+  }, [refreshStatus]);
 
   useEffect(() => {
     const onVisibility = () => {
@@ -110,13 +132,16 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
       music: state.music,
       setAmbience: (n) => dispatch({ type: "ambience", value: n }),
       setMusic: (n) => dispatch({ type: "music", value: n }),
+      cues,
+      setCues,
+      status,
       scene,
       cue,
       failed: state.failed,
       appearance: state.appearance,
       setAppearance: (a) => dispatch({ type: "appearance", value: a }),
     }),
-    [state, enable, disable, scene, cue],
+    [state, cues, status, enable, disable, scene, cue],
   );
 
   return <AtmosphereContext.Provider value={value}>{children}</AtmosphereContext.Provider>;
