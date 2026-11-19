@@ -33,6 +33,11 @@ export default function AboutPage() {
           Hình minh hoạ do đội ngũ Đi Chùa Online thực hiện. Trang không dùng âm thanh hay hình ảnh của
           bên thứ ba.
         </p>
+        <p>
+          Âm thanh (tiếng chuông, gió, mưa, tiếng nước) do chính trang tạo ra ngay trên thiết bị của bạn,
+          không dùng bản ghi âm nào từ bên ngoài. Âm thanh là tuỳ chọn và luôn tắt theo mặc định; bạn chỉ
+          nghe khi tự bật.
+        </p>
       </section>
       <section data-testid="about-donation">
         <h2>Không quyên góp</h2>
