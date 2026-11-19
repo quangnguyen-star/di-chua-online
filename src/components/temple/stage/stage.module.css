@@ -1,0 +1,12 @@
+.stage { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--lq-den-then); isolation: isolate; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; }
+.fallback { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.lanternGlow { animation: breathe 5s ease-in-out infinite; }
+.glint { animation: shimmer 6s ease-in-out infinite; }
+
+@keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+@keyframes shimmer { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lanternGlow, .glint { animation: none; }
+}

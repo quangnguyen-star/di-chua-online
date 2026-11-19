@@ -54,3 +54,19 @@ export const artNightPairs: ReadonlyArray<readonly [name: string, fg: string, bg
   ["art text on mist", "#efe6d6", "#5b5266"],
   ["art control text on control", "#2b1f12", "#eeaa9a"],
 ];
+
+/** Lacquer stage text and control pairs; mirrors the --lq-* tokens in src/styles/tokens.css. */
+export const lacquerPairs: ReadonlyArray<readonly [name: string, fg: string, bg: string]> = [
+  ["lacquer text on đen then", "#f4e6c4", "#0b0706"],
+  ["lacquer text on đen then deep", "#f4e6c4", "#22140c"],
+  ["lacquer text on nâu cánh gián", "#f4e6c4", "#3b1610"],
+  ["lacquer muted on đen then", "#cdb98f", "#0b0706"],
+  ["lacquer muted on đen then deep", "#cdb98f", "#22140c"],
+  ["lacquer gold on đen then", "#e2b65a", "#0b0706"],
+  ["lacquer gold on đen then deep", "#e2b65a", "#22140c"],
+  ["lacquer silver on đen then", "#d8d5cf", "#0b0706"],
+  ["lacquer moss on đen then", "#a3bf8e", "#0b0706"],
+  ["lacquer moss on đen then deep", "#a3bf8e", "#22140c"],
+  ["lacquer text on water", "#f4e6c4", "#120b08"],
+  ["lacquer control text on control", "#1a0f08", "#d4a548"],
+];

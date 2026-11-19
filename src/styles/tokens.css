@@ -99,3 +99,54 @@
   --art-control-bg: #7a2e22;
   --art-control-text: #fbf7ee;
 }
+
+/* Lacquer (sơn mài) tokens for the temple stage (src/components/temple/stage). Lacquer is always dark and warm,
+   independent of the site theme. Keep the derived pairs in src/components/theme/contrast.ts (lacquerPairs) in step. */
+:root {
+  --lq-den-then: #0b0706;
+  --lq-den-then-deep: #22140c;
+  --lq-do-son: #b8261a;
+  --lq-do-son-deep: #7e1a12;
+  --lq-nau-canh-gian: #6e1d12;
+  --lq-nau-canh-gian-deep: #3b1610;
+  --lq-vang-quy: #d4a548;
+  --lq-vang-quy-light: #f4d98c;
+  --lq-vang-quy-deep: #9c6f22;
+  --lq-bac: #c9c6c0;
+  --lq-xanh-reu: #5f7a4a;
+  --lq-bank: #100a07;
+  --lq-water-top: #120b08;
+  --lq-water-bottom: #060403;
+  --lq-text: #f4e6c4;
+  --lq-text-muted: #cdb98f;
+  --lq-text-gold: #e2b65a;
+  --lq-text-silver: #d8d5cf;
+  --lq-text-moss: #a3bf8e;
+  --lq-control-bg: #d4a548;
+  --lq-control-text: #1a0f08;
+  --lq-crackle-opacity: 0.06;
+  --lq-paper-opacity: 0.1;
+}
+
+/* Overlays: a washi-paper grain and the egg-shell crackle (vân rạn trứng) drawn as fine gold hairlines. */
+.lq-paper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("/art/paper.svg");
+  background-size: 256px 256px;
+  opacity: var(--lq-paper-opacity);
+  mix-blend-mode: screen;
+}
+
+.lq-crackle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--lq-crackle-opacity);
+  background-image:
+    linear-gradient(97deg, transparent 49.6%, var(--lq-vang-quy) 49.8%, transparent 50.2%),
+    linear-gradient(63deg, transparent 49.6%, var(--lq-vang-quy) 49.8%, transparent 50.2%),
+    linear-gradient(141deg, transparent 49.7%, var(--lq-vang-quy-light) 49.85%, transparent 50.1%);
+  background-size: 83px 61px, 47px 71px, 109px 53px;
+}
