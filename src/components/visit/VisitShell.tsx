@@ -9,10 +9,12 @@ import { SceneStage } from "@/components/temple/stage";
 import { useVisit } from "@/lib/visit/useVisit";
 import { VisitFailure } from "./VisitErrorBoundary";
 import StopActivity, { embeddedStops } from "./StopActivity";
+import { UNMOUNT_AFTER_MS } from "./crossfade";
+import { StageHandleProvider, type StageHandle } from "./StageZones";
 import styles from "./visit.module.css";
 
 const HUD_IDLE_MS = 3000;
-const CROSSFADE_MS = 1800;
+const SUBTITLE_MS = 6000;
 const SWIPE_MIN_PX = 70;
 const verandaIndex = visitStages.findIndex((s) => s.id === "veranda");
 
@@ -47,6 +49,9 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
   const [fullscreen, setFullscreen] = useState(false);
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [fadingOut, setFadingOut] = useState<number | null>(null);
+  const [subtitleOn, setSubtitleOn] = useState(true);
+  const [stageHandle, setStageHandle] = useState<StageHandle | null>(null);
+  const inputSeen = useRef(false);
   const { state, begin, next, prev, stay, exit } = useVisit(visitStages, { startIndex, untimed });
   const { phase, stageIndex, activeMs, due, nudge } = state;
   const stage = visitStages[stageIndex];
@@ -87,9 +92,18 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
     if (lastIndex.current !== stageIndex) {
       setFadingOut(lastIndex.current);
       lastIndex.current = stageIndex;
-      const id = setTimeout(() => setFadingOut(null), CROSSFADE_MS);
+      const id = setTimeout(() => setFadingOut(null), UNMOUNT_AFTER_MS);
       return () => clearTimeout(id);
     }
+  }, [stageIndex]);
+
+  // The stop subtitle shows ~6s on entry, then fades; once the visitor has acted it stays hidden.
+  useEffect(() => {
+    setStageHandle(null);
+    setSubtitleOn(!inputSeen.current);
+    if (inputSeen.current) return;
+    const id = setTimeout(() => setSubtitleOn(false), SUBTITLE_MS);
+    return () => clearTimeout(id);
   }, [stageIndex]);
 
   // Every stop change returns to the top and moves focus to the stop heading.
@@ -152,6 +166,8 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      inputSeen.current = true;
+      setSubtitleOn(false);
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === "Escape") {
         leave();
@@ -179,6 +195,8 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
 
   const onPointerDown = (e: React.PointerEvent) => {
     poke();
+    inputSeen.current = true;
+    setSubtitleOn(false);
     swipeStart.current = canNavigate && !claimsArrows && !isEditable(e.target) ? { x: e.clientX, y: e.clientY } : null;
   };
   const onPointerUp = (e: React.PointerEvent) => {
@@ -220,12 +238,14 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
         <SceneStage place={stage.id} paused={frozen} />
         {embedded && (
           <div className={styles.activity} data-testid="visit-activity" data-stop={stage.id}>
-            <StopActivity key={stage.id} stopId={stage.id} seconds={stage.config.seconds} paused={frozen} onNext={advance} />
+            <StageHandleProvider value={{ handle: stageHandle, onHandle: setStageHandle }}>
+              <StopActivity key={stage.id} stopId={stage.id} seconds={stage.config.seconds} paused={frozen} onNext={advance} />
+            </StageHandleProvider>
           </div>
         )}
       </div>
 
-      <div className={styles.subtitle}>
+      <div className={styles.subtitle} data-visible={subtitleOn && !showNudge} data-testid="visit-subtitle-band">
         <p aria-live="polite" data-testid="visit-subtitle">
           {stage.prompt}
         </p>
