@@ -1,6 +1,8 @@
 import styles from "./stage.module.css";
+import type { PlaceId } from "../../../content/routes.ts";
 import { HORIZON_Y, WORLD_H, WORLD_W } from "./art.ts";
 import { palettes, type LightingPalette } from "./lighting.ts";
+import { SCENES } from "./scenes/registry.ts";
 import type { StageLighting } from "./types.ts";
 
 const MOUNTAINS_FAR = `M0 ${HORIZON_Y} L0 300 Q120 230 240 290 T480 270 T720 292 T960 262 V${HORIZON_Y} Z`;
@@ -24,7 +26,53 @@ function Roof({ cx, y, w }: { cx: number; y: number; w: number }) {
 }
 
 /** Finished still frame in the same lacquer look; used without WebGL, for reduced motion and as the server render. */
-export function StaticScene({ lighting, ram, p = palettes[lighting] }: { lighting: StageLighting; ram: boolean; p?: LightingPalette }) {
+export function StaticScene({ place, lighting, ram, p = palettes[lighting] }: { place: PlaceId; lighting: StageLighting; ram: boolean; p?: LightingPalette }) {
+  const backdrop = SCENES[place].backdrop;
+  if (backdrop) return <BackdropStill lighting={lighting} ram={ram} p={p} horizon={backdrop.horizon} groundTop={backdrop.groundTop} groundBottom={backdrop.groundBottom} edge={backdrop.edge} />;
+  return <PondStill lighting={lighting} ram={ram} p={p} />;
+}
+
+interface StillProps { lighting: StageLighting; ram: boolean; p: LightingPalette }
+
+function BackdropStill({ lighting, ram, p, horizon, groundTop, groundBottom, edge }: StillProps & { horizon: number; groundTop: string; groundBottom: string; edge: string }) {
+  const [moonX, moonY] = p.orb === "moon" ? [700, horizon - 250] : [840, horizon - 280];
+  return (
+    <svg className={styles.fallback} viewBox={`0 0 ${WORLD_W} ${WORLD_H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false" data-testid="stage-static">
+      <defs>
+        <linearGradient id={`sky-${lighting}-${horizon}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={p.skyTop} />
+          <stop offset="1" stopColor={p.skyBottom} />
+        </linearGradient>
+        <linearGradient id={`ground-${horizon}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={groundTop} />
+          <stop offset="1" stopColor={groundBottom} />
+        </linearGradient>
+        <radialGradient id={`halo-${horizon}`}>
+          <stop offset="0" stopColor="#f4d98c" stopOpacity={p.haloAlpha} />
+          <stop offset="1" stopColor="#f4d98c" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width={WORLD_W} height={horizon} fill={`url(#sky-${lighting}-${horizon})`} />
+      {p.orb === "moon" || ram ? (
+        <g>
+          <circle cx={moonX} cy={moonY} r="150" fill={`url(#halo-${horizon})`} />
+          <circle cx={moonX} cy={moonY} r="46" fill="#d4a548" />
+        </g>
+      ) : null}
+      {p.orb === "sun" ? (
+        <g>
+          <circle cx="700" cy={horizon - 200} r="130" fill={`url(#halo-${horizon})`} />
+          <circle cx="700" cy={horizon - 200} r="38" fill="#d4a548" />
+        </g>
+      ) : null}
+      <rect y={horizon - 120} width={WORLD_W} height="120" fill="#fbf0d8" opacity={p.mist * 0.3} />
+      <rect y={horizon} width={WORLD_W} height={WORLD_H - horizon} fill={`url(#ground-${horizon})`} />
+      <rect y={horizon} width={WORLD_W} height="3" fill={edge} opacity=".8" />
+    </svg>
+  );
+}
+
+function PondStill({ lighting, ram, p }: StillProps) {
   const lanterns = LANTERN_SLOTS.slice(0, p.lanterns + (ram ? 6 : 0));
   const [moonX, moonY] = p.orb === "moon" ? [700, 120] : [840, 90];
   const showMoon = p.orb === "moon" || ram;

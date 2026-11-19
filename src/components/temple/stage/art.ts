@@ -25,9 +25,9 @@ export function rng(seed: number): () => number {
   };
 }
 
-export function bakeSky(p: LightingPalette): HTMLCanvasElement {
-  const [el, c] = canvas(WORLD_W, HORIZON_Y + 4);
-  const g = c.createLinearGradient(0, 0, 0, HORIZON_Y);
+export function bakeSky(p: LightingPalette, horizon = HORIZON_Y): HTMLCanvasElement {
+  const [el, c] = canvas(WORLD_W, horizon + 4);
+  const g = c.createLinearGradient(0, 0, 0, horizon);
   g.addColorStop(0, p.skyTop);
   g.addColorStop(1, p.skyBottom);
   c.fillStyle = g;
@@ -65,6 +65,18 @@ export function bakeOrb(kind: "sun" | "moon", haloAlpha: number): HTMLCanvasElem
     c.stroke();
   }
   c.restore();
+  return el;
+}
+
+/** Flat ground from a place's horizon to the bottom edge, shaded top to bottom. */
+export function bakeGround(horizon: number, top: string, bottom: string): HTMLCanvasElement {
+  const h = WORLD_H - horizon;
+  const [el, c] = canvas(WORLD_W, h);
+  const g = c.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, top);
+  g.addColorStop(1, bottom);
+  c.fillStyle = g;
+  c.fillRect(0, 0, WORLD_W, h);
   return el;
 }
 

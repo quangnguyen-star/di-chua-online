@@ -23,12 +23,14 @@ function prefersReducedMotion(): boolean {
 }
 
 /** One lazy Pixi application per stage: layered parallax, capped particles, adaptive DPR, a finished still fallback. */
-export function SceneStage({ place, lighting, paused = false, quality = "auto", reduced }: SceneStageProps) {
+export function SceneStage({ place, lighting, paused = false, quality = "auto", reduced, onHandle }: SceneStageProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<SceneHandle | null>(null);
   const [resolved, setResolved] = useState<{ lighting: StageLighting; ram: boolean } | null>(null);
   const [live, setLive] = useState(false);
   const [motionReduced, setMotionReduced] = useState(reduced ?? false);
+  const onHandleRef = useRef(onHandle);
+  onHandleRef.current = onHandle;
   const running = !paused && !motionReduced;
   const runningRef = useRef(running);
   runningRef.current = running;
@@ -79,18 +81,20 @@ export function SceneStage({ place, lighting, paused = false, quality = "auto", 
         return;
       }
       host.insertBefore(canvas, host.firstChild);
-      const scene = buildScene(pixi, app, canvas, {
+      const scene = buildScene(pixi, app, canvas, place, {
         lighting: resolved.lighting,
         ram: resolved.ram,
         quality: quality === "low" ? "low" : "auto",
         maxDpr: MAX_DPR,
       });
-      const onTap = (e: PointerEvent) => scene.addLantern(e.clientX, e.clientY);
+      const onTap = (e: PointerEvent) => scene.pond?.ripple(e.clientX, e.clientY);
       canvas.addEventListener("pointerdown", onTap);
       sceneRef.current = scene;
       scene.setRunning(runningRef.current);
       setLive(true);
+      onHandleRef.current?.(scene);
       cleanup = () => {
+        onHandleRef.current?.(null);
         canvas.removeEventListener("pointerdown", onTap);
         sceneRef.current = null;
         scene.destroy();
@@ -104,7 +108,7 @@ export function SceneStage({ place, lighting, paused = false, quality = "auto", 
       setLive(false);
       cleanup();
     };
-  }, [quality, resolved?.lighting, resolved?.ram]);
+  }, [place, quality, resolved?.lighting, resolved?.ram]);
 
   useEffect(() => {
     sceneRef.current?.setRunning(running);
@@ -114,7 +118,7 @@ export function SceneStage({ place, lighting, paused = false, quality = "auto", 
 
   return (
     <div ref={hostRef} className={styles.stage} data-testid="scene-stage" data-place={place} data-lighting={shown.lighting} data-ram={shown.ram} data-mode={live ? "webgl" : "static"}>
-      {live ? null : <StaticScene lighting={shown.lighting} ram={shown.ram} />}
+      {live ? null : <StaticScene place={place} lighting={shown.lighting} ram={shown.ram} />}
       <div className="lq-crackle" />
       <div className="lq-paper" />
     </div>

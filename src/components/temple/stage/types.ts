@@ -1,4 +1,5 @@
 import type { PlaceId } from "../../../content/routes.ts";
+import type { SceneHandle } from "./scenes/types.ts";
 
 export type StageLighting = "mist" | "golden" | "moon";
 export type StageQuality = "auto" | "low" | "static";
@@ -14,4 +15,6 @@ export interface SceneStageProps {
   quality?: StageQuality;
   /** Prefers a still frame: no drift, no particles in motion. Defaults to the user's reduced-motion setting. */
   reduced?: boolean;
+  /** Receives the live scene handle once built, and null when it is torn down. */
+  onHandle?: (handle: SceneHandle | null) => void;
 }
