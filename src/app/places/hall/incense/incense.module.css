@@ -1,0 +1,13 @@
+.root { display: flex; flex-direction: column; gap: 1rem; max-width: 36rem; }
+.scene { width: 100%; max-width: 20rem; height: auto; border-radius: var(--radius); background: var(--surface); }
+.censer { fill: var(--wood); }
+.stick { fill: var(--lacquer); }
+.ember { fill: var(--gold); }
+.smoke { fill: none; stroke: var(--wood); stroke-width: 2; stroke-linecap: round; opacity: 0.5; }
+.smokeMoving { stroke-dasharray: 6 6; animation: drift 3s linear infinite; }
+@keyframes drift {
+  to { stroke-dashoffset: -24; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smokeMoving { animation: none; stroke-dasharray: none; }
+}
