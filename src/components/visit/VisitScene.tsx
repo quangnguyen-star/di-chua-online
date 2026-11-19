@@ -78,7 +78,7 @@ function Hall() {
   );
 }
 
-function Return() {
+function Outside() {
   return (
     <>
       <g data-layer="background">
@@ -103,7 +103,50 @@ function Return() {
   );
 }
 
-const scenes = [Gate, Courtyard, Hall, Return];
+function Pond() {
+  return (
+    <>
+      <g data-layer="background">
+        <rect x="0" y="0" width="400" height="240" fill="#2f3a4a" opacity="0.55" />
+        <circle cx="320" cy="50" r="22" fill="#e6c36a" opacity="0.8" />
+        <path d="M0 120 L100 80 L200 120 Z" fill="#3b4636" />
+        <rect x="0" y="120" width="400" height="120" fill="#3d5068" />
+      </g>
+      <g data-layer="focal">
+        <ellipse cx="200" cy="170" rx="38" ry="8" fill="#8b6a4a" />
+        <path d="M170 168 L200 138 L230 168 Z" fill="#e6c36a" />
+      </g>
+      <g data-layer="foreground">
+        <rect x="0" y="214" width="400" height="26" fill="#5a4030" />
+        <path d="M0 0 L0 90 L30 50 L52 0 Z" fill="#4f5740" />
+      </g>
+    </>
+  );
+}
+
+function Veranda() {
+  return (
+    <>
+      <g data-layer="background">
+        <rect x="0" y="0" width="400" height="150" fill="#d8ccaa" opacity="0.5" />
+        <circle cx="70" cy="100" r="40" fill="#6b7255" />
+        <rect x="0" y="150" width="400" height="90" fill="#c9b98f" />
+      </g>
+      <g data-layer="focal">
+        <rect x="150" y="140" width="100" height="10" fill="#5a4030" />
+        <path d="M180 112 L220 112 L214 140 L186 140 Z" fill="#f1e4c4" />
+        <path d="M190 100 Q196 88 190 78" stroke="#b9a982" strokeWidth="3" fill="none" />
+      </g>
+      <g data-layer="foreground">
+        <rect x="0" y="190" width="400" height="50" fill="#8b6a4a" />
+        <rect x="24" y="30" width="14" height="180" fill="#7a2e22" />
+        <rect x="362" y="30" width="14" height="180" fill="#7a2e22" />
+      </g>
+    </>
+  );
+}
+
+const scenes = [Gate, Courtyard, Hall, Pond, Veranda, Outside];
 
 export default function VisitScene({ index, pulse }: { index: number; pulse: number }) {
   const Current = scenes[index] ?? Gate;

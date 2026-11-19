@@ -14,7 +14,14 @@ import styles from "./visit.module.css";
 const totalSeconds = visitStages.reduce((sum, s) => sum + s.seconds, 0);
 const totalMs = totalSeconds * 1000;
 
-const stageScene: Record<string, Scene> = { gate: "gate", courtyard: "courtyard", hall: "hall", return: "outside" };
+const stageScene: Record<string, Scene> = {
+  gate: "gate",
+  courtyard: "courtyard",
+  hall: "hall",
+  pond: "pond",
+  veranda: "veranda",
+  outside: "outside",
+};
 
 /** The one optional continuation, read from the registry's next field on the hall activity. */
 const nextId = activities.find((a) => a.id === "incense")?.next;
@@ -23,10 +30,14 @@ const nextStep = activities.find((a) => a.id === nextId && a.ready);
 export default function VisitFlow() {
   const router = useRouter();
   const { state, begin, pause, resume, skip, exit } = useVisit(visitStages);
+  const [ready, setReady] = useState(false);
   const [pulse, setPulse] = useState(0);
   const lastStage = useRef(-1);
   const rang = useRef({ start: false, end: false });
   const { scene, cue } = useAtmosphere();
+
+  // A private thought is never kept: the tour holds none, and an explicit start begins from nothing.
+  useEffect(() => setReady(true), []);
 
   const { phase, stageIndex, remainingMs, skipped } = state;
   const stage = visitStages[stageIndex];
@@ -83,11 +94,11 @@ export default function VisitFlow() {
       {phase === "ready" && (
         <>
           <p className={styles.prompt}>
-            Một chuyến ghé thăm chùa qua bốn chặng: cổng, sân, chánh điện và trở ra. Không đăng nhập, không âm thanh,
-            không lưu gì.
+            Một chuyến ghé thăm chùa qua sáu chặng, vừa đủ năm phút: cổng, sân, chánh điện, bến sông, hiên chùa và trở ra. Không đăng nhập,
+            âm thanh là tuỳ chọn, không lưu gì.
           </p>
           <div className={styles.controls}>
-            <button type="button" className="button" data-testid="visit-begin" onClick={begin}>
+            <button type="button" className="button" data-testid="visit-begin" onClick={begin} disabled={!ready}>
               Bắt đầu
             </button>
             <button type="button" className="button button--quiet" data-testid="visit-exit" onClick={leave}>
@@ -102,6 +113,9 @@ export default function VisitFlow() {
           <h2 className={styles.label} data-testid="visit-stage">
             {stage.label}
           </h2>
+          <p className="muted" data-testid="visit-stop-count">
+            Chặng {stageIndex + 1}/{visitStages.length} · {stage.config.seconds} giây
+          </p>
           <p className={styles.prompt} data-testid="visit-prompt">
             {stage.prompt}
           </p>
@@ -140,7 +154,7 @@ export default function VisitFlow() {
           <p className={styles.prompt}>
             {skipped
               ? "Bạn đã đi qua chùa theo nhịp của riêng mình. Mang theo sự yên ổn này vào phần còn lại của ngày."
-              : `Bạn đã dành ${Math.round(totalSeconds / 60)} phút ghé thăm chùa. Mang theo sự yên ổn này vào phần còn lại của ngày.`}
+              : `Bạn đã dành đủ ${Math.round(totalSeconds / 60)} phút ghé thăm chùa. Mang theo sự yên ổn này vào phần còn lại của ngày.`}
           </p>
           <progress className={styles.progress} max={100} value={100} aria-label="Tiến trình chuyến ghé thăm" data-testid="visit-progress" />
           {nextStep && (

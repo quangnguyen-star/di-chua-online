@@ -19,7 +19,7 @@ test("daily words include the required set", () => {
 });
 
 test("visit stages sum to 300 seconds", () => {
-  assert.deepEqual(visitStages.map((s) => s.seconds), [30, 60, 180, 30]);
+  assert.deepEqual(visitStages.map((s) => s.seconds), [30, 45, 30, 120, 45, 30]);
   assert.equal(visitStages.reduce((n, s) => n + s.seconds, 0), 300);
 });
 
