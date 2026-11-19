@@ -42,3 +42,24 @@ test("the outgoing layer reaches opacity 0 before it is unmounted", () => {
   assert.equal(outgoingOpacity(UNMOUNT_AFTER_MS), 0);
   assert.ok(UNMOUNT_AFTER_MS >= CROSSFADE_MS);
 });
+
+test("handles are kept per layer and dropped when a scene is destroyed", async () => {
+  const { withHandle } = await import("../src/components/visit/stageHandles.ts");
+  const gate = { setRunning() {}, layers: () => [], destroy() {} };
+  const hall = { setRunning() {}, layers: () => [], destroy() {} };
+  let m = withHandle({}, "gate", gate);
+  m = withHandle(m, "hall", hall);
+  assert.equal(m.gate, gate);
+  assert.equal(m.hall, hall);
+  m = withHandle(m, "gate", null);
+  assert.equal("gate" in m, false);
+  assert.equal(m.hall, hall);
+  assert.equal(withHandle(m, "gate", null), m);
+});
+
+test("the shell passes each SceneStage layer's onHandle into the provider", () => {
+  const src = readFileSync(new URL("../src/components/visit/VisitShell.tsx", import.meta.url), "utf8");
+  assert.match(src, /<SceneStage place=\{leavingStage\.id\}[^>]*onHandle=/);
+  assert.match(src, /<SceneStage place=\{stage\.id\}[^>]*onHandle=/);
+  assert.match(src, /<StageHandleProvider value=\{\{ handle: handles\[stage\.id\]/);
+});

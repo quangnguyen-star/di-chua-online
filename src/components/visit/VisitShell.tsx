@@ -10,7 +10,8 @@ import { useVisit } from "@/lib/visit/useVisit";
 import { VisitFailure } from "./VisitErrorBoundary";
 import StopActivity, { embeddedStops } from "./StopActivity";
 import { UNMOUNT_AFTER_MS } from "./crossfade";
-import { StageHandleProvider, type StageHandle } from "./StageZones";
+import { StageHandleProvider } from "./StageZones";
+import { withHandle, type StageHandles } from "./stageHandles";
 import styles from "./visit.module.css";
 
 const HUD_IDLE_MS = 3000;
@@ -50,7 +51,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [fadingOut, setFadingOut] = useState<number | null>(null);
   const [subtitleOn, setSubtitleOn] = useState(true);
-  const [stageHandle, setStageHandle] = useState<StageHandle | null>(null);
+  const [handles, setHandles] = useState<StageHandles>({});
   const inputSeen = useRef(false);
   const { state, begin, next, prev, stay, exit } = useVisit(visitStages, { startIndex, untimed });
   const { phase, stageIndex, activeMs, due, nudge } = state;
@@ -99,7 +100,6 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
 
   // The stop subtitle shows ~6s on entry, then fades; once the visitor has acted it stays hidden.
   useEffect(() => {
-    setStageHandle(null);
     setSubtitleOn(!inputSeen.current);
     if (inputSeen.current) return;
     const id = setTimeout(() => setSubtitleOn(false), SUBTITLE_MS);
@@ -231,14 +231,14 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
     >
       {leavingStage && (
         <div className={`${styles.layer} ${styles.leave}`} aria-hidden="true" data-testid="visit-leaving">
-          <SceneStage place={leavingStage.id} paused />
+          <SceneStage place={leavingStage.id} paused onHandle={(h) => setHandles((m) => withHandle(m, leavingStage.id, h))} />
         </div>
       )}
       <div key={stage.id} className={`${styles.layer} ${fadingOut === null ? "" : styles.enter}`} data-testid="visit-stage-layer">
-        <SceneStage place={stage.id} paused={frozen} />
+        <SceneStage place={stage.id} paused={frozen} onHandle={(h) => setHandles((m) => withHandle(m, stage.id, h))} />
         {embedded && (
           <div className={styles.activity} data-testid="visit-activity" data-stop={stage.id}>
-            <StageHandleProvider value={{ handle: stageHandle, onHandle: setStageHandle }}>
+            <StageHandleProvider value={{ handle: handles[stage.id] ?? null, handleFor: (id) => handles[id] ?? null }}>
               <StopActivity key={stage.id} stopId={stage.id} seconds={stage.config.seconds} paused={frozen} onNext={advance} />
             </StageHandleProvider>
           </div>
