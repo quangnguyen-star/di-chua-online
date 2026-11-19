@@ -1,0 +1,101 @@
+/* Art tokens for the temple art layer (src/components/temple/art). Day is the default; night follows the system
+   setting unless html[data-theme="day"], matching evening.css. An art canvas can pin a variant with data-art.
+   Keep the derived text/control pairs in src/components/theme/contrast.ts in step with these values. */
+:root {
+  --art-sky-top: #dfe6e0;
+  --art-sky-bottom: #f4eee2;
+  --art-ground: #b9a982;
+  --art-ground-shade: #a8976d;
+  --art-mist: #fbf7ee;
+  --art-wall: #e8dcc0;
+  --art-pillar: #7a2e22;
+  --art-roof: #5a4030;
+  --art-roof-edge: #34281f;
+  --art-glow: #e6c36a;
+  --art-ember: #d4572c;
+  --art-smoke: #8a7c66;
+  --art-incense: #8b6a4a;
+  --art-water: #aebfc0;
+  --art-water-line: #f4eee2;
+  --art-moon: #fbf7ee;
+  --art-paper-opacity: 0.35;
+  --art-text: #34281f;
+  --art-text-muted: #5f4d3e;
+  --art-control-bg: #7a2e22;
+  --art-control-text: #fbf7ee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="day"]) {
+    --art-sky-top: #141018;
+    --art-sky-bottom: #2a2233;
+    --art-ground: #2b261c;
+    --art-ground-shade: #211d15;
+    --art-mist: #5b5266;
+    --art-wall: #4a4233;
+    --art-pillar: #a8493a;
+    --art-roof: #6b5440;
+    --art-roof-edge: #8a7058;
+    --art-glow: #e6c36a;
+    --art-ember: #f08a4b;
+    --art-smoke: #b8aa94;
+    --art-incense: #a8896a;
+    --art-water: #1f2a3a;
+    --art-water-line: #8aa0b8;
+    --art-moon: #efe6d6;
+    --art-paper-opacity: 0.12;
+    --art-text: #efe6d6;
+    --art-text-muted: #c4b6a2;
+    --art-control-bg: #eeaa9a;
+    --art-control-text: #2b1f12;
+  }
+}
+
+:root[data-theme="evening"],
+[data-art="night"] {
+  --art-sky-top: #141018;
+  --art-sky-bottom: #2a2233;
+  --art-ground: #2b261c;
+  --art-ground-shade: #211d15;
+  --art-mist: #5b5266;
+  --art-wall: #4a4233;
+  --art-pillar: #a8493a;
+  --art-roof: #6b5440;
+  --art-roof-edge: #8a7058;
+  --art-glow: #e6c36a;
+  --art-ember: #f08a4b;
+  --art-smoke: #b8aa94;
+  --art-incense: #a8896a;
+  --art-water: #1f2a3a;
+  --art-water-line: #8aa0b8;
+  --art-moon: #efe6d6;
+  --art-paper-opacity: 0.12;
+  --art-text: #efe6d6;
+  --art-text-muted: #c4b6a2;
+  --art-control-bg: #eeaa9a;
+  --art-control-text: #2b1f12;
+}
+
+[data-art="day"] {
+  --art-sky-top: #dfe6e0;
+  --art-sky-bottom: #f4eee2;
+  --art-ground: #b9a982;
+  --art-ground-shade: #a8976d;
+  --art-mist: #fbf7ee;
+  --art-wall: #e8dcc0;
+  --art-pillar: #7a2e22;
+  --art-roof: #5a4030;
+  --art-roof-edge: #34281f;
+  --art-glow: #e6c36a;
+  --art-ember: #d4572c;
+  --art-smoke: #8a7c66;
+  --art-incense: #8b6a4a;
+  --art-water: #aebfc0;
+  --art-water-line: #f4eee2;
+  --art-moon: #fbf7ee;
+  --art-paper-opacity: 0.35;
+  --art-text: #34281f;
+  --art-text-muted: #5f4d3e;
+  --art-control-bg: #7a2e22;
+  --art-control-text: #fbf7ee;
+}

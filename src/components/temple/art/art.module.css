@@ -1,0 +1,33 @@
+.canvas { display: block; width: 100%; height: auto; }
+.paper { position: absolute; inset: 0; pointer-events: none; background-image: url("/art/paper.svg"); background-size: 256px 256px; opacity: var(--art-paper-opacity); mix-blend-mode: multiply; }
+.paperHost { position: relative; }
+
+.wall { fill: var(--art-wall); }
+.pillar { fill: var(--art-pillar); }
+.roof { fill: var(--art-roof); }
+.roofEdge { fill: none; stroke: var(--art-roof-edge); stroke-width: 2; stroke-linecap: round; }
+.tileLine { fill: none; stroke: var(--art-roof-edge); stroke-width: 1; opacity: 0.55; }
+.opening { fill: var(--art-sky-bottom); }
+.glow { fill: var(--art-glow); opacity: 0.55; }
+.moon { fill: var(--art-moon); }
+.moonHalo { fill: var(--art-moon); opacity: 0.18; }
+.water { fill: var(--art-water); }
+.waterLine { fill: none; stroke: var(--art-water-line); stroke-width: 2; stroke-linecap: round; opacity: 0.7; }
+.bank { fill: var(--art-ground); }
+.stick { fill: var(--art-incense); }
+.ember { fill: var(--art-ember); transform-box: fill-box; transform-origin: center; animation: pulse 2.4s ease-in-out infinite; }
+.smoke { fill: none; stroke: var(--art-smoke); stroke-width: 3; stroke-linecap: round; opacity: 0.7; animation: drift 6s ease-in-out infinite; }
+.smokeB { animation-delay: -2.5s; opacity: 0.45; }
+.bowl { fill: var(--art-roof); }
+.ash { fill: var(--art-ground-shade); }
+.ripple { animation: ripple 5s ease-in-out infinite; }
+
+@keyframes pulse { 0%, 100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.35); } }
+@keyframes drift { 0% { transform: translateY(6px); opacity: 0; } 30% { opacity: 0.7; } 100% { transform: translateY(-10px); opacity: 0.1; } }
+@keyframes ripple { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ember, .smoke, .ripple { animation: none; }
+  .smoke { opacity: 0.6; }
+  .smokeB { opacity: 0.4; }
+}

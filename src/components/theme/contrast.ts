@@ -32,3 +32,25 @@ export const eveningPairs: ReadonlyArray<readonly [name: string, fg: string, bg:
   ["quiet button on hover", "#d9c0a3", "#4a3f33"],
   ["focus ring on bg", "#eeaa9a", "#1c1712"],
 ];
+
+/** Art-layer text and control pairs; mirrors src/styles/tokens.css (day = :root, night = evening/dark). */
+export const artDayPairs: ReadonlyArray<readonly [name: string, fg: string, bg: string]> = [
+  ["art text on sky top", "#34281f", "#dfe6e0"],
+  ["art text on sky bottom", "#34281f", "#f4eee2"],
+  ["art muted on sky top", "#5f4d3e", "#dfe6e0"],
+  ["art muted on sky bottom", "#5f4d3e", "#f4eee2"],
+  ["art text on ground", "#34281f", "#b9a982"],
+  ["art text on mist", "#34281f", "#fbf7ee"],
+  ["art control text on control", "#fbf7ee", "#7a2e22"],
+];
+
+export const artNightPairs: ReadonlyArray<readonly [name: string, fg: string, bg: string]> = [
+  ["art text on sky top", "#efe6d6", "#141018"],
+  ["art text on sky bottom", "#efe6d6", "#2a2233"],
+  ["art muted on sky top", "#c4b6a2", "#141018"],
+  ["art muted on sky bottom", "#c4b6a2", "#2a2233"],
+  ["art text on ground", "#efe6d6", "#2b261c"],
+  ["art text on water", "#efe6d6", "#1f2a3a"],
+  ["art text on mist", "#efe6d6", "#5b5266"],
+  ["art control text on control", "#2b1f12", "#eeaa9a"],
+];
