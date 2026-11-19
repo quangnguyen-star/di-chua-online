@@ -9,3 +9,17 @@
 .day[data-mark="special"] { border-style: dashed; border-color: var(--wood); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .word { animation: none; } }
+.fullscreen { position: absolute; inset: 0; overflow: hidden; }
+.camera { position: absolute; inset: 0; transform-origin: 50% 100%; transform: scale(1.35); transition: transform 2400ms ease-in-out; pointer-events: none; }
+.pulledBack { transform: scale(1) translateY(4%); }
+.path { position: absolute; left: 50%; bottom: 0; width: 30%; height: 40%; transform: translateX(-50%); clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); background: linear-gradient(to top, rgba(210, 180, 130, 0.5), rgba(210, 180, 130, 0)); }
+.gate { position: absolute; left: 50%; top: 18%; width: 26%; height: 30%; transform: translateX(-50%); border-top: 0.6rem solid #5a2a14; border-left: 0.5rem solid #5a2a14; border-right: 0.5rem solid #5a2a14; opacity: 0.6; }
+.warm { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 85%, rgba(255, 190, 100, 0.55), transparent 70%); transition: opacity 3200ms ease-in-out; }
+.warmed { opacity: 1; }
+.panel { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.75rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; pointer-events: none; }
+.panel > * { pointer-events: auto; }
+.paper { display: flex; flex-direction: column; gap: 0.4rem; align-items: center; max-width: 24rem; padding: 1rem 1.25rem; border: 1px solid #5a1010; border-radius: 0.25rem; background: #b3261e; color: #fbeed2; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform 900ms ease-in, opacity 900ms ease-in; }
+.paper .word { font-size: clamp(2.5rem, 12vw, 3.5rem); }
+.holding { transform: translateY(1.5rem) scale(0.9); opacity: 0.6; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .camera, .warm, .paper { transition: none; } }

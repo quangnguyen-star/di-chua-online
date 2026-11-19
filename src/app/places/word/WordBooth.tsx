@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
 import { vnNow } from "@/lib/clock";
 import { monthCalendar } from "@/lib/lunar/calendar";
 import { buildIcs } from "@/lib/ics";
+import type { Embed } from "@/lib/visit/embed";
 import { WORD_KEY, parseRecord, pickWord, recordFor } from "./wordPick";
 import type { WordRecord } from "./wordPick";
 import { renderStoryCard } from "./storyCard";
@@ -39,11 +40,19 @@ function download(blob: Blob, name: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function WordBooth() {
+const POCKET_HOLD_MS = 900;
+
+/** Stop 6: the day's word arrives as a red paper. Tap to open it, hold (or press the pocket button) to keep it. */
+export default function WordBooth({ embed }: { embed?: Embed } = {}) {
   const { scene } = useAtmosphere();
   const [rec, setRec] = useState<WordRecord | null>(null);
   const [today, setToday] = useState<{ y: number; m: number } | null>(null);
   const [error, setError] = useState(false);
+  const [pulled, setPulled] = useState(false);
+  const [pocketed, setPocketed] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const holdTimer = useRef<number | null>(null);
+  const tourPaused = embed?.paused ?? false;
 
   useEffect(() => {
     scene("outside");
@@ -51,6 +60,30 @@ export default function WordBooth() {
     setRec(load(iso));
     setToday({ y: Number(iso.slice(0, 4)), m: Number(iso.slice(5, 7)) });
   }, [scene]);
+
+  useEffect(() => {
+    if (!embed) return;
+    const id = window.setTimeout(() => setPulled(true), 60);
+    return () => window.clearTimeout(id);
+  }, [embed]);
+
+  const cancelHold = useCallback(() => {
+    if (holdTimer.current !== null) window.clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+    setHolding(false);
+  }, []);
+
+  useEffect(() => cancelHold, [cancelHold]);
+
+  const startHold = () => {
+    if (holdTimer.current !== null || tourPaused) return;
+    setHolding(true);
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      setHolding(false);
+      setPocketed(true);
+    }, POCKET_HOLD_MS);
+  };
 
   function reveal() {
     if (!rec) return;
@@ -76,6 +109,51 @@ export default function WordBooth() {
   const word = rec ? pickWord(rec.id, rec.date) : null;
   const days = today ? monthCalendar(today.y, today.m) : [];
   const lead = days.length ? (new Date(Date.UTC(today!.y, today!.m - 1, 1)).getUTCDay() + 6) % 7 : 0;
+
+  if (embed) {
+    return (
+      <div className={styles.fullscreen} data-testid="word-page" data-pulled={pulled} data-pocketed={pocketed}>
+        <div className={`${styles.camera} ${pulled ? styles.pulledBack : ""}`} aria-hidden="true">
+          <div className={styles.path} />
+          <div className={styles.gate} />
+        </div>
+        <div className={`${styles.warm} ${pulled ? styles.warmed : ""}`} aria-hidden="true" />
+        <div className={styles.panel}>
+          {!word || !rec ? (
+            <p role="status">Đang chuẩn bị chữ cho bạn…</p>
+          ) : pocketed ? (
+            <p role="status" data-testid="word-pocketed">Chữ đã nằm trong túi bạn. Mang theo nhé.</p>
+          ) : rec.revealed ? (
+            <>
+              <button
+                type="button"
+                className={`${styles.paper} ${holding ? styles.holding : ""}`}
+                onPointerDown={startHold}
+                onPointerUp={cancelHold}
+                onPointerLeave={cancelHold}
+                onPointerCancel={cancelHold}
+                aria-label={`${word.word}. Giữ để cất vào túi`}
+                data-testid="word-paper"
+              >
+                <span className={styles.word} data-testid="word-text">{word.word}</span>
+                <span>{word.reflection}</span>
+                <small>{word.credit}</small>
+              </button>
+              <div className={styles.actions}>
+                <button type="button" className="button" onClick={() => setPocketed(true)} data-testid="word-pocket">Cất vào túi</button>
+                <button type="button" className="button button--quiet" onClick={exportPng} data-testid="word-export">Lưu thành ảnh</button>
+              </div>
+              {error ? <p role="alert">Chưa tạo được ảnh. Bạn thử lại nhé.</p> : null}
+            </>
+          ) : (
+            <button type="button" className={styles.paper} onClick={reveal} aria-label="Mở chữ" data-testid="word-open">
+              <span>Một chữ đã được chọn cho bạn. Chạm để mở.</span>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className={styles.root} aria-labelledby="word-title" data-testid="word-page">

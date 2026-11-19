@@ -6,12 +6,13 @@ import Gate from "@/components/temple/scenes/Gate";
 import Sweeping from "@/app/places/courtyard/sweeping/Sweeping";
 import IncenseHall from "@/app/places/hall/IncenseHall";
 import LanternFlow from "@/app/places/pond/lantern/LanternFlow";
+import WordBooth from "@/app/places/word/WordBooth";
 import { TeaPreparation } from "@/app/practices/[slug]/TeaPreparation";
 
 const tea = practices.find((p) => p.slug === "tra-3-phut");
 
-/** Stop ids that run a shared activity inside the tour; the other (outside) keep guidance only. */
-export const embeddedStops = ["gate", "courtyard", "hall", "pond", "veranda"] as const;
+/** Stop ids that run a shared activity inside the tour. */
+export const embeddedStops = ["gate", "courtyard", "hall", "pond", "veranda", "outside"] as const;
 
 /**
  * The shared activity for a stop, run with the stop's shortened config. Callers key it by stop so each
@@ -30,6 +31,8 @@ export default function StopActivity({ stopId, seconds, paused, onNext }: { stop
       return <LanternFlow embed={embed} />;
     case "veranda":
       return <TeaPreparation slug="tra-3-phut" seconds={seconds} closingLine={tea?.closingLine ?? "Tách trà đã vơi."} kind="tea" next={null} embed={embed} />;
+    case "outside":
+      return <WordBooth embed={embed} />;
     default:
       return null;
   }
