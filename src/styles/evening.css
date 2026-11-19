@@ -18,7 +18,7 @@
     --border: #4a3f33;
   }
 
-  :root:not([data-theme="day"]) .button:hover { background: #e0b862; }
+  :root:not([data-theme="day"]) .button:hover { background: #e0b862; color: #2b1f12; }
 
   :root:not([data-theme="day"]) [data-testid="visit-scene"] { background: #231d2b; }
   :root:not([data-theme="day"]) [data-testid="visit-scene"] [fill="#b9a982"] { fill: #4a4233; }
@@ -48,7 +48,7 @@
   --border: #4a3f33;
 }
 
-:root[data-theme="evening"] .button:hover { background: #e0b862; }
+:root[data-theme="evening"] .button:hover { background: #e0b862; color: #2b1f12; }
 :root[data-theme="evening"] [data-testid="visit-scene"] { background: #231d2b; }
 :root[data-theme="evening"] [data-testid="visit-scene"] [fill="#b9a982"] { fill: #4a4233; }
 :root[data-theme="evening"] [data-testid="visit-scene"] [fill="#c9b98f"] { fill: #3d3829; }

@@ -15,7 +15,7 @@
   },
   "scenarios": [
     {
-      "name": "Legacy URL /practices/breathing resolves to /practices/tho-2-phut",
+      "name": "Legacy URL /practices/breathing resolves to /visit?stop=gate",
       "tags": [
         "legacy",
         "redirect"
@@ -31,17 +31,17 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /practices/tho-2-phut",
+          "intent": "ended on /visit?stop=gate",
           "expected": {
             "kind": "url_contains",
-            "url": "/practices/tho-2-phut"
+            "url": "/visit?stop=gate"
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/gate resolves to /practices/tho-2-phut",
+      "name": "Legacy URL /places/gate resolves to /visit?stop=gate",
       "tags": [
         "legacy",
         "redirect"
@@ -57,10 +57,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "ended on /practices/tho-2-phut",
+          "intent": "ended on /visit?stop=gate",
           "expected": {
             "kind": "url_contains",
-            "url": "/practices/tho-2-phut"
+            "url": "/visit?stop=gate"
           }
         }
       ],
@@ -112,7 +112,7 @@
           "intent": "ended on /places/pond/lantern",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/pond/lantern"
+            "url": "/visit?stop=pond"
           }
         }
       ],
@@ -138,14 +138,14 @@
           "intent": "ended on /places/pond/lantern",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/pond/lantern"
+            "url": "/visit?stop=pond"
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /practices/tea resolves to /places/veranda",
+      "name": "Legacy URL /practices/tea resolves to /visit?stop=veranda",
       "tags": [
         "legacy",
         "redirect"
@@ -164,14 +164,14 @@
           "intent": "ended on /places/veranda",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/veranda"
+            "url": "/visit?stop=veranda"
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/hall/incense resolves to /places/hall",
+      "name": "Legacy URL /places/hall/incense resolves to /visit?stop=hall",
       "tags": [
         "legacy",
         "redirect"
@@ -190,14 +190,14 @@
           "intent": "ended on /places/hall",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/hall"
+            "url": "/visit?stop=hall"
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Legacy URL /practices/sitting resolves to /places/hall",
+      "name": "Legacy URL /practices/sitting resolves to /visit?stop=hall",
       "tags": [
         "legacy",
         "redirect"
@@ -216,7 +216,7 @@
           "intent": "ended on /places/hall",
           "expected": {
             "kind": "url_contains",
-            "url": "/places/hall"
+            "url": "/visit?stop=hall"
           }
         }
       ],

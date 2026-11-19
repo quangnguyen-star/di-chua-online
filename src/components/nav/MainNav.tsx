@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/visit", label: "Đi chùa" },
-  { href: "/practices", label: "Thực hành" },
 ];
 
 function isActive(pathname: string, href: string) {

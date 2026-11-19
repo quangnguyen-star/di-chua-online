@@ -10,10 +10,10 @@ export function VisitFailure({ onRetry }: { onRetry: () => void }) {
   return (
     <ErrorState
       title="Cổng chùa đang khép."
-      body="Chuyến ghé thăm đã dừng lại và không có gì được lưu. Bạn có thể thử lại hoặc xem các bài thực hành."
+      body="Chuyến ghé thăm đã dừng lại và không có gì được lưu. Bạn có thể thử lại."
       actions={[
         { label: "Thử lại", onClick: onRetry },
-        { label: "Các bài thực hành", href: "/practices" },
+        { label: "Về bản đồ", href: "/" },
       ]}
     />
   );

@@ -29,9 +29,6 @@ export function HomeView() {
           <Link href="/visit" className="button" data-testid="home-visit">
             Ghé thăm 5 phút
           </Link>
-          <Link href="/practices" className={styles.secondary} data-testid="home-practices">
-            Khám phá các bài thực hành
-          </Link>
         </div>
       </div>
       {word ? (
@@ -39,7 +36,7 @@ export function HomeView() {
       ) : (
         <ErrorState
           title="Chưa tải được lời nhắc hôm nay"
-          body="Bạn vẫn có thể ghé thăm hoặc xem các bài thực hành bất cứ lúc nào."
+          body="Bạn vẫn có thể ghé thăm chùa bất cứ lúc nào."
         />
       )}
       <LunarNote />

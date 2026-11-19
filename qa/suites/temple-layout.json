@@ -86,7 +86,7 @@
       "teardown": []
     },
     {
-      "name": "360px: no horizontal scroll on /practices",
+      "name": "360px: no horizontal scroll on /visit",
       "tags": [
         "layout",
         "responsive"
@@ -96,12 +96,12 @@
         {
           "kind": "action",
           "op": "shell",
-          "intent": "measure overflow on /practices",
+          "intent": "measure overflow on /visit",
           "script": "browser_probe.sh",
           "args": [
             "overflow",
             "{{run_id}}",
-            "/practices"
+            "/visit"
           ],
           "capture": {
             "over": "$.overflow_px"

@@ -64,10 +64,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /practices/tho-2-phut",
+          "intent": "landed on /visit?stop=gate",
           "expected": {
             "kind": "url_contains",
-            "url": "/practices/tho-2-phut"
+            "url": "/visit?stop=gate"
           }
         }
       ],
@@ -112,10 +112,10 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "landed on /practices/tho-2-phut",
+          "intent": "landed on /visit?stop=gate",
           "expected": {
             "kind": "url_contains",
-            "url": "/practices/tho-2-phut"
+            "url": "/visit?stop=gate"
           }
         }
       ],
