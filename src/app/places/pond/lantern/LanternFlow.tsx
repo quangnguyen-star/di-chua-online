@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { routes } from "@/content/routes";
 import { RiverScene, type RiverPhase } from "@/components/temple/river";
 import { useAtmosphere } from "@/components/atmosphere";
+import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import styles from "./lantern.module.css";
 
 const MAX_LENGTH = 500;
@@ -125,6 +126,7 @@ export default function LanternFlow() {
           </div>
         </>
       )}
+      <SceneLinks from="pond" />
     </div>
   );
 }

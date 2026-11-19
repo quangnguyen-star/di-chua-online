@@ -24,6 +24,7 @@ import {
   type SweepEvent,
   type SweepState,
 } from "./logic";
+import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import styles from "./sweeping.module.css";
 
 const definition: ActivityDefinition<SweepState, SweepEvent> = {
@@ -251,6 +252,7 @@ export default function Sweeping() {
           Bản đồ chùa
         </Link>
       </div>
+      <SceneLinks from="courtyard" />
     </div>
   );
 }

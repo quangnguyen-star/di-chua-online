@@ -28,7 +28,12 @@ export function SoundPopover() {
 
   return (
     <details className={styles.more} data-testid="sound-popover">
-      <summary data-testid="sound-summary">Âm thanh</summary>
+      <summary aria-label="Âm thanh" title="Âm thanh" data-testid="sound-summary">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" />
+          <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" />
+        </svg>
+      </summary>
       <div className={styles.panel}>
         <button
           type="button"
