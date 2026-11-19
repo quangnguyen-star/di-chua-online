@@ -8,7 +8,11 @@
 .roofEdge { fill: none; stroke: var(--art-roof-edge); stroke-width: 2; stroke-linecap: round; }
 .tileLine { fill: none; stroke: var(--art-roof-edge); stroke-width: 1; opacity: 0.55; }
 .opening { fill: var(--art-sky-bottom); }
-.glow { fill: var(--art-glow); opacity: 0.55; }
+.step { fill: var(--art-ground-shade); }
+.plaque { fill: var(--art-pillar); stroke: var(--art-glow); stroke-width: 1; }
+.plaqueText { fill: var(--art-glow); font-size: 9px; font-family: var(--font-heading, serif); }
+.couplet { fill: var(--art-pillar); stroke: var(--art-glow); stroke-width: 0.75; }
+.mark { fill: var(--art-glow); }
 .moon { fill: var(--art-moon); }
 .moonHalo { fill: var(--art-moon); opacity: 0.18; }
 .water { fill: var(--art-water); }

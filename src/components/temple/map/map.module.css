@@ -2,8 +2,12 @@
 .art { transform: translateX(var(--px)); transition: transform 0.4s ease-out; }
 .spots { list-style: none; margin: 0; padding: 0; }
 .spot { position: absolute; transform: translate(-50%, -50%); }
-.spotLink { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 0.75rem; border-radius: 999px; background: var(--art-control-bg); color: var(--art-control-text); font-size: 0.9rem; text-decoration: none; white-space: nowrap; }
-.spotLink:hover { text-decoration: underline; }
+.spotLink { position: relative; display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 0.75rem; border-radius: 999px; background: var(--art-control-bg); color: var(--art-control-text); font-size: 0.9rem; text-decoration: none; white-space: nowrap; }
+.spotLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.spotLink:hover .spotLabel, .spotLink:focus-visible .spotLabel { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+.spotLink:not(:hover):not(:focus-visible) { padding: 0; width: 2.75rem; justify-content: center; }
+.spotLink::before { content: ""; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--art-glow); }
+.spotLink:hover::before, .spotLink:focus-visible::before { display: none; }
 .spotLink:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 
 .sceneLinks { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin: 1.5rem auto 0; max-width: 48rem; }

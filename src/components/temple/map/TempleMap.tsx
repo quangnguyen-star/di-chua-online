@@ -42,7 +42,7 @@ export function TempleMap() {
         {readyRoutes.map((p) => (
           <li key={p.id} className={styles.spot} style={{ left: `${spots[p.id].left}%`, top: `${spots[p.id].top}%` }}>
             <Link href={p.href} className={styles.spotLink} data-testid={`map-place-${p.id}`}>
-              {p.name}
+              <span className={styles.spotLabel}>{p.name}</span>
             </Link>
           </li>
         ))}
