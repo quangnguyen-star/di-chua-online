@@ -1,57 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
-import { routes } from "@/content/routes";
-import { useActiveTimer } from "@/lib/useActiveTimer";
-import { VerandaArt } from "../../places/veranda/VerandaArt";
+import { SceneStage } from "@/components/temple/stage";
 import type { Embed } from "@/lib/visit/embed";
 import type { PracticeKind } from "../labels";
-import { TeaCup } from "./compositions/TeaCup";
 import styles from "./TeaPreparation.module.css";
 
-const STEEP_SECONDS = 60;
+const POUR_MS = 4000;
+const SIP_MS = 2500;
 const SIPS = 3;
+/** A sip counts when the held breath got at least this far before release. */
+const COUNT_AT = 0.7;
+const LIFT_HOLD_MS = 1200;
+const CUP_TOP = 126;
+const CUP_BOTTOM = 178;
+const RAIN_RINGS = Array.from({ length: 7 }, (_, i) => i);
 
-const prepSteps = [
-  {
-    title: "Chuẩn bị nước",
-    body: "Đun hoặc rót nước vào ấm đất. Làm theo nhịp của bạn, không cần vội.",
-  },
-  {
-    title: "Chọn ấm và chén",
-    body: "Đặt ấm đất và một chiếc chén sứ nhỏ lên khay. Không có bộ ấm chén cũng không sao: một chiếc tách hay một cốc là đủ.",
-  },
-  {
-    title: "Cho trà vào ấm",
-    body: "Cho một chút trà vào ấm. Không có trà thì rót một cốc nước ấm hoặc nước lọc, bước này bạn có thể bỏ qua.",
-  },
-  {
-    title: "Rót nước",
-    body: "Rót nước nóng vào ấm, chậm tay. Nếu không có ấm, chỉ cần xoa hai bàn tay vào nhau cho ấm.",
-  },
-  {
-    title: "Chờ một lát",
-    body: "Để ấm yên khoảng một phút, hoặc theo thói quen của bạn. Bạn có thể bỏ qua phần chờ bất cứ lúc nào.",
-  },
-  {
-    title: "Rót ra chén",
-    body: "Rót trà ra chén, nhìn hơi nước bốc lên. Dùng hai tay đỡ chén cho ấm lòng bàn tay.",
-  },
-  {
-    title: "Ngồi xuống và chậm lại",
-    body: "Ngồi xuống, thả vai, thở ra một hơi dài. Khi thấy sẵn sàng thì sang bước thưởng trà. Đồng hồ chưa chạy ở đây.",
-  },
-];
-
-const STEEP_INDEX = 4;
-const DRINK = prepSteps.length;
-
-function format(ms: number) {
-  const total = Math.ceil(ms / 1000);
-  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
-}
+type Phase = "pour" | "lift" | "sip" | "done";
 
 type Props = {
   slug: string;
@@ -59,177 +26,251 @@ type Props = {
   closingLine: string;
   kind: PracticeKind;
   next: { href: string; title: string } | null;
-  /** Set by the tour: skip the preparation, drink for the stop's seconds, and let the tour own pause and skip. */
+  /** Set by the tour: fill the viewport over the scene stage and let the tour own pause, clock and skip. */
   embed?: Embed;
 };
 
-function SteepWait() {
-  const { remainingMs, running, done, start, pause, reset } = useActiveTimer(STEEP_SECONDS);
-  const untouched = !running && !done && remainingMs === STEEP_SECONDS * 1000;
-  return (
-    <div data-testid="tea-steep">
-      <p className={styles.clock} role="timer" aria-live="off" data-testid="tea-steep-remaining">
-        {format(remainingMs)}
-      </p>
-      <p className="muted" role="status" data-testid="tea-steep-state">
-        {done ? "Đã chờ xong, bạn có thể rót trà" : running ? "Đang chờ" : untouched ? "Chưa bắt đầu chờ" : "Đang tạm dừng"}
-      </p>
-      <div className="actions">
-        {!done && (
-          <button type="button" className="button button--quiet" onClick={running ? pause : start} data-testid="tea-steep-toggle">
-            {running ? "Tạm dừng" : untouched ? "Bắt đầu chờ" : "Tiếp tục chờ"}
-          </button>
-        )}
-        {!done && (
-          <button type="button" className="button button--quiet" onClick={reset} data-testid="tea-steep-reset" hidden={untouched}>
-            Đặt lại
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
+const CUES: Record<Phase, string> = {
+  pour: "Giữ để nghiêng ấm và rót trà",
+  lift: "Nâng chén bằng hai tay",
+  sip: "Giữ một hơi thở để nhấp một ngụm",
+  done: "",
+};
 
-function Enjoyment({
-  seconds,
-  closingLine,
-  onBack,
-  embed,
-}: {
-  seconds: number;
-  closingLine: string;
-  onBack: () => void;
-  embed?: Embed;
-}) {
-  const { cue } = useAtmosphere();
-  const { remainingMs, running, done, start, pause, reset } = useActiveTimer(seconds);
-  const total = seconds * 1000;
-  const untouched = !running && !done && remainingMs === total;
-  const elapsed = total - remainingMs;
-  const sips = done ? SIPS : untouched ? 0 : Math.min(SIPS, Math.floor(elapsed / (total / SIPS)) + 1);
-  const next = routes.find((r) => r.id === "veranda")?.next;
-  const nextPlace = embed ? undefined : routes.find((r) => r.id === next);
+const HINTS: Record<Phase, string> = {
+  pour: "Nhấn giữ chuột hoặc ngón tay, hoặc giữ phím Space để rót.",
+  lift: "Chạm hai ngón tay cùng lúc, hoặc nhấn giữ một ngón tay, hoặc bấm nút Nâng chén, hoặc phím L.",
+  sip: "Nhấn giữ hoặc giữ phím Space trong một hơi thở, rồi thả ra.",
+  done: "",
+};
 
-  useEffect(() => {
-    if (sips > 0 && !done) cue("cup");
-  }, [sips, done, cue]);
+/** Stop 5: pour from the pot while held, lift the cup with two touches, then take three sips, each a held breath. */
+export function TeaPreparation({ closingLine, embed }: Props) {
+  const paused = embed?.paused ?? false;
+  const { scene, cue } = useAtmosphere();
+  const [phase, setPhase] = useState<Phase>("pour");
+  const [sips, setSips] = useState(0);
+  const [holding, setHolding] = useState(false);
 
-  const tourPaused = embed?.paused;
-  useEffect(() => {
-    if (tourPaused === undefined) return;
-    if (tourPaused) pause();
-    else start();
-  }, [tourPaused, start, pause]);
-
-  return (
-    <section aria-labelledby="tea-drink-title" data-testid="tea-drinking">
-      <h2 id="tea-drink-title">Thưởng trà</h2>
-      <TeaCup running={running} />
-      <p className={styles.clock} role="timer" aria-live="off" data-testid="tea-remaining">
-        {format(remainingMs)}
-      </p>
-      <ol className={styles.sips} aria-label="Ba ngụm trà" data-testid="tea-sips">
-        {Array.from({ length: SIPS }, (_, i) => (
-          <li key={i} className={`${styles.sip} ${i < sips ? styles.sipDone : ""}`} aria-label={`Ngụm ${i + 1}${i < sips ? ", đã xong" : ""}`} />
-        ))}
-      </ol>
-      <p className="muted" role="status" data-testid="tea-state">
-        {done ? "Đã xong" : running ? `Ngụm ${sips} trên ${SIPS}` : untouched ? "Sẵn sàng" : "Đang tạm dừng"}
-      </p>
-      <div className="actions">
-        {embed ? null : done ? (
-          <button type="button" className="button" onClick={reset} data-testid="tea-restart">
-            Thưởng trà lại
-          </button>
-        ) : (
-          <button type="button" className="button" onClick={running ? pause : start} data-testid={running ? "tea-pause" : "tea-start"}>
-            {running ? "Tạm dừng" : untouched ? "Bắt đầu" : "Tiếp tục"}
-          </button>
-        )}
-        {!embed && !done && untouched && (
-          <button type="button" className="button button--quiet" onClick={onBack} data-testid="tea-prep-back">
-            Quay lại
-          </button>
-        )}
-      </div>
-      {done && (
-        <div data-testid="tea-complete">
-          <p role="status" data-testid="tea-closing">
-            <em>{closingLine}</em>
-          </p>
-          {nextPlace && (
-            <p className="muted" data-testid="tea-next-preview">
-              Phía trước: {nextPlace.name}. {nextPlace.blurb}
-            </p>
-          )}
-        </div>
-      )}
-    </section>
-  );
-}
-
-export function TeaPreparation({ seconds, closingLine, embed }: Props) {
-  const { scene } = useAtmosphere();
-  const [index, setIndex] = useState(embed ? DRINK : 0);
-  const drinking = index >= DRINK;
+  const phaseRef = useRef<Phase>("pour");
+  const holdRef = useRef(false);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
+  const poured = useRef(0);
+  const sipProgress = useRef(0);
+  const sipsRef = useRef(0);
+  const lifted = useRef(0);
+  const liftHeld = useRef(0);
+  const pointers = useRef(new Set<number>());
+  const potEl = useRef<SVGGElement>(null);
+  const cupEl = useRef<SVGGElement>(null);
+  const streamEl = useRef<SVGLineElement>(null);
+  const teaEl = useRef<SVGRectElement>(null);
+  const cueRef = useRef(cue);
+  cueRef.current = cue;
 
   useEffect(() => {
     scene("veranda");
   }, [scene]);
 
-  useEffect(() => {
-    if (drinking) return;
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
-      if (e.key === "ArrowRight") setIndex((i) => Math.min(DRINK, i + 1));
-      else if (e.key === "ArrowLeft") setIndex((i) => Math.max(0, i - 1));
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drinking]);
+  const go = useCallback((next: Phase) => {
+    phaseRef.current = next;
+    setPhase(next);
+  }, []);
 
-  const step = prepSteps[index];
+  const lift = useCallback(() => {
+    if (phaseRef.current === "lift") go("sip");
+  }, [go]);
+
+  const setHold = useCallback((on: boolean) => {
+    if (on && (phaseRef.current === "done" || phaseRef.current === "lift")) return;
+    holdRef.current = on;
+    setHolding(on);
+  }, []);
+
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 100);
+      last = now;
+      if (!pausedRef.current) {
+        const p = phaseRef.current;
+        if (p === "pour") {
+          if (holdRef.current) poured.current = Math.min(1, poured.current + dt / POUR_MS);
+          if (poured.current >= 1) {
+            holdRef.current = false;
+            setHolding(false);
+            go("lift");
+          }
+        } else if (p === "lift") {
+          const single = pointers.current.size === 1;
+          liftHeld.current = single ? liftHeld.current + dt : 0;
+          if (pointers.current.size >= 2 || liftHeld.current >= LIFT_HOLD_MS) {
+            liftHeld.current = 0;
+            go("sip");
+          }
+        } else if (p === "sip") {
+          if (holdRef.current) {
+            sipProgress.current = Math.min(1, sipProgress.current + dt / SIP_MS);
+          } else if (sipProgress.current > 0) {
+            if (sipProgress.current >= COUNT_AT) {
+              sipsRef.current += 1;
+              setSips(sipsRef.current);
+              cueRef.current("cup");
+              if (sipsRef.current >= SIPS) go("done");
+            }
+            sipProgress.current = 0;
+          }
+        }
+        const raised = phaseRef.current === "pour" || phaseRef.current === "lift" ? 0 : 1;
+        lifted.current += (raised - lifted.current) * Math.min(1, dt / 160);
+        const pouring = phaseRef.current === "pour" && holdRef.current;
+        const tilt = pouring ? 1 : 0;
+        if (potEl.current) potEl.current.style.transform = `rotate(${tilt * 24}deg)`;
+        if (cupEl.current) cupEl.current.style.transform = `translateY(${-30 * lifted.current - 12 * sipProgress.current}px)`;
+        if (streamEl.current) streamEl.current.style.opacity = pouring ? "0.85" : "0";
+        if (teaEl.current) {
+          const shown = phaseRef.current === "pour" ? poured.current : 1 - sipsRef.current / SIPS - (sipProgress.current >= COUNT_AT ? 0.1 : 0);
+          const h = (CUP_BOTTOM - CUP_TOP) * Math.max(0, shown);
+          teaEl.current.setAttribute("y", String(CUP_BOTTOM - h));
+          teaEl.current.setAttribute("height", String(h));
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [go]);
+
+  useEffect(() => {
+    const isControl = (t: EventTarget | null) => t instanceof HTMLElement && t.closest("button, a, input, textarea, select") !== null;
+    const down = (e: KeyboardEvent) => {
+      if (isControl(e.target)) return;
+      if (e.code === "Space" && !e.repeat) {
+        e.preventDefault();
+        setHold(true);
+      } else if (e.code === "KeyL" && !e.repeat) {
+        lift();
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space") setHold(false);
+    };
+    const blur = () => setHold(false);
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+      holdRef.current = false;
+    };
+  }, [setHold, lift]);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest("button, a")) return;
+    pointers.current.add(e.pointerId);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    setHold(true);
+  };
+  const onPointerEnd = (e: React.PointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size === 0) setHold(false);
+  };
+
+  const done = phase === "done";
+  const body = (
+    <div
+      className={styles.table}
+      data-testid="tea-preparation"
+      data-phase={phase}
+      data-sips={sips}
+      data-holding={holding}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerEnd}
+      onPointerCancel={onPointerEnd}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <div className={styles.pond} aria-hidden="true" data-paused={paused} data-testid="tea-pond">
+        {RAIN_RINGS.map((i) => (
+          <span key={i} className={styles.ring} style={{ left: `${8 + i * 13}%`, top: `${20 + ((i * 37) % 60)}%`, animationDelay: `${i * 0.7}s` }} />
+        ))}
+        <span className={styles.lotus} style={{ left: "22%" }} />
+        <span className={styles.lotus} style={{ left: "68%", top: "55%" }} />
+        <span className={styles.leaf} data-paused={paused} />
+      </div>
+      <svg className={styles.set} viewBox="0 0 400 220" role="img" aria-label="Ấm trà và chén trà trên khay gỗ" data-testid="tea-set">
+        <defs>
+          <clipPath id="tea-cup-clip">
+            <path d="M190 120 H290 Q290 178 240 178 Q190 178 190 120 Z" />
+          </clipPath>
+        </defs>
+        <rect x="40" y="184" width="320" height="10" rx="4" fill="var(--wood)" opacity="0.85" />
+        <g ref={potEl} className={styles.pot}>
+          <ellipse cx="110" cy="160" rx="38" ry="26" fill="var(--surface)" stroke="var(--wood)" strokeWidth="4" />
+          <path d="M146 150 Q164 138 170 126" fill="none" stroke="var(--wood)" strokeWidth="5" strokeLinecap="round" />
+          <path d="M72 150 Q50 150 54 170 Q58 182 76 176" fill="none" stroke="var(--wood)" strokeWidth="4" strokeLinecap="round" />
+          <rect x="92" y="130" width="36" height="8" rx="4" fill="var(--wood)" />
+        </g>
+        <line ref={streamEl} className={styles.stream} x1="204" y1="132" x2="204" y2="176" stroke="var(--moss)" strokeWidth="3" strokeLinecap="round" style={{ opacity: 0 }} />
+        <g ref={cupEl} className={styles.cup} data-testid="tea-cup">
+          <rect ref={teaEl} x="180" y={CUP_BOTTOM} width="120" height="0" clipPath="url(#tea-cup-clip)" fill="var(--moss)" opacity="0.8" data-testid="tea-level" />
+          <ellipse cx="240" cy="121" rx="50" ry="5" fill="var(--sky, #bcd)" opacity="0.45" data-testid="tea-reflection" />
+          <path d="M190 120 H290 Q290 178 240 178 Q190 178 190 120 Z" fill="none" stroke="var(--wood)" strokeWidth="4" strokeLinejoin="round" />
+          <path d="M290 132 Q316 132 312 152 Q308 166 284 162" fill="none" stroke="var(--wood)" strokeWidth="4" strokeLinecap="round" />
+        </g>
+      </svg>
+    </div>
+  );
+
+  const controls = (
+    <div className={styles.panel}>
+      {done ? (
+        <p className={styles.closing} role="status" data-testid="tea-closing">
+          <em>{closingLine}</em>
+        </p>
+      ) : (
+        <>
+          <p className={styles.cue} aria-live="polite" data-testid="tea-cue">
+            {CUES[phase]}
+          </p>
+          <p className={styles.hint} data-testid="tea-hint">
+            {HINTS[phase]}
+          </p>
+          {phase === "lift" && (
+            <button type="button" className="button" onClick={lift} data-testid="tea-lift">
+              Nâng chén
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  if (embed) {
+    return (
+      <div className={styles.fullscreen} data-testid="tea-root">
+        <SceneStage place="veranda" paused={paused} />
+        {body}
+        {controls}
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.wrap} data-testid="tea-preparation">
-      <div className={styles.art}>
-        <VerandaArt />
+    <div className={styles.page} data-testid="tea-root">
+      <div className={styles.frame}>
+        <SceneStage place="veranda" paused={paused} />
+        {body}
+        {controls}
       </div>
-      {!drinking && step && (
-        <section className={styles.panel} aria-labelledby="tea-prep-title">
-          <p className="muted" data-testid="tea-prep-progress">
-            Chuẩn bị, bước {index + 1} trên {prepSteps.length} (không bắt buộc)
-          </p>
-          <h2 id="tea-prep-title">{step.title}</h2>
-          <p data-testid="tea-prep-body">{step.body}</p>
-          {index === STEEP_INDEX && <SteepWait />}
-          <div className="actions">
-            <button type="button" className="button" onClick={() => setIndex(index + 1)} data-testid="tea-prep-next">
-              {index === STEEP_INDEX ? "Bỏ qua chờ, tiếp tục" : "Tiếp tục"}
-            </button>
-            {index > 0 && (
-              <button type="button" className="button button--quiet" onClick={() => setIndex(index - 1)} data-testid="tea-prep-back">
-                Quay lại
-              </button>
-            )}
-            <button type="button" className="button button--quiet" onClick={() => setIndex(DRINK)} data-testid="tea-prep-skip">
-              Chỉ thưởng trà
-            </button>
-          </div>
-          <p className={`muted ${styles.hint}`}>Phím mũi tên phải để tiếp tục, mũi tên trái để quay lại.</p>
-        </section>
-      )}
-      {drinking && (
-        <Enjoyment seconds={embed?.seconds ?? seconds} closingLine={closingLine} onBack={() => setIndex(DRINK - 1)} embed={embed} />
-      )}
-      {!embed && (
-        <p className="actions">
-          <Link href="/" className="button button--quiet" data-testid="veranda-map">
-            Về bản đồ chùa
-          </Link>
-        </p>
-      )}
+      <p className="actions">
+        <Link href="/" className="button button--quiet" data-testid="veranda-map">
+          Về bản đồ chùa
+        </Link>
+      </p>
     </div>
   );
 }

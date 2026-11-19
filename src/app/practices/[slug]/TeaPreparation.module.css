@@ -1,9 +1,30 @@
-.wrap { margin: 1.5rem 0; max-width: 40rem; display: flex; flex-direction: column; gap: 1rem; }
-.art { width: 100%; max-width: 28rem; border-radius: var(--radius); overflow: hidden; }
-.panel { padding: 1.25rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-.panel h2 { margin-top: 0; }
-.sips { display: flex; gap: 0.5rem; list-style: none; padding: 0; }
-.sip { width: 0.9rem; height: 0.9rem; border-radius: 50%; border: 2px solid var(--wood); }
-.sipDone { background: var(--moss); }
-.clock { font-size: 1.75rem; margin: 0.5rem 0; }
-.hint { font-size: 0.9rem; }
+.page { margin: 1.5rem 0; max-width: 40rem; display: flex; flex-direction: column; gap: 1rem; }
+.frame { position: relative; width: 100%; aspect-ratio: 5 / 3; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.fullscreen { position: absolute; inset: 0; overflow: hidden; }
+.table { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+.pond { position: absolute; left: 0; right: 0; top: 0; height: 42%; overflow: hidden; pointer-events: none; background: linear-gradient(to bottom, rgba(40, 80, 90, 0.35), rgba(40, 80, 90, 0.1)); }
+.ring {
+  position: absolute; width: 2.2rem; height: 0.7rem; margin: -0.35rem 0 0 -1.1rem; border: 1px solid rgba(220, 240, 245, 0.7); border-radius: 50%;
+  opacity: 0; animation: ring 4.9s ease-out infinite;
+}
+@keyframes ring { 0% { transform: scale(0.2); opacity: 0.8; } 70% { opacity: 0.2; } 100% { transform: scale(1.4); opacity: 0; } }
+.lotus { position: absolute; top: 30%; width: 3rem; height: 1rem; margin-left: -1.5rem; border-radius: 50%; background: #3f7442; opacity: 0.85; }
+.leaf {
+  position: absolute; left: -2rem; top: 10%; width: 1.4rem; height: 0.8rem; border-radius: 100% 0 100% 0; background: #d79a3c;
+  animation: leaf 16s linear infinite;
+}
+@keyframes leaf { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(calc(40rem + 4rem), 4rem) rotate(240deg); } }
+.pond[data-paused="true"] .ring, .leaf[data-paused="true"] { animation-play-state: paused; }
+.set { position: absolute; left: 50%; bottom: 22%; width: min(86%, 28rem); transform: translateX(-50%); overflow: visible; pointer-events: none; }
+.pot { transform-origin: 110px 160px; transition: transform 300ms ease-out; }
+.cup { transition: transform 200ms ease-out; }
+.stream { transition: opacity 200ms ease-out; }
+.panel { position: absolute; left: 0; right: 0; bottom: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0 1rem; text-align: center; }
+.panel > * { pointer-events: auto; }
+.cue { margin: 0; font-size: clamp(1.1rem, 2.6vw, 1.5rem); }
+.hint { margin: 0; font-size: 0.95rem; opacity: 0.85; }
+.closing { margin: 0; font-size: 1.15rem; }
+@media (prefers-reduced-motion: reduce) {
+  .ring, .leaf { animation: none; }
+  .pot, .cup, .stream { transition: none; }
+}
