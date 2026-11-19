@@ -1,0 +1,21 @@
+.root { display: flex; flex-direction: column; gap: 1rem; max-width: 40rem; }
+.prompt { margin: 0; max-width: 60ch; }
+.label { margin: 0; font-size: 1.5rem; }
+.field { display: flex; flex-direction: column; gap: 0.5rem; }
+.field textarea { font: inherit; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: inherit; resize: vertical; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.next { display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.next p { margin: 0; }
+.live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pond { position: relative; height: 12rem; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+.water { position: absolute; inset: 0; background: linear-gradient(180deg, transparent, var(--border)); opacity: 0.6; }
+.lantern { position: absolute; left: 50%; bottom: 2rem; width: 2.5rem; height: 2rem; margin-left: -1.25rem; border-radius: 0.5rem 0.5rem 1rem 1rem; background: var(--gold); box-shadow: 0 0 1.5rem var(--gold); transition: none; }
+.pond[data-phase="releasing"] .lantern { animation: drift 4s ease-in forwards; }
+.pond[data-phase="released"] .lantern { left: 85%; bottom: 3rem; opacity: 0.35; box-shadow: none; }
+@keyframes drift {
+  from { left: 50%; bottom: 2rem; opacity: 1; }
+  to { left: 85%; bottom: 3rem; opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pond[data-phase="releasing"] .lantern { animation: none; }
+}

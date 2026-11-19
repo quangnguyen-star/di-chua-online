@@ -25,7 +25,7 @@ export const activities: Activity[] = [
   { id: "tea", place: "veranda", label: "Uống trà", href: "/practices/tea", ready: true },
   { id: "sweeping", place: "courtyard", label: "Quét sân", href: "/places/courtyard/sweeping", ready: false, next: "breathing" },
   { id: "incense", place: "hall", label: "Thắp hương", href: "/places/hall/incense", ready: false, next: "sitting" },
-  { id: "lantern", place: "pond", label: "Thả đèn", href: "/places/pond/lantern", ready: false, next: "tea" },
+  { id: "lantern", place: "pond", label: "Thả đèn", href: "/places/pond/lantern", ready: true, next: "tea" },
 ];
 
 /** Where a finished visit continues. */

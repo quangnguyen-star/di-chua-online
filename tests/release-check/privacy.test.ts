@@ -28,3 +28,14 @@ test("analytics payload type has no free-text field", () => {
   const props = src.match(/export type EventProps = \{([^}]*)\}/s)?.[1] ?? "";
   assert.doesNotMatch(props, /intention|text/i);
 });
+
+test("lantern module never tracks, fetches, stores or logs the thought", () => {
+  for (const f of ["app/places/pond/lantern/page.tsx", "app/places/pond/lantern/LanternFlow.tsx"]) {
+    const src = read(f);
+    assert.doesNotMatch(src, /analytics|track\(/i, f);
+    assert.doesNotMatch(src, /fetch\(|sendBeacon|XMLHttpRequest|axios/, f);
+    assert.doesNotMatch(src, /localStorage|sessionStorage|indexedDB|document\.cookie/, f);
+    assert.doesNotMatch(src, /console\./, f);
+    assert.doesNotMatch(src, /useSearchParams|router\.(push|replace)\([^)]*thought/, f);
+  }
+});
