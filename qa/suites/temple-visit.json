@@ -1,0 +1,2836 @@
+{
+  "_about": "Visit flow: mouse, keyboard, End Visit, intention privacy, audio, breathing, reduced motion.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-visit",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-visit",
+    "email": "qa+temple-visit@gomu.ai",
+    "tag": "QA RUN temple-visit"
+  },
+  "scenarios": [
+    {
+      "name": "Home offers the visit and the library",
+      "tags": [
+        "home",
+        "smoke"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit link present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-visit"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "explore link present",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-explore"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "primary action reads Ghé thăm 5 phút",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "home-visit"
+            },
+            "text": "Ghé thăm 5 phút"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "secondary action reads Khám phá các bài thực hành",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "home-explore"
+            },
+            "text": "Khám phá các bài thực hành"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "start the visit",
+          "target": {
+            "by": "testid",
+            "name": "home-visit"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "went to /visit",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "first step shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đến chùa",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "explore practices",
+          "target": {
+            "by": "testid",
+            "name": "home-explore"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "went to /practices",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/practices"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "library heading shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Các bài thực hành",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Full visit by mouse: Skip and End Visit on every step, intention cleared on complete",
+      "tags": [
+        "visit",
+        "mouse",
+        "happy-path"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 1 heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đến chùa",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step counter 1/6",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "Bước 1/6",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "arrive has no Skip (not skippable)",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Bỏ qua",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "End Visit offered on arrive",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 2 heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Dâng hương",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Skip on offering",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Bỏ qua",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "End Visit on offering",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Continue is locked until incense is offered",
+          "expected": {
+            "kind": "disabled",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tiếp tục",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "offer incense",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Dâng hương",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "offered state shown",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "offered-state"
+            },
+            "text": "Bạn đã dâng hương."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Continue unlocks after the offering",
+          "expected": {
+            "kind": "enabled",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tiếp tục",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 3 heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Định tâm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Skip on intention",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Bỏ qua",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "End Visit on intention",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type an intention",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "textarea holds our text",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": "QA intention {{run_id}}"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 4 heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Hít thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Skip on breathing",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Bỏ qua",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "End Visit on breathing",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "breathing practice title",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "{{b_title}}",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "timer shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "breathing-timer"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip the breathing",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 5 heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Lời nhắc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "today's reflection shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "{{r_text}}",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "reflection has no Skip",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Bỏ qua",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "End Visit on reflection",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "step 6 heading",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Kết thúc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no End Visit on the closing step",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "way home offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "link",
+              "name": "Về trang chủ",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "go home",
+          "target": {
+            "by": "role",
+            "role": "link",
+            "name": "Về trang chủ",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Dừng lại một chút",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin a new visit",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip the offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention was cleared after completing the visit",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": ""
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Skip works on every skippable step and the intention does not survive",
+      "tags": [
+        "visit",
+        "skip"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on intention",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Định tâm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type an intention",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip intention",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on breathing",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Hít thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip breathing",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on reflection",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Lời nhắc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on close",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Kết thúc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin again",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention cleared",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": ""
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Full visit by keyboard only",
+      "tags": [
+        "visit",
+        "keyboard",
+        "a11y"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Bắt đầu",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "activate with Enter",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "offering step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Dâng hương",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Dâng hương",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Dâng hương",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "activate with Space",
+          "key": "Space"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "incense offered by keyboard",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "offered-state"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tiếp tục",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "continue",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Định tâm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus the textarea",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tiếp tục",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "continue",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "breathing step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Hít thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tạm dừng",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tạm dừng",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "pause by keyboard",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "paused, resume offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tiếp tục thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tiếp tục thở",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục thở",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "resume by keyboard",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "running again",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tạm dừng",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Bỏ qua",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "skip breathing",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "reflection step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Lời nhắc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus Tiếp tục",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "continue",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "close step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Kết thúc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "focus",
+          "intent": "focus home link",
+          "target": {
+            "by": "role",
+            "role": "link",
+            "name": "Về trang chủ",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "go home",
+          "key": "Enter"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Dừng lại một chút",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "End Visit on the first step needs no confirmation",
+      "tags": [
+        "visit",
+        "end"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "End Visit with nothing typed",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Kết thúc chuyến ghé thăm",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit ended at once",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đã kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no confirmation when there is nothing to clear",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "role",
+              "role": "alertdialog"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "way home offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "link",
+              "name": "Về trang chủ",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "End Visit with an intention asks for confirmation, then clears it",
+      "tags": [
+        "visit",
+        "end",
+        "privacy"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type an intention",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "End Visit",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Kết thúc chuyến ghé thăm",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "confirmation opened",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "alertdialog"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "confirmation text: End this visit? Your intention will be cleared.",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "End this visit? Your intention will be cleared.",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "stay",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Ở lại",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "dialog dismissed",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "role",
+              "role": "alertdialog"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention kept after staying",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": "QA intention {{run_id}}"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "End Visit again",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Kết thúc chuyến ghé thăm",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "confirm ending",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Kết thúc",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit ended",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đã kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin a new visit",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention cleared after ending",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": ""
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type again",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip intention",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "breathing step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Hít thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "End Visit on breathing",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Kết thúc chuyến ghé thăm",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "confirmation on the breathing step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "alertdialog"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "confirm",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Kết thúc",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "ended from breathing",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đã kết thúc chuyến ghé thăm",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Intention is capped at 500 characters",
+      "tags": [
+        "visit",
+        "intention",
+        "edge"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type 520+ characters",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "{{run_id}} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "counter stops at 500/500",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "500/500",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Intention is cleared on leave and on refresh",
+      "tags": [
+        "visit",
+        "intention",
+        "privacy"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type an intention",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "reload",
+          "intent": "refresh the page"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "refresh restarts the visit",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đến chùa",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention cleared by refresh",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": ""
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type again",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "leave to the library",
+          "url": "/practices"
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "come back",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention cleared by leaving",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "label",
+              "name": "Điều bạn muốn gửi gắm hôm nay"
+            },
+            "value": ""
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Audio is offered but never starts without a click",
+      "tags": [
+        "visit",
+        "audio"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "seed a published breathing practice with an audio attachment whose object is missing",
+          "script": "seed_practice.sh",
+          "args": [
+            "{{run_id}}",
+            "audio",
+            "published",
+            "breathing",
+            "audio"
+          ],
+          "capture": {
+            "audio_id": "$.id",
+            "audio_title": "$.title"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip intention",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "breathing step",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Hít thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "audio offered behind a button",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Nghe âm thanh",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "nothing has tried to play yet",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "text",
+              "name": "Không phát được âm thanh"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "probe: no audio element or request before the click",
+          "script": "browser_probe.sh",
+          "args": [
+            "audio-gesture",
+            "{{run_id}}"
+          ],
+          "capture": {
+            "req_before": "$.requests_before_click",
+            "el_before": "$.elements_before_click",
+            "el_after": "$.element_after_click"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no /api/audio request before the click",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "req_before",
+            "value": "0"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no audio element before the click",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "el_before",
+            "value": "0"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "audio element appears only after the click",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "el_after",
+            "value": "1"
+          }
+        }
+      ],
+      "teardown": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "remove this run's practices",
+          "script": "teardown_run.sh",
+          "args": [
+            "{{run_id}}"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Audio failure shows Retry Audio and the text flow continues",
+      "tags": [
+        "visit",
+        "audio",
+        "error"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "seed a published breathing practice with an audio attachment whose object is missing",
+          "script": "seed_practice.sh",
+          "args": [
+            "{{run_id}}",
+            "audio",
+            "published",
+            "breathing",
+            "audio"
+          ],
+          "capture": {
+            "audio_id": "$.id",
+            "audio_title": "$.title"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip intention",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "ask for audio (the object is missing, so it fails)",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Nghe âm thanh",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "failure announced",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "Không phát được âm thanh"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Retry Audio offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Retry Audio",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "guidance text still readable",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "text",
+              "name": "{{audio_title}}",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "retry",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Retry Audio",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "still failing: Retry Audio offered again",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Retry Audio",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "breathing controls still work",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tạm dừng",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue the flow without audio",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "reflection reached",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Lời nhắc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit completed",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Kết thúc",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "remove this run's practices",
+          "script": "teardown_run.sh",
+          "args": [
+            "{{run_id}}"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Breathing pauses, resumes and survives hiding the tab",
+      "tags": [
+        "visit",
+        "breathing"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip the offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip the intention",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "timer shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "breathing-timer"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "pause offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tạm dừng",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "pause",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tạm dừng",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Resume offered",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tiếp tục thở",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "pause replaced",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tạm dừng",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "resume",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục thở",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "running again",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tạm dừng",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "probe: timer freezes on pause, runs on resume, pauses on visibilitychange",
+          "script": "browser_probe.sh",
+          "args": [
+            "breathing",
+            "{{run_id}}"
+          ],
+          "capture": {
+            "frozen": "$.frozen_while_paused",
+            "resumed": "$.resumed_counting",
+            "hid": "$.hidden_pauses",
+            "hid_frozen": "$.hidden_frozen"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "timer frozen while paused",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "frozen",
+            "value": "yes"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "timer counts after Resume",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "resumed",
+            "value": "yes"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hiding the tab pauses (Resume offered)",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "hid",
+            "value": "yes"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "timer frozen while hidden",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "hid_frozen",
+            "value": "yes"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Reduced motion gives a static offered state",
+      "tags": [
+        "visit",
+        "a11y",
+        "motion"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "offer incense",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Dâng hương",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "offered state is plain text",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "offered-state"
+            },
+            "text": "Bạn đã dâng hương."
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "continue unlocked",
+          "expected": {
+            "kind": "enabled",
+            "target": {
+              "by": "role",
+              "role": "button",
+              "name": "Tiếp tục",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "probe: ember animation under prefers-reduced-motion",
+          "script": "browser_probe.sh",
+          "args": [
+            "reduced-motion",
+            "{{run_id}}"
+          ],
+          "capture": {
+            "reduced": "$.reduced_animation",
+            "default": "$.default_animation",
+            "offered": "$.reduced_offered"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no animation when reduced motion is requested",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "reduced",
+            "value": "none"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "animation only when motion is allowed",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "default",
+            "value": "visit-glow"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "offered state still reaches Continue",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "offered",
+            "value": "yes"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Intention text never appears in any request, URL or storage",
+      "tags": [
+        "visit",
+        "privacy",
+        "network"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "type an intention in this session",
+          "target": {
+            "by": "label",
+            "name": "Điều bạn muốn gửi gắm hôm nay"
+          },
+          "value": "QA intention {{run_id}}"
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "probe: full visit incl. end/refresh, recording requests and storage",
+          "script": "browser_probe.sh",
+          "args": [
+            "privacy",
+            "{{run_id}}"
+          ],
+          "capture": {
+            "leaks": "$.leaks",
+            "checked": "$.checked"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the probe saw requests",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "checked",
+            "value": "yes"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "intention text found in no request, URL, cookie, storage or page",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "leaks",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "A completed visit records aggregate events",
+      "tags": [
+        "visit",
+        "analytics",
+        "backend-effect"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "read visit_started total",
+          "script": "event_total.sh",
+          "args": [
+            "visit_started"
+          ],
+          "capture": {
+            "visit_started_before": "$.total"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "read visit_completed total",
+          "script": "event_total.sh",
+          "args": [
+            "visit_completed"
+          ],
+          "capture": {
+            "visit_completed_before": "$.total"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "begin",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bắt đầu",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip offering",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip intention",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "skip breathing",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Bỏ qua",
+            "exact": true
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "continue",
+          "target": {
+            "by": "role",
+            "role": "button",
+            "name": "Tiếp tục",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "completed",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Kết thúc",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "visit_started advanced",
+          "script": "event_total.sh",
+          "args": [
+            "visit_started",
+            "{{visit_started_before}}"
+          ],
+          "capture": {
+            "s": "$.advanced"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "visit_completed advanced",
+          "script": "event_total.sh",
+          "args": [
+            "visit_completed",
+            "{{visit_completed_before}}"
+          ],
+          "capture": {
+            "c": "$.advanced"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit_started recorded",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "s",
+            "value": "yes"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit_completed recorded",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "c",
+            "value": "yes"
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

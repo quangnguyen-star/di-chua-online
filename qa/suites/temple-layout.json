@@ -1,0 +1,214 @@
+{
+  "_about": "Narrow-screen layout: 360px overflow via browser_probe.sh, plus a phone-device smoke.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-layout",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000,
+    "device": "phone"
+  },
+  "namespace": {
+    "run_id": "temple-layout",
+    "email": "qa+temple-layout@gomu.ai",
+    "tag": "QA RUN temple-layout"
+  },
+  "scenarios": [
+    {
+      "name": "360px: no horizontal scroll on home",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure scrollWidth - clientWidth at 360px on /",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "page is not wider than the viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on visit (every step)",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure scrollWidth - clientWidth at 360px on /visit",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/visit"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "page is not wider than the viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "360px: no horizontal scroll on library",
+      "tags": [
+        "layout",
+        "responsive"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "shell",
+          "intent": "measure scrollWidth - clientWidth at 360px on /practices",
+          "script": "browser_probe.sh",
+          "args": [
+            "overflow",
+            "{{run_id}}",
+            "/practices"
+          ],
+          "capture": {
+            "over": "$.overflow_px"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "page is not wider than the viewport",
+          "expected": {
+            "kind": "capture_equals",
+            "capture_name": "over",
+            "value": "0"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Phone: home primary actions reachable",
+      "tags": [
+        "layout",
+        "phone"
+      ],
+      "setup": [
+        {
+          "kind": "action",
+          "op": "api",
+          "intent": "precondition: published content exists (SEED_PUBLISHED=1)",
+          "method": "GET",
+          "api_path": "/api/visit-snapshot",
+          "capture": {
+            "b_title": "$.breathing.title",
+            "b_body": "$.breathing.body",
+            "r_text": "$.reflection.text"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit action visible",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-visit"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "explore action visible",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-explore"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "start from the phone home",
+          "target": {
+            "by": "testid",
+            "name": "home-visit"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "visit begins",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "heading",
+              "name": "Đến chùa",
+              "exact": true
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}
