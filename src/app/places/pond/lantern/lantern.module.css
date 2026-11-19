@@ -1,29 +1,20 @@
 .root { display: flex; flex-direction: column; gap: 1rem; max-width: 40rem; }
+.stage { position: fixed; inset: 0; z-index: -1; }
+.embedded { position: absolute; inset: 0; color: #f4ead8; }
 .prompt { margin: 0; max-width: 60ch; }
 .label { margin: 0; font-size: 1.5rem; }
-.field { display: flex; flex-direction: column; gap: 0.5rem; }
-.field textarea { font: inherit; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: inherit; resize: vertical; }
 .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.next { display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
-.next p { margin: 0; }
 .live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.pond { position: relative; height: 12rem; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
-.water { position: absolute; inset: 0; background: linear-gradient(180deg, transparent, var(--border)); opacity: 0.6; }
-.lantern { position: absolute; left: 50%; bottom: 2rem; width: 2.5rem; height: 2rem; margin-left: -1.25rem; border-radius: 0.5rem 0.5rem 1rem 1rem; background: var(--gold); box-shadow: 0 0 1.5rem var(--gold); transition: none; }
-.pond[data-phase="releasing"] .lantern { animation: drift 4s ease-in forwards; }
-.pond[data-phase="released"] .lantern { left: 85%; bottom: 3rem; opacity: 0.35; box-shadow: none; }
-@keyframes drift {
-  from { left: 50%; bottom: 2rem; opacity: 1; }
-  to { left: 85%; bottom: 3rem; opacity: 0.35; }
-}
+.paper { width: min(100%, 36rem); max-height: 100%; overflow: auto; padding: 0.75rem 1rem; border-radius: var(--radius, 0.5rem); background: #f4ead8; color: #2b2118; text-shadow: none; box-shadow: 0 6px 24px rgba(10, 8, 6, 0.45); }
+.field { display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.9rem; }
+.field textarea { font: inherit; padding: 0.6rem; border: 1px solid #b9a98c; border-radius: 0.4rem; background: #fffaf0; color: inherit; resize: none; }
+.colors { border: 0; margin: 0 0 0.5rem; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.colors legend { float: left; padding: 0; margin-right: 0.5rem; font-size: 0.9rem; }
+.colorButton { min-height: 44px; padding: 0 1rem; border: 1px solid #b9a98c; border-radius: 999px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.colorButton[aria-pressed="true"] { outline: 2px solid #9c6f22; outline-offset: 2px; font-weight: 600; }
+.sheet { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; min-height: 6rem; justify-content: center; text-align: center; }
+.heldLantern { width: 4.5rem; height: auto; animation: held 2.4s ease-in-out infinite; }
+@keyframes held { 50% { transform: translateY(-3px); filter: brightness(1.15); } }
 @media (prefers-reduced-motion: reduce) {
-  .pond[data-phase="releasing"] .lantern { animation: none; }
+  .heldLantern { animation: none; }
 }
-.stage { position: fixed; inset: 0; z-index: -1; }
-.sceneBox { position: relative; height: 16rem; border-radius: var(--radius); overflow: hidden; }
-.embedded { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.75rem; padding: 0 1rem 4.5rem; color: #f4ead8; text-shadow: 0 1px 8px rgba(10, 8, 6, 0.8); }
-.overlay { position: absolute; inset: 0; }
-.embedded > :not(.overlay) { position: relative; max-width: 40rem; margin: 0 auto; width: 100%; }
-.colors { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.colors legend { padding: 0; margin-bottom: 0.5rem; }
-.colors [aria-pressed="true"] { outline: 2px solid var(--gold, #f2c566); outline-offset: 2px; font-weight: 600; }

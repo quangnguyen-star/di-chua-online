@@ -1,8 +1,9 @@
-import type { Container, Filter, Sprite } from "pixi.js";
+import type { Container, Filter, Graphics, Sprite, Texture } from "pixi.js";
 import {
   bakeBankAndGate, bakeCrackle, bakeDot, bakeFarMountains, bakeLantern, bakeMidMountains, bakeOrb, bakeSky, bakeWater,
   HORIZON_Y, rng, WORLD_H, WORLD_W,
 } from "../art.ts";
+import { createLanternCanvas, LANTERN_COLORS, type LanternColor } from "../../lantern/bake.ts";
 import { lanternCount } from "../lighting.ts";
 import { createWaterFilter } from "../waterFilter.ts";
 import type { PlaceScene, PondApi, SceneContext, SceneInstance } from "./types.ts";
@@ -11,13 +12,20 @@ const MAX_PARTICLES = 24;
 const MAX_LANTERNS = 14;
 const MAX_LANTERNS_LOW = 8;
 const MAX_ZOOM_OUT = 0.12;
+const MAX_RINGS = 6;
+const RING_S = 1.4;
+const FIELD_COLORS = LANTERN_COLORS;
+const LANTERN_COLORS_HEX: Record<LanternColor, string> = { pink: "#ffb3c4", gold: "#ffd36b", white: "#fff6e0" };
+/** Reflection strokes: [dy, half-width, dx] from the lantern, each one shorter and offset so the column reads as broken water. */
+const REFLECTION_BREAKS: readonly (readonly [number, number, number])[] = [[0, 12, 0], [9, 9, -4], [19, 7, 5], [31, 5, -3]];
 
-interface Lantern { box: Container; baseY: number; speed: number; phase: number; x: number }
+interface Lantern { box: Container; reflection: Container; baseY: number; speed: number; phase: number; x: number }
+interface Ring { g: Graphics; age: number }
 interface Mote { sprite: Sprite; x: number; y: number; vx: number; vy: number; phase: number }
 
 export const pondLayers = ["sky", "orb", "far-hills", "mid-hills", "mist", "bank-and-gate", "water", "lanterns", "motes", "wash", "crackle"] as const;
 
-/** The river: the only scene with water, lanterns, lily pads and motes. C4 builds the lantern flow on this file. */
+/** The river: the only scene with water, lotus lanterns, lily pads and motes. The lantern flow drives it through PondApi; it draws, React keeps the clock. */
 function buildPond(ctx: SceneContext): SceneInstance {
   const { pixi, palette: p, options: o } = ctx;
   ctx.layer("sky", new pixi.Sprite(ctx.tex(bakeSky(p, HORIZON_Y))));
@@ -53,39 +61,69 @@ function buildPond(ctx: SceneContext): SceneInstance {
   waterBox.filters = [waterFx.filter];
   ctx.layer("water", waterBox);
 
-  const lanternTex = bakeLantern();
-  const bodyTex = ctx.tex(lanternTex.body);
-  const glowTex = ctx.tex(lanternTex.glow);
-  const reflectionTex = ctx.tex(lanternTex.reflection);
   const lanternLayer = new pixi.Container();
   ctx.layer("lanterns", lanternLayer);
+  const reflectionLayer = new pixi.Container();
+  waterBox.addChild(reflectionLayer);
   const lanterns: Lantern[] = [];
+  const rings: Ring[] = [];
   const maxLanterns = o.quality === "low" ? MAX_LANTERNS_LOW : MAX_LANTERNS;
   const rand = rng(5);
-  let held: string | null = null;
+  let held: LanternColor | null = null;
   let lit = false;
   let drift = 1;
 
-  const spawnLantern = (x: number, y: number, tint?: string) => {
+  const lotusTex = new Map<string, Texture>();
+  const lotus = (color: LanternColor, prominent: boolean): Texture => {
+    const key = `${color}:${prominent}`;
+    let t = lotusTex.get(key);
+    if (!t) {
+      t = ctx.tex(createLanternCanvas(color, prominent));
+      lotusTex.set(key, t);
+    }
+    return t;
+  };
+  const glowTex = ctx.tex(bakeLantern().glow);
+
+  /** Reflection: short horizontal strokes with gaps, so the water filter breaks them up instead of leaving a vertical line. */
+  const makeReflection = (color: LanternColor, scale: number) => {
     const box = new pixi.Container();
+    const g = new pixi.Graphics();
+    REFLECTION_BREAKS.forEach(([dy, w, dx], i) => {
+      g.ellipse(dx * scale, dy * scale, w * scale, 2.2 * scale).fill({ color: Number.parseInt(LANTERN_COLORS_HEX[color].slice(1), 16), alpha: 0.42 - i * 0.07 });
+    });
+    box.addChild(g);
+    return box;
+  };
+
+  const spawnLantern = (x: number, y: number, color: LanternColor, mine: boolean) => {
+    const box = new pixi.Container();
+    const scale = mine ? 1.15 : 0.9;
     const glow = new pixi.Sprite(glowTex);
     glow.anchor.set(0.5);
     glow.blendMode = "add";
-    glow.position.set(0, -10);
-    const reflection = new pixi.Sprite(reflectionTex);
-    reflection.anchor.set(0.5, 0);
-    reflection.position.set(0, 14);
-    const body = new pixi.Sprite(bodyTex);
-    body.anchor.set(0.5, 0.8);
-    if (tint) body.tint = tint;
-    box.addChild(reflection, glow, body);
+    glow.tint = Number.parseInt(LANTERN_COLORS_HEX[color].slice(1), 16);
+    glow.alpha = mine ? 1 : 0.6;
+    glow.position.set(0, -8);
+    const body = new pixi.Sprite(lotus(color, mine));
+    body.anchor.set(0.5, 0.6);
+    box.addChild(glow, body);
+    box.scale.set(scale);
     box.position.set(x, y);
     lanternLayer.addChild(box);
-    lanterns.push({ box, baseY: y, x, speed: 2 + rand() * 4, phase: rand() * 6.28 });
-    while (lanterns.length > maxLanterns) lanterns.shift()?.box.destroy({ children: true });
+    const reflection = makeReflection(color, scale);
+    reflectionLayer.addChild(reflection);
+    lanterns.push({ box, reflection, baseY: y, x, speed: 2 + rand() * 4, phase: rand() * 6.28 });
+    while (lanterns.length > maxLanterns) {
+      const old = lanterns.shift();
+      old?.box.destroy({ children: true });
+      old?.reflection.destroy({ children: true });
+    }
   };
   const initial = Math.min(lanternCount(o.lighting, o.ram), maxLanterns);
-  for (let i = 0; i < initial; i++) spawnLantern(100 + rand() * (WORLD_W - 200), HORIZON_Y + 50 + rand() * 110);
+  for (let i = 0; i < initial; i++) {
+    spawnLantern(100 + rand() * (WORLD_W - 200), HORIZON_Y + 50 + rand() * 110, FIELD_COLORS[i % FIELD_COLORS.length], false);
+  }
 
   const dotTex = ctx.tex(bakeDot());
   const motes: Mote[] = [];
@@ -108,9 +146,20 @@ function buildPond(ctx: SceneContext): SceneInstance {
 
   let activeMotes = motes.length;
 
+  const ringAt = (x: number, y: number) => {
+    const g = new pixi.Graphics().ellipse(0, 0, 26, 8).stroke({ width: 1.5, color: 0xfff4dc, alpha: 0.8 });
+    g.position.set(x, y);
+    reflectionLayer.addChild(g);
+    rings.push({ g, age: 0 });
+    while (rings.length > MAX_RINGS) rings.shift()?.g.destroy();
+    ctx.requestRender();
+  };
+
   const lowerAt = (x: number, y: number) => {
     if (y < HORIZON_Y + 10 || y > WORLD_H - 10 || x < 0 || x > WORLD_W) return;
-    spawnLantern(x, y, held && lit ? held : undefined);
+    ringAt(x, y);
+    if (!held || !lit) return;
+    spawnLantern(x, y, held, true);
     held = null;
     lit = false;
     ctx.requestRender();
@@ -118,7 +167,7 @@ function buildPond(ctx: SceneContext): SceneInstance {
 
   const pond: PondApi = {
     setLantern(color) {
-      held = color;
+      held = color === "pink" || color === "gold" || color === "white" ? color : null;
       lit = false;
     },
     light() {
@@ -127,7 +176,7 @@ function buildPond(ctx: SceneContext): SceneInstance {
     lower: lowerAt,
     ripple(clientX, clientY) {
       const [x, y] = ctx.toWorld(clientX, clientY);
-      lowerAt(x, y);
+      if (y >= HORIZON_Y + 10 && y <= WORLD_H - 10 && x >= 0 && x <= WORLD_W) ringAt(x, y);
     },
     setDrift(amount) {
       drift = Math.min(1, Math.max(0, amount));
@@ -144,7 +193,21 @@ function buildPond(ctx: SceneContext): SceneInstance {
       for (const l of lanterns) {
         l.x += l.speed * drift * dt;
         if (l.x > WORLD_W + 40) l.x = -40;
-        l.box.position.set(l.x, l.baseY + Math.sin(time * 0.9 + l.phase) * 1.5);
+        const y = l.baseY + Math.sin(time * 0.9 + l.phase) * 1.5;
+        l.box.position.set(l.x, y);
+        l.reflection.position.set(l.x + Math.sin(time * 1.3 + l.phase) * 3, y + 14);
+      }
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const r = rings[i];
+        r.age += dt;
+        const t = r.age / RING_S;
+        if (t >= 1) {
+          r.g.destroy();
+          rings.splice(i, 1);
+          continue;
+        }
+        r.g.scale.set(0.3 + t * 1.7);
+        r.g.alpha = 1 - t;
       }
       for (let i = 0; i < activeMotes; i++) {
         const m = motes[i];

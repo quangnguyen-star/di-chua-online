@@ -1,2 +1,3 @@
-export { RiverScene, lanternColors } from "./RiverScene";
-export type { RiverPhase, LanternColor } from "./RiverScene";
+export { lanternColors, nextStep, release, stepDuration, releaseDuration, pullRatio, isReleasing, clampDrift } from "./sequence";
+export { applyStep, resetScene } from "./effects";
+export type { LanternColor, RiverStep } from "./sequence";

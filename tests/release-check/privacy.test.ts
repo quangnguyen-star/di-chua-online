@@ -33,8 +33,10 @@ test("lantern module never tracks, fetches, stores or logs the thought", () => {
   for (const f of [
     "app/places/pond/lantern/page.tsx",
     "app/places/pond/lantern/LanternFlow.tsx",
-    "components/temple/river/RiverScene.tsx",
+    "components/temple/river/sequence.ts",
+    "components/temple/river/effects.ts",
     "components/temple/river/index.ts",
+    "components/temple/stage/scenes/pond.ts",
   ]) {
     const src = read(f);
     assert.doesNotMatch(src, /analytics|track\(/i, f);
@@ -45,14 +47,33 @@ test("lantern module never tracks, fetches, stores or logs the thought", () => {
   }
 });
 
-test("river renderer has no renderer dependency, network, storage or text input", () => {
-  const src = read("components/temple/river/RiverScene.tsx");
-  assert.doesNotMatch(src, /pixi|import\(|from "(?!@\/components\/temple\/art|\.\/river\.module\.css|react)/, "river imports");
-  assert.doesNotMatch(src, /thought|textarea|<input|localStorage|sessionStorage|indexedDB|fetch\(|console\./);
+test("river sequence, effects and pond scene have no text input and never see the thought", () => {
+  for (const f of [
+    "components/temple/river/sequence.ts",
+    "components/temple/river/effects.ts",
+    "components/temple/stage/scenes/pond.ts",
+  ]) {
+    const src = read(f);
+    assert.doesNotMatch(src, /thought|textarea|<input|localStorage|sessionStorage|indexedDB|fetch\(|console\./, f);
+  }
+  assert.doesNotMatch(read("components/temple/river/index.ts"), /thought/);
+});
+
+test("no thought value reaches the scene API", () => {
+  const src = read("app/places/pond/lantern/LanternFlow.tsx");
+  assert.doesNotMatch(src, /(?:pond|resetScene|applyStep)\w*\??\.?\([^)]*thought/, "scene call takes the thought");
+  assert.doesNotMatch(src, /<SceneStage[^>]*thought/);
+  assert.doesNotMatch(src, /\bthought\b[^;\n]*(?:pondRef|sceneHandle)|(?:pondRef|sceneHandle)[^;\n]*\bthought\b/);
+});
+
+test("the paper panel unmounts the textarea on fold, so the sheet that is folded is blank", () => {
+  const src = read("app/places/pond/lantern/LanternFlow.tsx");
+  assert.match(src, /step === "writing" \? \(\s*<>[\s\S]*data-testid="lantern-thought"[\s\S]*\) : \(\s*<div className=\{styles\.sheet\}/);
+  assert.match(src, /thoughtRef\.current\.value = "";\s*setThought\(""\);\s*setStep\(startRelease\("writing"\)\)/);
 });
 
 test("lantern flow clears the thought on fold and keeps it out of URLs", () => {
   const src = read("app/places/pond/lantern/LanternFlow.tsx");
-  assert.match(src, /setThought\(""\);\s*setPhase\("releasing"\)/);
+  assert.match(src, /setThought\(""\);\s*setStep\(startRelease\("writing"\)\)/);
   assert.doesNotMatch(src, /href=\{[^}]*thought|useEffect\([^)]*thought/);
 });
