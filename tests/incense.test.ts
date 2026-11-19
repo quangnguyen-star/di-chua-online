@@ -2,16 +2,12 @@ import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
 import {
   SPENT_KEY,
-  STICKS,
-  breathPhase,
+  DEFAULT_STICK,
   burnProgress,
-  formatRemaining,
   incenseActivity,
   markSpent,
-  parseVariant,
   readSpent,
   resetSpentMemory,
-  variantDefaults,
   type IncenseEvent,
   type IncenseState,
 } from "../src/app/places/hall/incense.ts";
@@ -21,9 +17,12 @@ const run = (events: IncenseEvent["type"][], seconds = 120): IncenseState =>
 
 beforeEach(resetSpentMemory);
 
-test("sticks are 120, 300 or 600 seconds", () => {
-  assert.deepEqual([...STICKS], [120, 300, 600]);
-  assert.equal(incenseActivity.initial({ seconds: 600 }).remainingMs, 600000);
+test("one ritual: the stick starts ready with the default burn length", () => {
+  const initial = incenseActivity.initial({});
+  assert.equal(initial.phase, "ready");
+  assert.equal(initial.seconds, DEFAULT_STICK);
+  assert.equal(initial.remainingMs, DEFAULT_STICK * 1000);
+  assert.equal(incenseActivity.initial({ seconds: 45 }).remainingMs, 45000);
 });
 
 test("light, extinguish and place in order; later light is a no-op", () => {
@@ -61,26 +60,13 @@ test("burnProgress is clamped to 0..1", () => {
   assert.equal(burnProgress(999999, 300), 0);
 });
 
-test("formatRemaining rounds up to whole seconds", () => {
-  assert.equal(formatRemaining(180000), "3:00");
-  assert.equal(formatRemaining(59001), "1:00");
-  assert.equal(formatRemaining(0), "0:00");
-});
-
-test("breath cue is 4 s in then 6 s out", () => {
-  assert.equal(breathPhase(0), "in");
-  assert.equal(breathPhase(3999), "in");
-  assert.equal(breathPhase(4000), "out");
-  assert.equal(breathPhase(9999), "out");
-  assert.equal(breathPhase(10000), "in");
-});
-
-test("variants pick their defaults and unknown values fall back to incense", () => {
-  assert.equal(parseVariant("breathing"), "breathing");
-  assert.equal(parseVariant(["sitting"]), "sitting");
-  assert.equal(parseVariant("nope"), "incense");
-  assert.equal(parseVariant(undefined), "incense");
-  assert.deepEqual(variantDefaults("breathing"), { seconds: 120, cue: "paced" });
+test("the full ritual runs pull, light, extinguish, place in order", () => {
+  assert.equal(run(["pull"]).phase, "pulled");
+  assert.equal(run(["pull", "pull"]).phase, "pulled");
+  assert.equal(run(["pull", "light"]).phase, "burning");
+  assert.equal(run(["pull", "light", "pull"]).phase, "burning");
+  assert.equal(run(["pull", "light", "extinguish", "place"]).phase, "placed");
+  assert.equal(run(["place", "extinguish"]).phase, "ready");
 });
 
 test("spent flag is the only stored value and survives a failing storage in memory", () => {

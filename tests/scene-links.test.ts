@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 const scenes: [string, string][] = [
-  ["src/app/places/hall/page.tsx", "hall"],
+  ["src/app/places/hall/IncenseHall.tsx", "hall"],
   ["src/app/places/courtyard/sweeping/Sweeping.tsx", "courtyard"],
   ["src/app/places/pond/lantern/LanternFlow.tsx", "pond"],
   ["src/app/places/veranda/page.tsx", "veranda"],

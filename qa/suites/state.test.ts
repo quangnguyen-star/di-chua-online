@@ -4,7 +4,7 @@ import { dailyWords, visitStages, wordForDate } from "../../src/content/index.ts
 import { routes } from "../../src/content/routes.ts";
 import { appearanceFor, vnNow } from "../../src/lib/clock.ts";
 import { buildIcs } from "../../src/lib/ics.ts";
-import { DEFAULT_STICK, STICKS, incenseActivity, variantDefaults } from "../../src/app/places/hall/incense.ts";
+import { DEFAULT_STICK, incenseActivity } from "../../src/app/places/hall/incense.ts";
 import { LEAF_CAP, spawnLeaf, freshWorld } from "../../src/app/places/courtyard/sweeping/logic.ts";
 
 // Run with: node --test --experimental-strip-types qa/suites/state.test.ts
@@ -17,26 +17,28 @@ test("tour: six stops in route order totalling 300 active seconds", () => {
   assert.deepEqual(visitStages.map((s) => s.id), routes.map((r) => r.id));
 });
 
-test("hall: sticks 120/300/600, default 300, variants preselect their duration", () => {
-  assert.deepEqual([...STICKS], [120, 300, 600]);
-  assert.equal(DEFAULT_STICK, 300);
-  assert.equal(variantDefaults("incense").seconds, 300);
-  assert.equal(variantDefaults("breathing").seconds, 120);
-  assert.equal(variantDefaults("sitting").seconds, 300);
+test("hall: one ritual, sized by the stop and not by a stick choice", () => {
+  assert.equal(DEFAULT_STICK, 30);
+  assert.equal(incenseActivity.initial({}).seconds, 30);
+  assert.equal(incenseActivity.initial({ seconds: 30 }).phase, "ready");
 });
 
-test("hall: keyboard-reachable states follow ready, burning, paused, burning, extinguished, placed", () => {
-  let s = incenseActivity.initial({ seconds: 300 });
+test("hall: pull, light, extinguish, place; light cannot start twice", () => {
+  let s = incenseActivity.initial({ seconds: 30 });
   const seen = [s.phase];
-  for (const type of ["light", "pause", "resume", "extinguish", "place"] as const) {
+  for (const type of ["pull", "light", "light", "extinguish", "place"] as const) {
     s = incenseActivity.reduce(s, { type });
     seen.push(s.phase);
   }
-  assert.deepEqual(seen, ["ready", "burning", "paused", "burning", "extinguished", "placed"]);
+  assert.deepEqual(seen, ["ready", "pulled", "burning", "burning", "extinguished", "placed"]);
+});
+
+test("hall: Light works straight from ready for keyboard users", () => {
+  assert.equal(incenseActivity.reduce(incenseActivity.initial({ seconds: 30 }), { type: "light" }).phase, "burning");
 });
 
 test("hall: burning out reaches spent, not placed", () => {
-  let s = incenseActivity.reduce(incenseActivity.initial({ seconds: 120 }), { type: "light" });
+  let s = incenseActivity.reduce(incenseActivity.initial({ seconds: 30 }), { type: "light" });
   const { tick } = incenseActivity;
   assert.ok(tick, "incense activity defines a tick");
   s = tick(s, 0);

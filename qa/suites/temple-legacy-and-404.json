@@ -272,13 +272,13 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "sitting variant heading shown",
+          "intent": "hall heading shown",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "role",
               "role": "heading",
-              "name": "Ngồi yên bên nén hương",
+              "name": "Thắp nhang",
               "exact": true
             }
           }
@@ -286,14 +286,13 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "300 s stick preselected",
+          "intent": "hall page shown",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "incense-remaining"
-            },
-            "text": "5:00"
+              "name": "incense-page"
+            }
           }
         }
       ],
