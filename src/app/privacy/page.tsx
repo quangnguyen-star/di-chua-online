@@ -6,18 +6,20 @@ export default function PrivacyPage() {
   return (
     <>
       <h1>Quyền riêng tư</h1>
-      <section>
-        <h2>Ý định của bạn</h2>
+      <section data-testid="privacy-anonymous">
+        <h2>Ẩn danh</h2>
+        <p>Bạn không cần tài khoản hay đăng nhập. Chúng tôi không biết bạn là ai.</p>
+      </section>
+      <section data-testid="privacy-storage">
+        <h2>Không lưu trữ</h2>
         <p>
-          Nếu bạn đặt một ý định cho buổi ghé thăm, ý định đó chỉ nằm trên thiết bị của bạn trong lúc
-          bạn dùng trang. Chúng tôi không lưu trữ và không gửi ý định đó đi đâu cả.
+          Chúng tôi không lưu thông tin về bạn hay về buổi ghé thăm của bạn. Điều bạn nghĩ hay đặt làm ý
+          định chỉ tồn tại trên màn hình của bạn trong lúc dùng trang.
         </p>
       </section>
-      <section>
-        <h2>Những gì chúng tôi không làm</h2>
-        <p>
-          Chúng tôi không yêu cầu tài khoản và không thu thập thông tin cá nhân của người truy cập.
-        </p>
+      <section data-testid="privacy-telemetry">
+        <h2>Không theo dõi</h2>
+        <p>Trang không dùng công cụ theo dõi hay đo lường hành vi, và không chia sẻ dữ liệu với bên nào.</p>
       </section>
       <p>
         <Link href="/">Về trang chủ</Link>

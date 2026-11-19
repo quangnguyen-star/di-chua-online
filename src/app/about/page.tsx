@@ -6,26 +6,37 @@ export default function AboutPage() {
   return (
     <>
       <h1>Giới thiệu</h1>
-      <section>
-        <h2>Những lời nhắc mang tính biểu tượng</h2>
+      <section data-testid="about-inspiration">
+        <h2>Cảm hứng văn hoá</h2>
         <p>
-          Các lời nhắc và bài thực hành ở đây chỉ là những món quà mang tính biểu tượng, nhằm giúp bạn
-          dừng lại và hít thở. Đây không phải là lời khuyên y tế hay trị liệu.
+          Đi Chùa Online lấy cảm hứng từ nếp ghé chùa quen thuộc của người Việt: bước qua cổng, đi chậm
+          lại, lắng yên một lát rồi trở về với việc thường ngày.
         </p>
       </section>
-      <section>
-        <h2>Thẩm định nội dung</h2>
+      <section data-testid="about-independence">
+        <h2>Độc lập với mọi ngôi chùa</h2>
         <p>
-          Mỗi nội dung đều được một người biên tập xem xét trước khi đăng. Chỉ những nội dung đã qua
-          thẩm định mới xuất hiện trên trang.
+          Trang này không thuộc về, không đại diện và không được bảo trợ bởi bất kỳ ngôi chùa, tổ chức
+          hay tôn giáo nào. Chúng tôi không nhận mình có liên kết với ai.
         </p>
       </section>
-      <section>
-        <h2>Ghi công</h2>
+      <section data-testid="about-authorship">
+        <h2>Tác giả nội dung</h2>
         <p>
-          Mỗi lời nhắc đều ghi rõ nguồn. Trang không đại diện hay liên kết với bất kỳ tổ chức, tôn giáo
-          hay thương hiệu nào, và không nhận quyên góp.
+          Các bài thực hành và lời nhắc hằng ngày do đội ngũ Đi Chùa Online tự biên soạn. Đây không phải
+          lời khuyên y tế hay trị liệu.
         </p>
+      </section>
+      <section data-testid="about-media">
+        <h2>Ghi công hình ảnh và âm thanh</h2>
+        <p>
+          Hình minh hoạ do đội ngũ Đi Chùa Online thực hiện. Trang không dùng âm thanh hay hình ảnh của
+          bên thứ ba.
+        </p>
+      </section>
+      <section data-testid="about-donation">
+        <h2>Không quyên góp</h2>
+        <p>Trang không nhận quyên góp, không bán hàng và không đưa ra lời kêu gọi đóng góp tiền bạc.</p>
       </section>
       <p>
         <Link href="/">Về trang chủ</Link>

@@ -1,13 +1,11 @@
-import Link from "next/link";
+import { ErrorState } from "@/components/shell/ErrorState";
 
 export default function PracticeNotFound() {
   return (
-    <div className="empty" data-testid="practice-not-found">
-      <h1>Không tìm thấy bài thực hành</h1>
-      <p>Bài thực hành này không tồn tại hoặc chưa được đăng.</p>
-      <Link href="/practices" className="button">
-        Xem các bài thực hành
-      </Link>
-    </div>
+    <ErrorState
+      title="Không tìm thấy bài thực hành"
+      body="Bài thực hành này không tồn tại."
+      actions={[{ label: "Xem các bài thực hành", href: "/practices" }]}
+    />
   );
 }
