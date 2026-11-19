@@ -5,7 +5,7 @@ export const metadata = { title: "Các bài thực hành" };
 
 export default function PracticesPage() {
   return (
-    <>
+    <div className="practice">
       <h1>Các bài thực hành</h1>
       <ul className="cards">
         {practices.map((p) => (
@@ -22,6 +22,6 @@ export default function PracticesPage() {
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }

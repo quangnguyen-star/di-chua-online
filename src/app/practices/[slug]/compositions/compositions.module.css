@@ -1,0 +1,19 @@
+.frame { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 1.5rem 0; padding: 1.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.caption { margin: 0; text-align: center; }
+.circle { width: clamp(180px, 50vw, 320px); height: auto; aspect-ratio: 1; display: block; }
+.window { width: clamp(200px, 60vw, 320px); height: auto; display: block; }
+.tea { width: clamp(220px, 60vw, 340px); height: auto; display: block; }
+.ring { transition: stroke-dashoffset 400ms linear; }
+.steam { fill: none; stroke: var(--text-muted); stroke-width: 3; stroke-linecap: round; opacity: 0.35; }
+.steamLive { animation: drift 4s ease-in-out infinite alternate; }
+.steam2 { animation-delay: 1.3s; }
+.steam3 { animation-delay: 2.6s; }
+.light { transition: opacity 600ms ease-out; }
+@keyframes drift {
+  from { transform: translateY(0); opacity: 0.2; }
+  to { transform: translateY(-6px); opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ring, .light { transition: none; }
+  .steamLive { animation: none; }
+}
