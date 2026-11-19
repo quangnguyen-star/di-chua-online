@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
-import { AudioEngine } from "../../lib/audio/engine.ts";
+import { mixer } from "../../lib/audio/mixer.ts";
 import {
   audioReducer,
   canPlay,
@@ -52,13 +52,14 @@ export function useAtmosphere(): Atmosphere {
 
 export function AtmosphereProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(audioReducer, initialAudioState);
-  const engine = useRef<AudioEngine | null>(null);
   const latest = useRef(state);
   const lastScene = useRef<Scene>("gate");
 
   useEffect(() => {
     latest.current = state;
-    engine.current?.setVolumes(state.ambience, state.music);
+    mixer.setBus("ambience", state.ambience);
+    mixer.setBus("music", state.music);
+    mixer.setBus("cues", 0.5 + 0.5 * state.ambience);
   }, [state]);
 
   useEffect(() => {
@@ -69,14 +70,13 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
 
   const disable = useCallback(() => {
     dispatch({ type: "disable" });
-    void engine.current?.suspend();
+    void mixer.disable();
   }, []);
 
   const enable = useCallback(() => {
-    const eng = (engine.current ??= new AudioEngine());
-    eng.scene(lastScene.current);
-    eng
-      .start(latest.current.ambience, latest.current.music)
+    mixer.setScene(lastScene.current);
+    mixer
+      .enable()
       .then(() => dispatch({ type: "enable" }))
       .catch(() => dispatch({ type: "fail" }));
   }, []);
@@ -88,18 +88,17 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
-      void engine.current?.close();
-      engine.current = null;
+      void mixer.dispose();
     };
   }, [disable]);
 
   const scene = useCallback((s: Scene) => {
     lastScene.current = s;
-    if (canPlay(latest.current)) engine.current?.scene(s);
+    if (canPlay(latest.current)) mixer.setScene(s);
   }, []);
 
   const cue = useCallback((c: Cue) => {
-    if (canPlay(latest.current)) engine.current?.cue(c);
+    if (canPlay(latest.current)) mixer.cue(c);
   }, []);
 
   const value = useMemo<Atmosphere>(

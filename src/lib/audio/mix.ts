@@ -1,4 +1,5 @@
 export type Scene = "gate" | "courtyard" | "hall" | "pond" | "veranda" | "outside";
+export type Bus = "ambience" | "cues" | "music";
 export type Cue = "bell" | "sweep" | "water" | "cup";
 export type Appearance = "system" | "day" | "evening";
 
@@ -78,7 +79,7 @@ export const MASTER_GAIN = 0.4;
 export const AMBIENCE_CEILING = 0.25;
 export const MUSIC_CEILING = 0.18;
 export const CUE_CEILING = 0.22;
-export const CROSSFADE_SECONDS = 3;
+export const CROSSFADE_SECONDS = 2.5;
 
 export function ambienceGain(level: number): number {
   const v = clamp01(level);
@@ -92,6 +93,11 @@ export function musicGain(level: number): number {
 
 export function cueGain(ambienceLevel: number): number {
   return CUE_CEILING * (0.5 + 0.5 * clamp01(ambienceLevel));
+}
+
+/** Cue bus level 0..1 to gain; 0 is fully silent. */
+export function cueBusGain(level: number): number {
+  return CUE_CEILING * clamp01(level);
 }
 
 /** Pentatonic (major) intervals in semitones from the root. */

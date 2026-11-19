@@ -3,15 +3,18 @@ import {
   CROSSFADE_SECONDS,
   CUE_PITCHES,
   MASTER_GAIN,
+  MUSIC_CEILING,
   ambienceGain,
-  cueGain,
+  cueBusGain,
   musicGain,
   nextNote,
   noteFrequency,
   sceneMixes,
+  type Bus,
   type Cue,
   type Scene,
 } from "./mix.ts";
+import type { MixerSource } from "./mixer.ts";
 
 const MUSIC_ROOT = 261.63;
 
@@ -23,7 +26,7 @@ function noiseBuffer(ctx: AudioContext): AudioBuffer {
 }
 
 /** Synthesized soundscape. Browser only; every method is safe to call after close(). */
-export class AudioEngine {
+export class AudioEngine implements MixerSource {
   private ctx: AudioContext | null = null;
   private ambience!: GainNode;
   private music!: GainNode;
@@ -36,10 +39,10 @@ export class AudioEngine {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private degree = 2;
   private scene_: Scene = "gate";
-  private ambienceLevel = 0.5;
+  private levels: Record<Bus, number> = { ambience: 0.5, cues: 0.75, music: 0.35 };
 
   /** Creates and resumes the context; rejects if the browser will not actually run audio. */
-  async start(ambience: number, music: number): Promise<void> {
+  async start(): Promise<void> {
     const Ctor =
       typeof window === "undefined"
         ? undefined
@@ -49,7 +52,7 @@ export class AudioEngine {
     const ctx = this.ctx!;
     await ctx.resume();
     if (ctx.state !== "running") throw new Error("Audio playback was blocked");
-    this.setVolumes(ambience, music);
+    this.applyBuses();
     this.applyScene(this.scene_, 0.05);
     this.scheduleMusic();
   }
@@ -113,18 +116,22 @@ export class AudioEngine {
     return src;
   }
 
-  setVolumes(ambience: number, music: number): void {
-    if (!this.ctx) return;
-    this.ambienceLevel = ambience;
-    const t = this.ctx.currentTime;
-    this.ambience.gain.setTargetAtTime(ambienceGain(ambience) / AMBIENCE_CEILING, t, 0.2);
-    this.music.gain.setTargetAtTime(musicGain(music) / 0.18, t, 0.2);
-    this.cues.gain.setTargetAtTime(cueGain(ambience), t, 0.05);
+  setBus(bus: Bus, level: number): void {
+    this.levels[bus] = level;
+    this.applyBuses();
   }
 
-  scene(scene: Scene): void {
+  private applyBuses(): void {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    this.ambience.gain.setTargetAtTime(ambienceGain(this.levels.ambience) / AMBIENCE_CEILING, t, 0.2);
+    this.music.gain.setTargetAtTime(musicGain(this.levels.music) / MUSIC_CEILING, t, 0.2);
+    this.cues.gain.setTargetAtTime(cueBusGain(this.levels.cues), t, 0.05);
+  }
+
+  setScene(scene: Scene, seconds: number = CROSSFADE_SECONDS): void {
     this.scene_ = scene;
-    if (this.ctx?.state === "running") this.applyScene(scene, CROSSFADE_SECONDS / 3);
+    if (this.ctx?.state === "running") this.applyScene(scene, seconds / 3);
   }
 
   private applyScene(scene: Scene, timeConstant: number): void {
@@ -139,7 +146,7 @@ export class AudioEngine {
 
   cue(cue: Cue): void {
     const ctx = this.ctx;
-    if (!ctx || ctx.state !== "running") return;
+    if (!ctx || ctx.state !== "running" || this.levels.cues <= 0) return;
     const { freq, decay, noise } = CUE_PITCHES[cue];
     const t = ctx.currentTime;
     const env = ctx.createGain();
@@ -211,7 +218,7 @@ export class AudioEngine {
     if (ctx && ctx.state !== "closed") await ctx.close();
   }
 
-  get level(): number {
-    return this.ambienceLevel;
+  get contextState(): AudioContextState | "none" {
+    return this.ctx?.state ?? "none";
   }
 }

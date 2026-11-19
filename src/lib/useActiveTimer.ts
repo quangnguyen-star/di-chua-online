@@ -1,66 +1,49 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { ActiveTimerCore, type TimerConfig } from "./activity/timerCore.ts";
 
-const TICK_MS = 250;
+export { ActiveTimerCore, type TimerConfig, type TimerOptions, type TimerSnapshot } from "./activity/timerCore.ts";
 
-/** Countdown over active time only: elapsed comes from timestamp deltas, and pausing banks it. */
-export function useActiveTimer(seconds: number, clock: () => number = Date.now) {
-  const total = Math.max(0, seconds) * 1000;
-  const [remainingMs, setRemainingMs] = useState(total);
-  const [running, setRunning] = useState(false);
-  const anchor = useRef<number | null>(null);
-  const remaining = useRef(total);
+export function useActiveTimer(seconds: number, clock: () => number = Date.now, config?: TimerConfig) {
+  const effective = config?.seconds ?? seconds;
   const clockRef = useRef(clock);
   clockRef.current = clock;
+  const core = useRef<ActiveTimerCore | null>(null);
+  core.current ??= new ActiveTimerCore(effective, { now: () => clockRef.current() });
+  const timer = core.current;
 
-  const settle = useCallback(() => {
-    const now = clockRef.current();
-    if (anchor.current !== null) {
-      remaining.current = Math.max(0, remaining.current - Math.max(0, now - anchor.current));
-      anchor.current = now;
+  const snap = useSyncExternalStore(timer.subscribe, timer.getSnapshot, timer.getSnapshot);
+
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
     }
-    setRemainingMs(remaining.current);
-    return remaining.current;
-  }, []);
-
-  const start = useCallback(() => {
-    if (remaining.current <= 0) return;
-    anchor.current = clockRef.current();
-    setRunning(true);
-  }, []);
-
-  const pause = useCallback(() => {
-    settle();
-    anchor.current = null;
-    setRunning(false);
-  }, [settle]);
-
-  const reset = useCallback(() => {
-    anchor.current = null;
-    remaining.current = total;
-    setRemainingMs(total);
-    setRunning(false);
-  }, [total]);
+    timer.reset(effective);
+  }, [timer, effective]);
 
   useEffect(() => {
-    if (!running) return;
-    const id = setInterval(() => {
-      if (settle() <= 0) {
-        anchor.current = null;
-        setRunning(false);
-      }
-    }, TICK_MS);
-    return () => clearInterval(id);
-  }, [running, settle]);
-
-  useEffect(() => {
-    const onVisibility = () => {
-      if (document.hidden) pause();
-    };
+    const onVisibility = () => timer.setHidden(document.hidden);
     document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [pause]);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      timer.dispose();
+    };
+  }, [timer]);
 
-  return { remainingMs, running, done: remainingMs <= 0, start, pause, resume: start, reset };
+  const start = useCallback(() => timer.start(), [timer]);
+  const pause = useCallback(() => timer.pause(), [timer]);
+  const reset = useCallback(() => timer.reset(), [timer]);
+
+  return {
+    remainingMs: snap.remainingMs,
+    running: snap.running,
+    done: snap.remainingMs <= 0,
+    start,
+    pause,
+    resume: start,
+    reset,
+  };
 }

@@ -15,7 +15,10 @@ import {
   AMBIENCE_CEILING,
   MUSIC_CEILING,
   CUE_CEILING,
+  cueBusGain,
+  CROSSFADE_SECONDS,
 } from "./audio/mix.ts";
+import { Mixer, type MixerSource } from "./audio/mixer.ts";
 
 test("fresh state is silent and not failed", () => {
   assert.equal(initialAudioState.soundOn, false);
@@ -74,4 +77,97 @@ test("appearance changes only appearance", () => {
   const next = audioReducer(initialAudioState, { type: "appearance", value: "evening" });
   assert.equal(next.appearance, "evening");
   assert.equal(next.soundOn, initialAudioState.soundOn);
+});
+
+function fakeSource() {
+  const log: string[] = [];
+  const buses: Record<string, number> = {};
+  const src: MixerSource & { state: AudioContextState | "none"; fail: boolean } = {
+    state: "none",
+    fail: false,
+    get contextState() {
+      return this.state;
+    },
+    async start() {
+      if (this.fail) throw new Error("blocked");
+      this.state = "running";
+      log.push("start");
+    },
+    async suspend() {
+      this.state = "suspended";
+      log.push("suspend");
+    },
+    async close() {
+      this.state = "closed";
+      log.push("close");
+    },
+    setBus(bus, level) {
+      buses[bus] = level;
+    },
+    setScene(scene, seconds) {
+      log.push(`scene:${scene}:${seconds}`);
+    },
+    cue(cue) {
+      log.push(`cue:${cue}`);
+    },
+  };
+  return { src, log, buses };
+}
+
+test("mixer is silent on load and reports the real context state", async () => {
+  const { src, log } = fakeSource();
+  const mixer = new Mixer(() => src);
+  assert.deepEqual(mixer.status, { enabled: false, contextState: "none", assetFailed: false, blocked: false });
+  mixer.cue("bell");
+  assert.deepEqual(log, []);
+  await mixer.enable();
+  assert.equal(mixer.status.enabled, true);
+  assert.equal(mixer.status.contextState, "running");
+  await mixer.disable();
+  assert.equal(mixer.status.contextState, "suspended");
+  mixer.reportAssetFailure();
+  assert.equal(mixer.status.assetFailed, true);
+});
+
+test("a blocked enable is reported, not faked", async () => {
+  const { src } = fakeSource();
+  src.fail = true;
+  const mixer = new Mixer(() => src);
+  await assert.rejects(mixer.enable());
+  assert.equal(mixer.status.enabled, false);
+  assert.equal(mixer.status.blocked, true);
+});
+
+test("scene changes crossfade over 2.5s and bus levels clamp", async () => {
+  const { src, log, buses } = fakeSource();
+  const mixer = new Mixer(() => src);
+  await mixer.enable();
+  mixer.setScene("pond");
+  assert.ok(log.includes("scene:pond:2.5"));
+  assert.equal(CROSSFADE_SECONDS, 2.5);
+  mixer.setBus("music", 4);
+  assert.equal(buses.music, 1);
+});
+
+test("cues bus at 0 silences cues", async () => {
+  const { src, log } = fakeSource();
+  const mixer = new Mixer(() => src);
+  await mixer.enable();
+  mixer.cue("bell");
+  mixer.setBus("cues", 0);
+  mixer.cue("cup");
+  assert.deepEqual(log.filter((l) => l.startsWith("cue:")), ["cue:bell"]);
+  assert.equal(cueBusGain(0), 0);
+});
+
+test("dispose stops everything and later cues are inert", async () => {
+  const { src, log } = fakeSource();
+  const mixer = new Mixer(() => src);
+  await mixer.enable();
+  await mixer.dispose();
+  mixer.cue("bell");
+  assert.ok(log.includes("close"));
+  assert.ok(!log.includes("cue:bell"));
+  assert.deepEqual(mixer.status.enabled, false);
+  assert.equal(mixer.status.contextState, "none");
 });
