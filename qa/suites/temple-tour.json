@@ -1,5 +1,5 @@
 {
-  "_about": "v2 visit shell (DCO-48..56). Time-based behaviour (30 s due, nudge, 8 s fade, arrow-key/swipe nudge navigation, closing screen) is not scripted: the suite format has no wait op that is safe for a 30 s+ stop. It is covered node-side by tests/visit-shell.test.ts and recorded in reports/v2-verification.md.",
+  "_about": "v2 visit shell (DCO-48..56). Time-based behaviour (30 s due, nudge, 8 s fade, closing screen) is not scripted: the suite format has no wait op that is safe for a 30 s+ stop. It is covered node-side by tests/visit-shell.test.ts and recorded in reports/v2-verification.md.",
   "schema_version": "1.1.0",
   "run_id": "temple-tour",
   "config": {
@@ -854,6 +854,42 @@
             "target": {
               "by": "testid",
               "name": "word-pocket"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "ArrowRight goes on from the gate to the courtyard (AC-17)",
+      "tags": [
+        "visit",
+        "keyboard",
+        "navigation"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "right arrow goes on",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "the courtyard activity is showing",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "sweep-yard"
             }
           }
         }

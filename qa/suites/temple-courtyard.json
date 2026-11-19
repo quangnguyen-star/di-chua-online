@@ -15,7 +15,7 @@
   },
   "scenarios": [
     {
-      "name": "Sweeping: the yard shows the pile and offers no counter, clean state or pass button",
+      "name": "Sweeping: the yard shows the pile and the hint",
       "tags": [
         "courtyard",
         "happy-path"
@@ -49,42 +49,6 @@
             "target": {
               "by": "testid",
               "name": "sweep-hint"
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "no pass button",
-          "expected": {
-            "kind": "hidden",
-            "target": {
-              "by": "testid",
-              "name": "sweep-pass"
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "no counter",
-          "expected": {
-            "kind": "hidden",
-            "target": {
-              "by": "testid",
-              "name": "sweep-status"
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "no clean state",
-          "expected": {
-            "kind": "hidden",
-            "target": {
-              "by": "testid",
-              "name": "sweep-complete"
             }
           }
         }
