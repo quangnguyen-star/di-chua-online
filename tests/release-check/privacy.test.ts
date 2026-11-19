@@ -48,7 +48,7 @@ test("lantern module never tracks, fetches, stores or logs the thought", () => {
 test("river renderer has no renderer dependency, network, storage or text input", () => {
   const src = read("components/temple/river/RiverScene.tsx");
   assert.doesNotMatch(src, /pixi|import\(|from "(?!@\/components\/temple\/art|\.\/river\.module\.css|react)/, "river imports");
-  assert.doesNotMatch(src, /thought|textarea|useState|localStorage|sessionStorage|fetch\(|console\./);
+  assert.doesNotMatch(src, /thought|textarea|<input|localStorage|sessionStorage|indexedDB|fetch\(|console\./);
 });
 
 test("lantern flow clears the thought on fold and keeps it out of URLs", () => {

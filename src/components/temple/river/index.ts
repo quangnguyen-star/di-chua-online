@@ -1,2 +1,2 @@
-export { RiverScene } from "./RiverScene";
-export type { RiverPhase } from "./RiverScene";
+export { RiverScene, lanternColors } from "./RiverScene";
+export type { RiverPhase, LanternColor } from "./RiverScene";

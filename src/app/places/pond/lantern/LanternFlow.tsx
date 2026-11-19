@@ -4,14 +4,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { routes } from "@/content/routes";
-import { RiverScene, type RiverPhase } from "@/components/temple/river";
+import { RiverScene, lanternColors, type LanternColor, type RiverPhase } from "@/components/temple/river";
+import { SceneStage } from "@/components/temple/stage";
 import { useAtmosphere } from "@/components/atmosphere";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import type { Embed } from "@/lib/visit/embed";
 import styles from "./lantern.module.css";
 
 const MAX_LENGTH = 500;
-const RELEASE_MS = 4000;
+const DRIFT_MIN_MS = 60_000;
+const DRIFT_MAX_MS = 90_000;
 
 type Phase = RiverPhase;
 
@@ -24,6 +26,7 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
   const { scene, cue } = useAtmosphere();
   const [phase, setPhase] = useState<Phase>("writing");
   const [thought, setThought] = useState("");
+  const [color, setColor] = useState<LanternColor>("gold");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -38,17 +41,25 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
 
   // The drift runs only while the tour clock does; a pause restarts the short drift when it resumes.
   const frozen = embed?.paused ?? false;
+  const driftMs = embed ? Math.min(DRIFT_MAX_MS, Math.max(DRIFT_MIN_MS, embed.seconds * 600)) : 75_000;
   useEffect(() => {
     if (phase !== "releasing" || frozen) return;
     timer.current = setTimeout(() => {
       timer.current = null;
       setPhase("released");
-    }, RELEASE_MS);
+    }, driftMs);
     return () => {
       if (timer.current) clearTimeout(timer.current);
       timer.current = null;
     };
-  }, [phase, frozen]);
+  }, [phase, frozen, driftMs]);
+
+  // Refresh and tab close drop the thought too; nothing is persisted, this just empties state on the way out.
+  useEffect(() => {
+    const clear = () => setThought("");
+    window.addEventListener("pagehide", clear);
+    return () => window.removeEventListener("pagehide", clear);
+  }, []);
 
   const release = () => {
     if (phase !== "writing" || frozen) return;
@@ -65,13 +76,20 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
   };
 
   return (
-    <div className={styles.root}>
+    <div className={embed ? styles.embedded : styles.root}>
+      {!embed && (
+        <div className={styles.stage}>
+          <SceneStage place="pond" lighting="moon" paused={phase !== "releasing" || frozen} />
+        </div>
+      )}
       {!embed && <h1>Bến sông</h1>}
       <div className={styles.live} role="status" aria-live="polite" data-testid="lantern-announcement">
         {phase === "releasing" ? "Ngọn đèn đang trôi đi" : phase === "released" ? "Ngọn đèn đã trôi đi" : ""}
       </div>
 
-      <RiverScene phase={phase} />
+      <div className={embed ? styles.overlay : styles.sceneBox}>
+        <RiverScene phase={phase} color={color} driftMs={driftMs} paused={frozen} onDrop={release} />
+      </div>
 
       {phase === "writing" && (
         <>
@@ -79,6 +97,21 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
             Nếu muốn, hãy viết một điều bạn muốn buông xuống. Điều này chỉ ở trên màn hình này, không được lưu hay gửi đi
             đâu cả, và sẽ biến mất khi ngọn đèn trôi đi.
           </p>
+          <fieldset className={styles.colors} data-testid="lantern-colors">
+            <legend>Chọn đèn sen</legend>
+            {lanternColors.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className="button button--quiet"
+                aria-pressed={color === c.id}
+                data-testid={`lantern-color-${c.id}`}
+                onClick={() => setColor(c.id)}
+              >
+                {c.label}
+              </button>
+            ))}
+          </fieldset>
           <label className={styles.field}>
             <span>Điều bạn muốn buông xuống (không bắt buộc)</span>
             <textarea

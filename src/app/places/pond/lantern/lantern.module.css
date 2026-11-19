@@ -19,3 +19,11 @@
 @media (prefers-reduced-motion: reduce) {
   .pond[data-phase="releasing"] .lantern { animation: none; }
 }
+.stage { position: fixed; inset: 0; z-index: -1; }
+.sceneBox { position: relative; height: 16rem; border-radius: var(--radius); overflow: hidden; }
+.embedded { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.75rem; padding: 0 1rem 4.5rem; color: #f4ead8; text-shadow: 0 1px 8px rgba(10, 8, 6, 0.8); }
+.overlay { position: absolute; inset: 0; }
+.embedded > :not(.overlay) { position: relative; max-width: 40rem; margin: 0 auto; width: 100%; }
+.colors { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.colors legend { padding: 0; margin-bottom: 0.5rem; }
+.colors [aria-pressed="true"] { outline: 2px solid var(--gold, #f2c566); outline-offset: 2px; font-weight: 600; }
