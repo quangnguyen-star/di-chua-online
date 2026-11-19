@@ -5,7 +5,7 @@ import { routes } from "../../src/content/routes.ts";
 import { appearanceFor, vnNow } from "../../src/lib/clock.ts";
 import { buildIcs } from "../../src/lib/ics.ts";
 import { DEFAULT_STICK, STICKS, incenseActivity, variantDefaults } from "../../src/app/places/hall/incense.ts";
-import { CLEARED_LINE, freshState, reduceSweep, remaining } from "../../src/app/places/courtyard/sweeping/logic.ts";
+import { LEAF_CAP, spawnLeaf, freshWorld } from "../../src/app/places/courtyard/sweeping/logic.ts";
 
 // Run with: node --test --experimental-strip-types qa/suites/state.test.ts
 
@@ -43,13 +43,10 @@ test("hall: burning out reaches spent, not placed", () => {
   assert.equal(s.phase, "spent");
 });
 
-test("sweeping: one pass clears the first set, shows the line once, pile grows", () => {
-  assert.equal(remaining(freshState), 8);
-  const done = reduceSweep(freshState, { type: "pass" });
-  assert.equal(remaining(done), 0);
-  assert.equal(done.lineShown, true);
-  assert.equal(done.pile, 8);
-  assert.equal(CLEARED_LINE, "Lá vẫn rơi. Cứ quét chậm thôi.");
+test("sweeping: new leaves keep falling but live leaves stay under the cap", () => {
+  let w = freshWorld;
+  for (let i = 0; i < LEAF_CAP * 2; i++) w = spawnLeaf(w, () => 0.5);
+  assert.equal(w.leaves.length, LEAF_CAP);
 });
 
 test("appearance: auto is day from 06:00 to 17:59 Vietnam time, evening otherwise", () => {

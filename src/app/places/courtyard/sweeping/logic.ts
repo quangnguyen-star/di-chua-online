@@ -1,182 +1,22 @@
+/** Courtyard leaf physics. Coordinates are percentages of the yard (0-100), speeds are percent per second. */
+
 export interface Leaf {
   id: number;
-  /** Position inside the yard, in percent of its width and height. */
   x: number;
   y: number;
+  vx: number;
+  vy: number;
+  rot: number;
+  landed: boolean;
 }
 
-export const FIRST_SET: readonly Leaf[] = [
-  { id: 1, x: 14, y: 22 },
-  { id: 2, x: 38, y: 14 },
-  { id: 3, x: 66, y: 24 },
-  { id: 4, x: 84, y: 16 },
-  { id: 5, x: 22, y: 58 },
-  { id: 6, x: 50, y: 50 },
-  { id: 7, x: 76, y: 62 },
-  { id: 8, x: 40, y: 82 },
-];
-
-export const WIND_SET: readonly Leaf[] = [
-  { id: 101, x: 20, y: 36 },
-  { id: 102, x: 58, y: 30 },
-  { id: 103, x: 30, y: 72 },
-  { id: 104, x: 62, y: 76 },
-  { id: 105, x: 80, y: 40 },
-];
-
-/** Compatibility alias: the leaves of the first set. */
-export const LEAVES = FIRST_SET;
-
-/** Never more than this many leaves are on the ground at once. */
-export const LEAF_CAP = 12;
-
-/** Where swept leaves gather, in percent of the yard. */
-export const PILE = { x: 90, y: 86 } as const;
-
-/** The pile stops growing past this many leaves. */
-export const PILE_CAP = 20;
-
-/** How close, in percent, a broom pass has to come to a leaf to sweep it. */
-export const BRUSH_RADIUS = 12;
-
-/** Minimum gap between two sweep sounds. */
-export const CUE_INTERVAL_MS = 400;
-
-/** The quiet pause after a set is cleared, before the wind brings the next. */
-export const WIND_PAUSE_SECONDS = 6;
-
-export const KEYBOARD_LANES = 4;
-const LANE_HALF_HEIGHT = 100 / KEYBOARD_LANES / 2;
-
-export const CLEARED_LINE = "Lá vẫn rơi. Cứ quét chậm thôi.";
-
-export interface SweepState {
-  /** Leaves currently on the ground or being swept; at most LEAF_CAP. */
-  leaves: readonly Leaf[];
-  /** Ids of the leaves already swept away. */
-  cleared: readonly number[];
-  /** Leaves gathered in the pile over the whole visit. */
+export interface World {
+  leaves: Leaf[];
+  /** Leaves gathered into the pile so far, capped at PILE_CAP; drives the pile's size only. */
   pile: number;
-  /** Keyboard strokes made on the current set; picks the next lane. */
-  strokes: number;
-  /** Whether the wind has already brought its set. */
-  windBlew: boolean;
-  /** The closing line appears once, after the first set is cleared. */
-  lineShown: boolean;
-  remainingMs: number;
-}
-
-export type SweepEvent =
-  | { type: "sweep"; x: number; y: number; radius?: number }
-  | { type: "path"; from: Broom; to: Broom }
-  | { type: "stroke" }
-  | { type: "pass" };
-
-export const freshState: SweepState = {
-  leaves: FIRST_SET.slice(0, LEAF_CAP),
-  cleared: [],
-  pile: 0,
-  strokes: 0,
-  windBlew: false,
-  lineShown: false,
-  remainingMs: WIND_PAUSE_SECONDS * 1000,
-};
-
-export function remaining(state: SweepState): number {
-  return state.leaves.length - state.cleared.length;
-}
-
-export function isComplete(state: SweepState): boolean {
-  return remaining(state) === 0;
-}
-
-/** Whether the set is cleared and the wind has not yet come: the pause is running. */
-export function isWaiting(state: SweepState): boolean {
-  return isComplete(state) && !state.windBlew;
-}
-
-function clearIds(state: SweepState, ids: number[]): SweepState {
-  if (ids.length === 0) return state;
-  const next = {
-    ...state,
-    cleared: [...state.cleared, ...ids],
-    pile: Math.min(PILE_CAP, state.pile + ids.length),
-  };
-  return isComplete(next) ? { ...next, lineShown: true } : next;
-}
-
-/** Clears every leaf within the brush radius of the point; returns the same state if none. */
-export function sweepAt(state: SweepState, x: number, y: number, radius: number = BRUSH_RADIUS): SweepState {
-  return clearIds(
-    state,
-    state.leaves
-      .filter((leaf) => !state.cleared.includes(leaf.id) && Math.hypot(leaf.x - x, leaf.y - y) <= radius)
-      .map((leaf) => leaf.id),
-  );
-}
-
-/** Sweeps everything near the straight path between two points, so a fast drag skips nothing. */
-export function sweepPath(state: SweepState, from: Broom, to: Broom, radius: number = BRUSH_RADIUS): SweepState {
-  const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / (radius / 2)));
-  let next = state;
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    next = sweepAt(next, from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, radius);
-  }
-  return next;
-}
-
-/** The keyboard equivalent of a drag: each stroke sweeps one horizontal lane, cycling top to bottom. */
-export function strokeLane(state: SweepState): SweepState {
-  if (isComplete(state)) return state;
-  const lane = state.strokes % KEYBOARD_LANES;
-  const centre = (lane + 0.5) * (100 / KEYBOARD_LANES);
-  const hit = state.leaves
-    .filter((leaf) => !state.cleared.includes(leaf.id) && Math.abs(leaf.y - centre) <= LANE_HALF_HEIGHT)
-    .map((leaf) => leaf.id);
-  const next = clearIds(state, hit);
-  return { ...next, strokes: state.strokes + 1 };
-}
-
-/** One full pass: the same end state a complete drag reaches. */
-export function sweepAll(state: SweepState): SweepState {
-  return isComplete(state)
-    ? state
-    : clearIds(
-        state,
-        state.leaves.filter((leaf) => !state.cleared.includes(leaf.id)).map((leaf) => leaf.id),
-      );
-}
-
-/** The wind brings one more, smaller set, once; the pile and the closing line stay as they were. */
-export function blowWind(state: SweepState): SweepState {
-  if (!isWaiting(state)) return state;
-  return {
-    ...state,
-    leaves: WIND_SET.slice(0, LEAF_CAP),
-    cleared: [],
-    strokes: 0,
-    windBlew: true,
-  };
-}
-
-/** Timer tick: when the pause runs out the wind blows. */
-export function tickSweep(state: SweepState, remainingMs: number): SweepState {
-  const next = state.remainingMs === remainingMs ? state : { ...state, remainingMs };
-  return remainingMs <= 0 ? blowWind(next) : next;
-}
-
-export function reduceSweep(state: SweepState, event: SweepEvent): SweepState {
-  switch (event.type) {
-    case "sweep":
-      return sweepAt(state, event.x, event.y, event.radius);
-    case "path":
-      return sweepPath(state, event.from, event.to);
-    case "stroke":
-      return strokeLane(state);
-    case "pass":
-      return sweepAll(state);
-  }
+  nextId: number;
+  /** Seconds until the next leaf falls. */
+  spawnIn: number;
 }
 
 export interface Broom {
@@ -184,6 +24,117 @@ export interface Broom {
   y: number;
   vx: number;
   vy: number;
+}
+
+/** Hard cap on live leaves; new ones stop falling while the yard is this full. */
+export const LEAF_CAP = 14;
+export const PILE = { x: 88, y: 84 } as const;
+export const PILE_CAP = 20;
+export const BRUSH_RADIUS = 11;
+/** Below this broom speed leaves are gathered; above FAST_SPEED they are scattered; between, they stay put. */
+export const SLOW_SPEED = 45;
+export const FAST_SPEED = 110;
+export const CUE_INTERVAL_MS = 400;
+export const SPAWN_SECONDS = 1.4;
+/** Where leaves land, as a band of the yard's height. */
+export const GROUND_TOP = 58;
+export const GROUND_BOTTOM = 94;
+/** Horizontal distance a leaf jumps per arrow press when motion is reduced, and how far the broom reaches. */
+export const KEY_STEP = 16;
+/** Broom speed a held arrow key applies: slow enough to gather. */
+export const KEY_SPEED = 30;
+const FALL_SPEED = 14;
+const DRIFT = 4;
+const PILE_REACH = 6;
+const GATHER_PULL = 26;
+const SCATTER_KICK = 1.1;
+const FRICTION = 2.2;
+
+export const freshWorld: World = { leaves: [], pile: 0, nextId: 1, spawnIn: 0.4 };
+
+export const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
+export type Rand = () => number;
+
+/** A new leaf at the top edge, or the world unchanged while the cap is reached. */
+export function spawnLeaf(world: World, rand: Rand): World {
+  if (world.leaves.length >= LEAF_CAP) return world;
+  const leaf: Leaf = { id: world.nextId, x: 4 + rand() * 80, y: -4, vx: (rand() - 0.5) * DRIFT, vy: FALL_SPEED * (0.7 + rand() * 0.6), rot: rand() * 360, landed: false };
+  return { ...world, leaves: [...world.leaves, leaf], nextId: world.nextId + 1 };
+}
+
+/** A leaf already lying on the ground: how leaves arrive when motion is reduced. */
+export function settleLeaf(world: World, rand: Rand): World {
+  const next = spawnLeaf(world, rand);
+  if (next === world) return world;
+  const leaves = next.leaves.slice();
+  const last = leaves[leaves.length - 1];
+  leaves[leaves.length - 1] = { ...last, y: GROUND_TOP + rand() * (GROUND_BOTTOM - GROUND_TOP - 12), vx: 0, vy: 0, landed: true };
+  return { ...next, leaves };
+}
+
+const inPile = (leaf: Leaf) => Math.hypot(leaf.x - PILE.x, (leaf.y - PILE.y) * 1.6) < PILE_REACH;
+
+function absorb(world: World, leaves: Leaf[]): World {
+  const kept = leaves.filter((l) => !inPile(l));
+  const gathered = leaves.length - kept.length;
+  return { ...world, leaves: kept, pile: Math.min(PILE_CAP, world.pile + gathered) };
+}
+
+/**
+ * Advances the yard by dt seconds. Landed leaves near the broom follow it toward the pile when it moves slowly
+ * and are flung away when it moves fast; falling leaves ignore the broom.
+ */
+export function stepWorld(world: World, broom: Broom, dt: number, rand: Rand): World {
+  const step = Math.min(dt, 0.05);
+  const speed = Math.hypot(broom.vx, broom.vy);
+  const moved = world.leaves.map((leaf): Leaf => {
+    if (!leaf.landed) {
+      const y = leaf.y + leaf.vy * step;
+      const x = clamp(leaf.x + leaf.vx * step, 0, 100);
+      const ground = GROUND_TOP + ((leaf.id * 37) % 100) / 100 * (GROUND_BOTTOM - GROUND_TOP - 12);
+      return y >= ground ? { ...leaf, x, y: ground, vx: 0, vy: 0, landed: true } : { ...leaf, x, y, rot: leaf.rot + 40 * step };
+    }
+    const near = Math.hypot(leaf.x - broom.x, (leaf.y - broom.y) * 1.6) < BRUSH_RADIUS;
+    let { vx, vy } = leaf;
+    if (near && speed >= FAST_SPEED) {
+      const dx = leaf.x - broom.x;
+      const dy = leaf.y - broom.y;
+      const len = Math.hypot(dx, dy) || 1;
+      vx = (dx / len) * speed * SCATTER_KICK + (rand() - 0.5) * 30;
+      vy = (dy / len) * speed * SCATTER_KICK * 0.5 + (rand() - 0.5) * 20;
+    } else if (near && speed > 4 && speed < SLOW_SPEED) {
+      const dx = PILE.x - leaf.x;
+      const dy = PILE.y - leaf.y;
+      const len = Math.hypot(dx, dy) || 1;
+      vx = broom.vx * 0.6 + (dx / len) * GATHER_PULL;
+      vy = broom.vy * 0.6 + (dy / len) * GATHER_PULL;
+    }
+    const drag = Math.exp(-FRICTION * step);
+    return {
+      ...leaf,
+      x: clamp(leaf.x + vx * step, 0, 100),
+      y: clamp(leaf.y + vy * step, GROUND_TOP, GROUND_BOTTOM),
+      vx: vx * drag,
+      vy: vy * drag,
+      rot: leaf.rot + (Math.abs(vx) + Math.abs(vy)) * step,
+    };
+  });
+  let next = absorb(world, moved);
+  const spawnIn = next.spawnIn - step;
+  next = spawnIn > 0 ? { ...next, spawnIn } : { ...spawnLeaf(next, rand), spawnIn: SPAWN_SECONDS * (0.6 + rand() * 0.8) };
+  return next;
+}
+
+/** Reduced motion: one arrow press moves every landed leaf in reach one discrete hop toward the pile. */
+export function relocateLeaves(world: World, fromX: number, dir: -1 | 1): World {
+  const reach = KEY_STEP * 1.5;
+  const hopped = world.leaves.map((leaf): Leaf => {
+    if (!leaf.landed || Math.abs(leaf.x - fromX) > reach) return leaf;
+    return { ...leaf, x: clamp(leaf.x + dir * KEY_STEP, 0, 100) };
+  });
+  const toPile = hopped.map((leaf): Leaf => (leaf.landed && Math.abs(leaf.x - PILE.x) < KEY_STEP && Math.abs(leaf.y - PILE.y) < 14 ? { ...leaf, x: PILE.x, y: PILE.y } : leaf));
+  return absorb(world, toPile);
 }
 
 /** Spring and drag tuned so the broom trails the pointer and glides on a little after release. */
@@ -198,13 +149,6 @@ export function stepBroom(broom: Broom, target: { x: number; y: number } | null,
   const vx = broom.vx + ax * step;
   const vy = broom.vy + ay * step;
   return { x: broom.x + vx * step, y: broom.y + vy * step, vx, vy };
-}
-
-/** True once the broom has effectively stopped, so the animation loop can end. */
-export function isBroomAtRest(broom: Broom, target: { x: number; y: number } | null): boolean {
-  const speed = Math.hypot(broom.vx, broom.vy);
-  const gap = target ? Math.hypot(target.x - broom.x, target.y - broom.y) : 0;
-  return speed < 0.5 && gap < 0.3;
 }
 
 /** Whether a sweep sound may play now; lastCueAt is null before the first one. */

@@ -1,5 +1,5 @@
 {
-  "_about": "Courtyard sweeping: paving, broom, leaf set, closing line.",
+  "_about": "Courtyard sweeping: paving, banyan, falling leaves, broom, keyboard sweep.",
   "schema_version": "1.1.0",
   "run_id": "temple-courtyard",
   "config": {
@@ -15,7 +15,7 @@
   },
   "scenarios": [
     {
-      "name": "Sweeping: first set of 8 leaves, one pass clears it and the line appears",
+      "name": "Sweeping: the yard shows the pile and offers no counter, clean state or pass button",
       "tags": [
         "courtyard",
         "happy-path"
@@ -31,110 +31,68 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "8 leaves to start",
+          "intent": "pile visible",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "sweep-status"
-            },
-            "text": "Còn 8 chiếc lá"
+              "name": "sweep-pile"
+            }
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "no line yet",
+          "intent": "hint visible",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "sweep-hint"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no pass button",
           "expected": {
             "kind": "hidden",
             "target": {
               "by": "testid",
-              "name": "sweep-line"
+              "name": "sweep-pass"
             }
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "Quét một lượt",
-          "target": {
-            "by": "testid",
-            "name": "sweep-pass"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "cleared heading",
+          "intent": "no counter",
           "expected": {
-            "kind": "visible",
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "sweep-status"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "no clean state",
+          "expected": {
+            "kind": "hidden",
             "target": {
               "by": "testid",
               "name": "sweep-complete"
             }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "closing line text",
-          "expected": {
-            "kind": "text_equals",
-            "target": {
-              "by": "testid",
-              "name": "sweep-line"
-            },
-            "text": "Lá vẫn rơi. Cứ quét chậm thôi."
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "complete text",
-          "expected": {
-            "kind": "text_equals",
-            "target": {
-              "by": "testid",
-              "name": "sweep-complete"
-            },
-            "text": "Sân đã sạch lá."
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "next place preview",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "sweep-next-preview"
-            }
-          }
-        },
-        {
-          "kind": "action",
-          "op": "click",
-          "intent": "go to the hall",
-          "target": {
-            "by": "testid",
-            "name": "sweep-next"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "hall opened",
-          "expected": {
-            "kind": "url_contains",
-            "url": "/places/hall"
           }
         }
       ],
       "teardown": []
     },
     {
-      "name": "Sweeping by keyboard strokes reduces the leaf count",
+      "name": "Sweeping by the arrow keys does not break the yard",
       "tags": [
         "courtyard",
         "keyboard"
@@ -149,28 +107,25 @@
         },
         {
           "kind": "action",
-          "op": "focus",
-          "intent": "focus Quét một nhịp",
-          "target": {
-            "by": "testid",
-            "name": "sweep-stroke"
-          }
+          "op": "press",
+          "intent": "sweep right",
+          "key": "ArrowRight"
         },
         {
           "kind": "action",
           "op": "press",
-          "intent": "stroke 1",
-          "key": "Enter"
+          "intent": "sweep left",
+          "key": "ArrowLeft"
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "status no longer says 8",
+          "intent": "yard still shown",
           "expected": {
-            "kind": "hidden",
+            "kind": "visible",
             "target": {
-              "by": "text",
-              "name": "Còn 8 chiếc lá"
+              "by": "testid",
+              "name": "sweep-yard"
             }
           }
         }
