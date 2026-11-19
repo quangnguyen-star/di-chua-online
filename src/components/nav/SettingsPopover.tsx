@@ -4,7 +4,7 @@ import { useAtmosphere, type Appearance } from "../atmosphere";
 import styles from "../atmosphere/atmosphere.module.css";
 
 const appearances: { value: Appearance; label: string }[] = [
-  { value: "system", label: "Theo thiết bị" },
+  { value: "system", label: "Tự động theo giờ" },
   { value: "day", label: "Ban ngày" },
   { value: "evening", label: "Buổi tối" },
 ];

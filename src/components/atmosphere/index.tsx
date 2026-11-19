@@ -83,12 +83,6 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
     return () => window.clearInterval(id);
   }, [state.soundOn, refreshStatus]);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (state.appearance === "system") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", state.appearance);
-  }, [state.appearance]);
-
   const disable = useCallback(() => {
     dispatch({ type: "disable" });
     void mixer.disable().finally(refreshStatus);

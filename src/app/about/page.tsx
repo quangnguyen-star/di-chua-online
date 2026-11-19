@@ -36,7 +36,14 @@ export default function AboutPage() {
         <p>
           Âm thanh (tiếng chuông, gió, mưa, tiếng nước) do chính trang tạo ra ngay trên thiết bị của bạn,
           không dùng bản ghi âm nào từ bên ngoài. Âm thanh là tuỳ chọn và luôn tắt theo mặc định; bạn chỉ
-          nghe khi tự bật.
+          nghe khi tự bật. Nguồn gốc từng hình ảnh được ghi trong tệp ASSETS.md của dự án.
+        </p>
+      </section>
+      <section data-testid="about-calendar">
+        <h2>Lịch âm</h2>
+        <p>
+          Bạn có thể tải tệp .ics về máy để thêm ngày rằm và mùng một vào lịch của mình. Trang chỉ cho tải
+          tệp, không gửi thông báo đẩy và không nhắc bạn qua bất kỳ kênh nào.
         </p>
       </section>
       <section data-testid="about-donation">

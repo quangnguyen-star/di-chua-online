@@ -8,6 +8,7 @@ import "../styles/evening.css";
 import "../styles/tokens.css";
 import { MainNav } from "../components/nav/MainNav";
 import { AtmosphereProvider, SoundControl } from "../components/atmosphere";
+import { ThemeProvider } from "../components/theme/ThemeProvider";
 import { SiteFooter } from "../components/shell/SiteFooter";
 
 const notoSerif = Noto_Serif({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="vi" className={notoSerif.variable}>
       <body>
         <AtmosphereProvider>
+        <ThemeProvider>
         <header className="site-header">
           <div className="site-header__inner">
             <Link href="/" className="brand">
@@ -43,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <main className="container reading">{children}</main>
         <SiteFooter />
+        </ThemeProvider>
         </AtmosphereProvider>
       </body>
     </html>

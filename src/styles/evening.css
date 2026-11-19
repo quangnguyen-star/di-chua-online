@@ -1,5 +1,5 @@
-/* Evening theme: follows the system setting unless html[data-theme] says day or evening (set in memory by the
-   atmosphere provider, never stored).
+/* Evening theme: html[data-theme] is set by ThemeProvider (auto follows the Vietnam clock, 06:00 to before 18:00 is day;
+   never stored); the system setting applies only before it mounts.
    Pure CSS, so a change mid-visit restyles in place and never touches component state.
    Keep the pairs in src/components/theme/contrast.ts in step with these values. */
 @media (prefers-color-scheme: dark) {
