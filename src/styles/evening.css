@@ -1,0 +1,33 @@
+/* Evening theme: follows the system setting only, with no toggle and no stored choice.
+   Pure CSS, so a change mid-visit restyles in place and never touches component state.
+   Keep the pairs in src/components/theme/contrast.ts in step with these values. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #1c1712;
+    --wood: #d9c0a3;
+    --lacquer: #eeaa9a;
+    --gold: #d4a853;
+    --moss: #8d9670;
+    --gold-text: #e0be72;
+    --moss-text: #b8c19a;
+    --surface: #262019;
+    --text: #efe6d6;
+    --text-muted: #c4b6a2;
+    --border: #4a3f33;
+  }
+
+  .button:hover { background: #e0b862; }
+
+  [data-testid="visit-scene"] { background: #231d2b; }
+  [data-testid="visit-scene"] [fill="#b9a982"] { fill: #4a4233; }
+  [data-testid="visit-scene"] [fill="#c9b98f"] { fill: #3d3829; }
+  [data-testid="visit-scene"] [fill="#8b6a4a"] { fill: #4a3626; }
+  [data-testid="visit-scene"] [fill="#d8ccaa"] { fill: #655a43; }
+  [data-testid="visit-scene"] [fill="#f1e4c4"] { fill: #8a7c5e; }
+  [data-testid="visit-scene"] [fill="#7a2e22"] { fill: #a8493a; }
+  [data-testid="visit-scene"] [fill="#5a4030"] { fill: #3a2a1f; }
+  [data-testid="visit-scene"] [fill="#6b7255"] { fill: #4a5238; }
+  [data-testid="visit-scene"] [fill="#4f5740"] { fill: #394029; }
+  [data-testid="visit-scene"] [fill="#e6c36a"] { fill: #e8e0c8; }
+}
