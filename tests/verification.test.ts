@@ -47,16 +47,16 @@ test("the pond is the only scene with the river layers", () => {
   for (const word of ["water", "lanterns", "motes"]) assert.match(pond, new RegExp(word));
 });
 
-test("the home map and the gate stop import the same TamQuanStill", () => {
-  const importsStill = (src: string) => /import \{[^}]*\bTamQuanStill\b[^}]*\} from "\.\.\/art"/.test(src);
-  assert.ok(importsStill(read("src/components/temple/map/TempleMap.tsx")), "TempleMap");
+test("the home hero and the gate stop import the same TamQuanStill", () => {
+  const importsStill = (src: string) => /import \{[^}]*\bTamQuanStill\b[^}]*\} from "(?:\.\.\/art|@\/components\/temple\/art)"/.test(src);
+  assert.ok(importsStill(read("src/components/home/HomeView.tsx")), "HomeView");
   assert.ok(importsStill(read("src/components/temple/scenes/Gate.tsx")), "Gate");
   const index = read("src/components/temple/art/index.ts");
   assert.match(index, /TamQuanStill/);
   const gateTags = [...read("src/components/temple/scenes/Gate.tsx").matchAll(/<TamQuanStill\b/g)].length;
-  const mapTags = [...read("src/components/temple/map/TempleMap.tsx").matchAll(/<TamQuanStill\b/g)].length;
+  const homeTags = [...read("src/components/home/HomeView.tsx").matchAll(/<TamQuanStill\b/g)].length;
   assert.equal(gateTags, 1);
-  assert.equal(mapTags, 1);
+  assert.equal(homeTags, 1);
 });
 
 test("every stop's activity renders through StageZones", () => {

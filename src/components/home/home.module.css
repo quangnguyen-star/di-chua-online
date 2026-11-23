@@ -1,5 +1,8 @@
 .home { text-align: center; padding-bottom: 1rem; }
 
+.gate { width: min(100%, 38rem); }
+.mapSection { margin: 1.5rem auto 0; max-width: 60rem; }
+.mapHeading { font-size: 1.25rem; margin: 0 0 0.75rem; }
 .hero { display: flex; flex-direction: column; align-items: center; }
 .title { margin: 0.5rem 0 0; }
 .intro { max-width: 32rem; min-height: 4.5rem; margin: 0.5rem auto 0; }
@@ -9,6 +12,9 @@
 
 .word { margin: 0 auto; padding: 2rem 0.5rem; max-width: 48rem; }
 .wordLabel { margin: 0; font-family: var(--font-body); font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-text); }
+.sealed { display: inline-flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; margin-top: 0.75rem; padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); text-decoration: none; }
+.note { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 4px; background: var(--border); }
+.seal { width: 0.9rem; height: 0.9rem; border-radius: 50%; background: var(--lacquer); }
 .wordText { margin: 0.5rem 0; font-family: var(--font-heading); font-size: clamp(3.5rem, 2.4rem + 4vw, 7rem); line-height: 1.1; color: var(--wood-dark); overflow-wrap: anywhere; }
 .reflection { max-width: 36ch; margin: 0 auto; font-size: 1.125rem; }
 .credit { margin: 0.75rem 0 0; font-size: 0.9rem; }

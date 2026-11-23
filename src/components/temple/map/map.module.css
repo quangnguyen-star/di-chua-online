@@ -1,14 +1,18 @@
-.map { position: relative; width: min(100%, 38rem); margin: 0 auto; --px: 0px; }
-.art { transform: translateX(var(--px)); transition: transform 0.4s ease-out; }
+.map { position: relative; width: min(100%, 60rem); aspect-ratio: 16 / 9; margin: 0 auto; border-radius: var(--radius); overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
+.ground { position: absolute; inset: 0; width: 100%; height: 100%; }
+.range { fill: var(--border); opacity: 0.5; }
+.river { fill: var(--art-glow); opacity: 0.35; }
+.wall { fill: none; stroke: var(--wood); stroke-width: 3; }
+.body { fill: var(--wood); opacity: 0.55; }
+.court { fill: var(--surface); stroke: var(--border); stroke-width: 2; }
+.tree { fill: var(--gold); opacity: 0.25; }
+.route { fill: none; stroke: var(--lacquer); stroke-width: 3; stroke-dasharray: 8 8; stroke-linejoin: round; }
 .spots { list-style: none; margin: 0; padding: 0; }
 .spot { position: absolute; transform: translate(-50%, -50%); }
-.spotLink { position: relative; display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 0.75rem; border-radius: 999px; background: var(--art-control-bg); color: var(--art-control-text); font-size: 0.9rem; text-decoration: none; white-space: nowrap; }
-.spotLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.spotLink:hover .spotLabel, .spotLink:focus-visible .spotLabel { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
-.spotLink:not(:hover):not(:focus-visible) { padding: 0; width: 2.75rem; justify-content: center; }
-.spotLink::before { content: ""; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--art-glow); }
-.spotLink:hover::before, .spotLink:focus-visible::before { display: none; }
+.spotLink { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.75rem; padding: 0 0.6rem 0 0.3rem; border-radius: 999px; background: var(--art-control-bg); color: var(--art-control-text); font-size: 0.85rem; text-decoration: none; white-space: nowrap; }
 .spotLink:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.badge { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--gold); color: var(--wood-dark); font-weight: 700; }
+.name { font-size: inherit; }
 
 .sceneLinks { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin: 1.5rem auto 0; max-width: 48rem; }
 .mapLink { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1rem; border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; }
@@ -18,9 +22,5 @@
 .nextBlurb { font-size: 0.9rem; color: var(--text-muted); }
 
 @media (max-width: 30rem) {
-  .spotLink { font-size: 0.75rem; padding: 0 0.5rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .art { transform: none; transition: none; }
+  .spotLink { font-size: 0.7rem; padding: 0 0.4rem 0 0.2rem; }
 }

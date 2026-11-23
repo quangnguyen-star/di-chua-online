@@ -8,18 +8,6 @@ const read = (rel: string) => readFileSync(resolve(SRC, rel), "utf8");
 
 const still = read("temple/art/TamQuanStill.tsx");
 const mapSrc = read("temple/map/TempleMap.tsx");
-const mapCss = read("temple/map/map.module.css");
-
-const VIEW = { width: 400, height: 240 };
-/** Half of the 2.75rem hit target as a share of the smallest map frame (about 340px wide, 38rem wide at most). */
-const HALF_HIT = 6.5;
-
-function bounds() {
-  const m = still.match(/TAM_QUAN_BOUNDS\s*=\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+),\s*width:\s*(\d+),\s*height:\s*(\d+)/);
-  assert.ok(m, "TAM_QUAN_BOUNDS is exported from TamQuanStill");
-  const [x, y, width, height] = m.slice(1).map(Number);
-  return { x, y, width, height };
-}
 
 function spots() {
   const block = mapSrc.match(/const spots[^{]*\{([\s\S]*?)\n\};/);
@@ -31,37 +19,21 @@ function spots() {
   }));
 }
 
-function rule(css: string, selector: string): string {
-  const esc = selector.replace(/[.:()]/g, "\\$&");
-  const m = css.match(new RegExp(`(?:^|\\n)${esc}\\s*\\{([^}]*)\\}`));
-  assert.ok(m, `rule ${selector} exists`);
-  return m[1];
-}
-
-test("no home-map marker or label box intersects the gate's bounding shape by default", () => {
-  const b = bounds();
-  const box = {
-    left: (b.x / VIEW.width) * 100,
-    right: ((b.x + b.width) / VIEW.width) * 100,
-    top: (b.y / VIEW.height) * 100,
-    bottom: ((b.y + b.height) / VIEW.height) * 100,
-  };
-  const all = spots();
-  assert.equal(all.length, 6);
-  for (const s of all) {
-    const outsideX = s.left + HALF_HIT <= box.left || s.left - HALF_HIT >= box.right;
-    const outsideY = s.top + HALF_HIT <= box.top || s.top - HALF_HIT >= box.bottom;
-    assert.ok(outsideX || outsideY, `${s.id} hit box at ${s.left}%,${s.top}% overlaps the gate`);
-  }
+test("the home map is a separate schematic: it holds no gate art, so no label can sit on the gate", () => {
+  assert.doesNotMatch(mapSrc, /TamQuanStill/);
+  const home = read("home/HomeView.tsx");
+  assert.match(home, /<TamQuanStill\b[^>]*testId="home-gate-art"/);
+  assert.match(home, /styles\.gate/);
 });
 
-test("place labels are visually hidden until hover or focus", () => {
-  const label = rule(mapCss, ".spotLabel");
-  assert.match(label, /width:\s*1px/);
-  assert.match(label, /height:\s*1px/);
-  assert.match(label, /clip-path:\s*inset\(50%\)/);
-  assert.match(mapCss, /\.spotLink:hover \.spotLabel[^{]*\.spotLink:focus-visible \.spotLabel\s*\{[^}]*clip-path:\s*none/);
-  assert.match(mapSrc, /className=\{styles\.spotLabel\}/);
+test("the six map spots sit at the reference positions", () => {
+  const all = Object.fromEntries(spots().map((s) => [s.id, s]));
+  assert.equal(Object.keys(all).length, 6);
+  assert.equal(all.gate.left, 46.875);
+  assert.equal(all.gate.top, 80);
+  assert.equal(all.outside.left, 60);
+  assert.ok(Math.abs(all.outside.top - 86.3) < 0.05);
+  assert.match(mapSrc, /\/visit\/\?stop=\$\{p\.id\}/);
 });
 
 test("TamQuanStill draws no glow circle", () => {
