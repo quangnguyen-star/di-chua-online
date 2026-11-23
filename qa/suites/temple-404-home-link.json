@@ -1,0 +1,30 @@
+{
+  "_about": "The 404 page offers a Về trang chủ link that returns to the home page.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-404-home-link",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-404-home-link",
+    "email": "qa+temple-404-home-link@gomu.ai",
+    "tag": "QA RUN temple-404-home-link"
+  },
+  "scenarios": [
+    {
+      "name": "404 page links back to the home page",
+      "tags": ["404", "home-link"],
+      "setup": [],
+      "steps": [
+        { "kind": "action", "op": "navigate", "intent": "open a URL that does not exist", "url": "/khong-co-trang-nay" },
+        { "kind": "assert", "op": "assert", "intent": "home link is visible", "expected": { "kind": "visible", "target": { "by": "text", "name": "Về trang chủ" } } },
+        { "kind": "action", "op": "click", "intent": "click Về trang chủ", "target": { "by": "testid", "name": "not-found-home" } },
+        { "kind": "assert", "op": "assert", "intent": "landed on the home page", "expected": { "kind": "visible", "target": { "by": "testid", "name": "map-art" } } }
+      ],
+      "teardown": []
+    }
+  ]
+}
