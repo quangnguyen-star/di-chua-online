@@ -5,9 +5,9 @@
 .count { margin: 0; display: flex; gap: 0.5rem; list-style: none; padding: 0; }
 .dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; border: 1.5px solid rgba(255, 244, 220, 0.85); }
 .dotOn { background: rgba(255, 224, 160, 0.95); }
-.art { position: absolute; left: 50%; bottom: 14%; width: min(92%, 900px); aspect-ratio: 5 / 3; transform: translateX(-50%); }
+.art { position: absolute; left: 50%; top: 50%; width: min(100%, calc(100vh * 16 / 9)); aspect-ratio: 16 / 9; transform: translate(-50%, -50%); }
 .tamQuan { width: 100%; height: 100%; }
-.glow { position: absolute; left: 44.5%; width: 11%; top: 58.3%; height: 23.3%; border-radius: 48% 48% 0 0 / 22% 22% 0 0; background: radial-gradient(ellipse at 50% 65%, rgba(255, 214, 140, 0.95), rgba(255, 170, 80, 0.35) 60%, transparent 80%); opacity: 0; transition: opacity 1200ms ease; pointer-events: none; }
+.glow { position: absolute; left: 47.6%; width: 4.8%; top: 42.2%; height: 15.6%; border-radius: 48% 48% 0 0 / 22% 22% 0 0; background: radial-gradient(ellipse at 50% 65%, rgba(255, 214, 140, 0.95), rgba(255, 170, 80, 0.35) 60%, transparent 80%); opacity: 0; transition: opacity 1200ms ease; pointer-events: none; }
 .lit { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
