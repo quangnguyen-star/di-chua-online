@@ -1,0 +1,10 @@
+/* Lines the interactive teapot, cup and steam up over the ones painted in the scene (art/stops/veranda.jpg). */
+[data-testid="tea-set"] {
+  bottom: 12%;
+  width: 37%;
+}
+
+[data-testid="tea-set"] ~ canvas {
+  left: calc(54% - 32px);
+  bottom: 31%;
+}

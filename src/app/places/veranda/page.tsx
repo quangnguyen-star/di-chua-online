@@ -1,3 +1,4 @@
+import "./veranda.css";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import TeaPreparationSlot from "../../practices/[slug]/compositions/TeaPreparationSlot";
 

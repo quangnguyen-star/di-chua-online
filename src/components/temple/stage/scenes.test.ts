@@ -29,6 +29,14 @@ test("each backdrop declares sky and ground", () => {
   }
 });
 
+test("the veranda names the layers of its still", () => {
+  const layers = SCENES.veranda.layers;
+  for (const name of ["window-frame", "moon", "ridges", "pads", "candles", "boat", "table", "teapot", "cup", "railing", "rain"]) {
+    assert.ok(layers.includes(name), `veranda lists ${name}`);
+  }
+  assert.ok(layers.indexOf("table") < layers.indexOf("teapot") && layers.indexOf("cup") < layers.indexOf("railing"));
+});
+
 test("the pond names every layer of the still, bottom to top", () => {
   const layers: readonly string[] = SCENES.pond.layers;
   const order = ["sky", "moon", "ridges", "bank-and-gate", "umbrella-trees", "water", "lily-pads", "boat", "lanterns", "reeds"];
