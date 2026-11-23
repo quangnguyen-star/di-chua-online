@@ -1,39 +1,77 @@
-import { WORLD_W } from "../art.ts";
+import { bakeGoldRidge, WORLD_W } from "../art.ts";
+import { addGoldenMoon, addSkyline, addUmbrellaTrees } from "./common.ts";
 import { BACKDROP_LAYERS, buildBackdrop } from "./backdrop.ts";
+import { bakePathLampGlow, bakeRock, bakeStairway, STAIR_BOTTOM_Y, STAIR_TOP_Y, stairHalfWidth } from "./outside.art.ts";
 import type { BackdropSpec, PlaceScene, SceneContext, SceneInstance } from "./types.ts";
 
-const spec: BackdropSpec = { horizon: 320, groundTop: "#2c2a1c", groundBottom: "#0e0d08", edge: "#8f8a52" };
+const HORIZON = 320;
 
-/** Village path: a dirt track narrowing to the horizon, with a few low roofs and trees beside it. */
+const spec: BackdropSpec = { horizon: HORIZON, groundTop: "#33201a", groundBottom: "#120a07", edge: "#a8663a" };
+
+/** Named layers of the outside scene, bottom to top. The backdrop's own orb is left out: the golden moon replaces it. */
+export const outsideLayers = [
+  ...BACKDROP_LAYERS.filter((n) => n !== "orb"),
+  "moon", "mountains", "skyline", "rocks", "umbrella-trees", "stairway", "path-lamps",
+] as const;
+
+const ROCKS: readonly (readonly [number, number, number, string, number])[] = [
+  [285, 392, 66, "#c9754c", 0.5],
+  [675, 392, 70, "#c9754c", 0.5],
+  [40, 460, 100, "#7a4f3a", 0.5],
+  [920, 460, 110, "#7a4f3a", 0.5],
+  [130, 520, 90, "#6b4634", 0.4],
+  [850, 520, 90, "#6b4634", 0.6],
+];
+
+/** The way out: a stone stairway climbing to a lit city under a large moon, flanked by trees, rocks and path lamps. */
 function buildOutside(ctx: SceneContext): SceneInstance {
   const { pixi } = ctx;
-  const instance = buildBackdrop(ctx, spec);
-  const h = spec.horizon;
+  const instance = buildBackdrop({ ...ctx, depthLayer: (name, node, depth, baseX) => { if (name !== "orb") ctx.depthLayer(name, node, depth, baseX); } }, spec);
   const cx = WORLD_W / 2;
 
-  const path = new pixi.Graphics()
-    .poly([cx - 14, h, cx + 14, h, cx + 190, 540, cx - 190, 540])
-    .fill({ color: 0xd2b482, alpha: 0.22 });
-  ctx.layer("path", path);
+  addGoldenMoon(ctx, 230, 90);
 
-  const huts = new pixi.Graphics();
-  const hut = (x: number, w: number, hh: number) => {
-    huts.rect(x, h - hh, w, hh).fill({ color: 0x1a1710, alpha: 0.85 });
-    huts.poly([x - 6, h - hh, x + w / 2, h - hh - hh * 0.7, x + w + 6, h - hh]).fill({ color: 0x241f14, alpha: 0.9 });
-  };
-  hut(150, 54, 30);
-  hut(250, 40, 24);
-  hut(620, 60, 34);
-  hut(730, 44, 26);
-  for (const x of [90, 330, 560, 840]) huts.circle(x, h - 34, 20).fill({ color: 0x1d2414, alpha: 0.8 });
-  ctx.depthLayer("huts", huts, 0.3);
+  const mountains = new pixi.Container();
+  mountains.addChild(new pixi.Sprite(ctx.tex(bakeGoldRidge("#5a2c1c", HORIZON - 70, 60, 7, HORIZON))));
+  ctx.depthLayer("mountains", mountains, 0.15, -40);
+
+  addSkyline(ctx, HORIZON + 4, 110, 23);
+
+  const rocks = new pixi.Container();
+  for (const [x, groundY, h, tone, peak] of ROCKS) {
+    const s = new pixi.Sprite(ctx.tex(bakeRock(Math.round(h * 0.8), h, tone, peak)));
+    s.anchor.set(0.5, 1);
+    s.position.set(x, groundY);
+    rocks.addChild(s);
+  }
+  ctx.depthLayer("rocks", rocks, 0.3);
+
+  addUmbrellaTrees(ctx, 455, [160, 800]);
+
+  ctx.layer("stairway", new pixi.Sprite(ctx.tex(bakeStairway())));
+
+  const lamps = new pixi.Container();
+  const glow = ctx.tex(bakePathLampGlow());
+  const lampCount = ctx.options.quality === "low" ? 3 : 6;
+  for (let i = 0; i < lampCount; i++) {
+    const y = STAIR_TOP_Y + 8 + ((STAIR_BOTTOM_Y - STAIR_TOP_Y - 16) * i) / (lampCount - 1);
+    for (const side of [-1, 1]) {
+      const s = new pixi.Sprite(glow);
+      s.anchor.set(0.5);
+      s.position.set(cx + side * (stairHalfWidth(y) + 10), y - 4);
+      s.scale.set(0.5 + i * 0.12);
+      s.blendMode = "add";
+      lamps.addChild(s);
+    }
+  }
+  ctx.layer("path-lamps", lamps);
 
   return instance;
 }
 
 export const outsideScene: PlaceScene = {
   horizon: spec.horizon,
-  layers: [...BACKDROP_LAYERS, "path", "huts"],
+  layers: outsideLayers,
   backdrop: spec,
   build: buildOutside,
 };
