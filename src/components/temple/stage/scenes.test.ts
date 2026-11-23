@@ -28,3 +28,12 @@ test("each backdrop declares sky and ground", () => {
     assert.ok(layers.includes("sky") && layers.includes("ground"), p);
   }
 });
+
+test("courtyard draws its named layers and no river layers", () => {
+  const layers: readonly string[] = SCENES.courtyard.layers;
+  for (const name of ["hall", "hanging-lamps", "ground", "tiles", "banyans", "planters", "fallen-leaves", "broom", "sweepers", "drifting-leaves", "moon"]) {
+    assert.ok(layers.includes(name), `courtyard lists ${name}`);
+  }
+  assert.ok(layers.indexOf("tiles") > layers.indexOf("ground"));
+  for (const layer of layers) assert.doesNotMatch(layer, RIVER_ONLY, `courtyard lists ${layer}`);
+});

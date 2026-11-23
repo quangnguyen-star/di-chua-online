@@ -12,17 +12,17 @@
   background: linear-gradient(90deg, transparent, rgba(236, 214, 170, 0.8) 30%, rgba(236, 214, 170, 0.8) 70%, transparent);
 }
 .pile {
-  position: absolute; width: 3.4rem; height: 2rem; margin: -1.5rem 0 0 -1.7rem; pointer-events: none; transform-origin: 50% 100%;
+  position: absolute; width: 3.4rem; height: 2rem; margin: -0.9rem 0 0 -1.7rem; pointer-events: none; transform-origin: 50% 100%;
   border-radius: 50% 50% 20% 20%; border: 1px solid #6b4412; opacity: 0.95; transition: transform 600ms ease-out;
   background: radial-gradient(circle at 30% 40%, #d79a3c 0 18%, transparent 19%), radial-gradient(circle at 65% 30%, #b5532a 0 20%, transparent 21%), radial-gradient(circle at 50% 70%, #c9b037 0 22%, transparent 23%), #8a6a2c;
   box-shadow: 0.3rem 0.4rem 0.5rem rgba(10, 6, 2, 0.5);
 }
 .broom {
-  position: absolute; left: 50%; top: 62%; width: 0.45rem; height: 6rem; margin: -5.5rem 0 0 -0.22rem; pointer-events: none;
+  position: absolute; left: 50%; top: 63%; width: 0.3rem; height: 4rem; margin: -3.6rem 0 0 -0.15rem; pointer-events: none;
   border-radius: 0.25rem; background: #7a5a36; transform-origin: 50% 92%; transition: none;
 }
 .bristles {
-  position: absolute; left: -0.9rem; bottom: -0.3rem; width: 2.25rem; height: 1.6rem;
+  position: absolute; left: -0.6rem; bottom: -0.3rem; width: 1.5rem; height: 1.1rem;
   border-radius: 0.3rem 0.3rem 45% 45%; background: repeating-linear-gradient(90deg, #a68242 0 3px, #8b6a30 3px 6px);
   box-shadow: 0 0.3rem 0.4rem rgba(10, 6, 2, 0.45);
 }
