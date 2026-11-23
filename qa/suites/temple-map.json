@@ -1,5 +1,5 @@
 {
-  "_about": "Home map hotspots and the text place list open each stop's /visit?stop= URL (src/content/routes.ts).",
+  "_about": "Home map hotspots and the text place list open each stop's /visit?stop= URL (src/content/routes.ts). The header nav offers Các điểm đến, which opens the /places gallery; each gallery card opens its stop.",
   "schema_version": "1.1.0",
   "run_id": "temple-map",
   "config": {
@@ -784,6 +784,271 @@
               "name": "map-place-outside"
             },
             "text": "Bên ngoài"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Header nav opens the places gallery",
+      "tags": [
+        "map",
+        "nav"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click Các điểm đến",
+          "target": {
+            "by": "role",
+            "role": "link",
+            "name": "Các điểm đến",
+            "exact": true
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "on /places",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/places"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "places page",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "places-page"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gallery card gate opens its stop",
+      "tags": [
+        "map",
+        "places",
+        "gallery"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click card gate",
+          "target": {
+            "by": "testid",
+            "name": "place-card-gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=gate"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gallery card courtyard opens its stop",
+      "tags": [
+        "map",
+        "places",
+        "gallery"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click card courtyard",
+          "target": {
+            "by": "testid",
+            "name": "place-card-courtyard"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=courtyard"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gallery card hall opens its stop",
+      "tags": [
+        "map",
+        "places",
+        "gallery"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click card hall",
+          "target": {
+            "by": "testid",
+            "name": "place-card-hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=hall"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gallery card pond opens its stop",
+      "tags": [
+        "map",
+        "places",
+        "gallery"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click card pond",
+          "target": {
+            "by": "testid",
+            "name": "place-card-pond"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=pond"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gallery card veranda opens its stop",
+      "tags": [
+        "map",
+        "places",
+        "gallery"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click card veranda",
+          "target": {
+            "by": "testid",
+            "name": "place-card-veranda"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=veranda"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Gallery card outside opens its stop",
+      "tags": [
+        "map",
+        "places",
+        "gallery"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "click card outside",
+          "target": {
+            "by": "testid",
+            "name": "place-card-outside"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "landed on stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "/visit?stop=outside"
           }
         }
       ],

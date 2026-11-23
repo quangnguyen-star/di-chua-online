@@ -1,5 +1,5 @@
 {
-  "_about": "Every historic URL in src/content/routes.ts redirects into /visit. No variant parameter is asserted: practice variants were removed in v2. The 404 button target (/visit, labelled Về bản đồ) is reported in reports/v2-verification.md rather than asserted here.",
+  "_about": "/practices/* and the gate, courtyard and pond place roots redirect into /visit?stop=. The standalone pages under /places (hall, hall/incense, courtyard/sweeping, pond/lantern, veranda, word) open as their own pages and each links back to the map. The 404 offers Về bản đồ.",
   "schema_version": "1.1.0",
   "run_id": "temple-legacy-and-404",
   "config": {
@@ -205,10 +205,10 @@
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/courtyard/sweeping resolves to /visit?stop=courtyard",
+      "name": "Standalone page /places/courtyard/sweeping opens and links to the map",
       "tags": [
-        "legacy",
-        "redirect"
+        "places",
+        "standalone"
       ],
       "setup": [],
       "steps": [
@@ -221,21 +221,21 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url /visit?stop=courtyard",
+          "intent": "stays on /places/courtyard/sweeping",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=courtyard"
+            "url": "/places/courtyard/sweeping"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "the visit shell opens",
+          "intent": "map link offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-shell"
+              "name": "scene-map-link"
             }
           }
         }
@@ -243,10 +243,10 @@
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/hall resolves to /visit?stop=hall",
+      "name": "Standalone page /places/hall opens and links to the map",
       "tags": [
-        "legacy",
-        "redirect"
+        "places",
+        "standalone"
       ],
       "setup": [],
       "steps": [
@@ -259,21 +259,21 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url /visit?stop=hall",
+          "intent": "stays on /places/hall",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=hall"
+            "url": "/places/hall"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "the visit shell opens",
+          "intent": "map link offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-shell"
+              "name": "scene-map-link"
             }
           }
         }
@@ -281,10 +281,10 @@
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/hall/incense resolves to /visit?stop=hall",
+      "name": "Standalone page /places/hall/incense opens and links to the map",
       "tags": [
-        "legacy",
-        "redirect"
+        "places",
+        "standalone"
       ],
       "setup": [],
       "steps": [
@@ -297,21 +297,21 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url /visit?stop=hall",
+          "intent": "stays on /places/hall/incense",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=hall"
+            "url": "/places/hall/incense"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "the visit shell opens",
+          "intent": "map link offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-shell"
+              "name": "scene-map-link"
             }
           }
         }
@@ -433,10 +433,10 @@
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/pond/lantern resolves to /visit?stop=pond",
+      "name": "Standalone page /places/pond/lantern opens and links to the map",
       "tags": [
-        "legacy",
-        "redirect"
+        "places",
+        "standalone"
       ],
       "setup": [],
       "steps": [
@@ -449,21 +449,21 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url /visit?stop=pond",
+          "intent": "stays on /places/pond/lantern",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=pond"
+            "url": "/places/pond/lantern"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "the visit shell opens",
+          "intent": "map link offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-shell"
+              "name": "scene-map-link"
             }
           }
         }
@@ -509,10 +509,10 @@
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/veranda resolves to /visit?stop=veranda",
+      "name": "Standalone page /places/veranda opens and links to the map",
       "tags": [
-        "legacy",
-        "redirect"
+        "places",
+        "standalone"
       ],
       "setup": [],
       "steps": [
@@ -525,21 +525,21 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url /visit?stop=veranda",
+          "intent": "stays on /places/veranda",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=veranda"
+            "url": "/places/veranda"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "the visit shell opens",
+          "intent": "map link offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-shell"
+              "name": "scene-map-link"
             }
           }
         }
@@ -623,10 +623,10 @@
       "teardown": []
     },
     {
-      "name": "Legacy URL /places/word resolves to /visit?stop=outside",
+      "name": "Standalone page /places/word opens and links to the map",
       "tags": [
-        "legacy",
-        "redirect"
+        "places",
+        "standalone"
       ],
       "setup": [],
       "steps": [
@@ -639,21 +639,21 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url /visit?stop=outside",
+          "intent": "stays on /places/word",
           "expected": {
             "kind": "url_contains",
-            "url": "/visit?stop=outside"
+            "url": "/places/word"
           }
         },
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "the visit shell opens",
+          "intent": "map link offered",
           "expected": {
             "kind": "visible",
             "target": {
               "by": "testid",
-              "name": "visit-shell"
+              "name": "scene-map-link"
             }
           }
         }

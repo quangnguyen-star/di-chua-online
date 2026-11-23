@@ -9,25 +9,19 @@ test("every place href is its stop URL", () => {
   for (const r of routes) assert.equal(r.href, `/visit?stop=${r.id}`);
 });
 
-test("every historic URL redirects to a stop that has content", () => {
+test("every historic URL still redirects (standalone /places/* pages are not redirected) to a stop that has content", () => {
   const expected: Record<string, string> = {
     "/practices": "/visit",
     "/practices/breathing": "gate",
     "/practices/tho-2-phut": "gate",
     "/places/gate": "gate",
     "/places/courtyard": "courtyard",
-    "/places/courtyard/sweeping": "courtyard",
-    "/places/hall": "hall",
-    "/places/hall/incense": "hall",
     "/practices/sitting": "hall",
     "/practices/ngoi-yen-5-phut": "hall",
     "/places/pond": "pond",
-    "/places/pond/lantern": "pond",
     "/places/river": "pond",
-    "/places/veranda": "veranda",
     "/practices/tea": "veranda",
     "/practices/tra-3-phut": "veranda",
-    "/places/word": "outside",
   };
   const table = new Map(redirects);
   for (const [from, want] of Object.entries(expected)) {
@@ -41,6 +35,13 @@ test("every historic URL redirects to a stop that has content", () => {
     const stage = visitStages.find((s) => s.id === stopOf(to));
     assert.ok(stage && stage.label && stage.prompt, `${from} lands on a stop with content`);
     assert.equal(placeForHref(from)?.id, want);
+  }
+});
+
+test("standalone place pages are not redirect sources", () => {
+  const sources = new Set(redirects.map(([from]) => from));
+  for (const p of ["/places/hall", "/places/hall/incense", "/places/courtyard/sweeping", "/places/pond/lantern", "/places/veranda", "/places/word"]) {
+    assert.ok(!sources.has(p), p);
   }
 });
 

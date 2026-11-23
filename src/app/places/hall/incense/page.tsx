@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+import IncenseHall from "../IncenseHall";
 
-export default function LegacyIncensePage() {
-  redirect("/places/hall");
+export const metadata = { title: "Chánh điện" };
+
+export default function IncensePage() {
+  return <IncenseHall />;
 }

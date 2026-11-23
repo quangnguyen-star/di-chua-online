@@ -22,27 +22,27 @@ export const routes: Place[] = [
   {
     id: "courtyard", slug: "courtyard", name: "Sân chùa", blurb: "Quét lá, để tâm lắng xuống.",
     href: "/visit?stop=courtyard", scene: "day", next: "hall", ready: true,
-    legacyHrefs: ["/places/courtyard", "/places/courtyard/sweeping"],
+    legacyHrefs: ["/places/courtyard"],
   },
   {
     id: "hall", slug: "hall", name: "Chánh điện", blurb: "Nơi thắp một nén hương và ngồi yên.",
     href: "/visit?stop=hall", scene: "night", next: "pond", ready: true,
-    legacyHrefs: ["/places/hall", "/places/hall/incense", "/practices/sitting", "/practices/ngoi-yen-5-phut"],
+    legacyHrefs: ["/practices/sitting", "/practices/ngoi-yen-5-phut"],
   },
   {
     id: "pond", slug: "pond", name: "Bến sông", blurb: "Thả một ngọn đèn lên mặt nước.",
     href: "/visit?stop=pond", scene: "night", next: "veranda", ready: true,
-    legacyHrefs: ["/places/pond", "/places/pond/lantern", "/places/river"],
+    legacyHrefs: ["/places/pond", "/places/river"],
   },
   {
     id: "veranda", slug: "veranda", name: "Hiên chùa", blurb: "Một chén trà trong tiếng gió.",
     href: "/visit?stop=veranda", scene: "day", next: "outside", ready: true,
-    legacyHrefs: ["/places/veranda", "/practices/tea", "/practices/tra-3-phut"],
+    legacyHrefs: ["/practices/tea", "/practices/tra-3-phut"],
   },
   {
     id: "outside", slug: "word", name: "Bên ngoài", blurb: "Mang sự tỉnh thức trở lại đời thường.",
     href: "/visit?stop=outside", scene: "day", ready: true,
-    legacyHrefs: ["/places/word"],
+    legacyHrefs: [],
   },
 ];
 

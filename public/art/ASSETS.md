@@ -1,7 +1,7 @@
 # Art assets
 
-Every asset here is original, first-party work made for this project. There is no stock imagery, no deity
-imagery and no third-party media. Everything is served from 'self' (CSP `img-src 'self' data:`).
+Every asset here is original, first-party work made for this project. There is no stock imagery and no third-party
+media. Everything is served from 'self' (CSP `img-src 'self' data:`).
 
 | Asset | Source / authorship | Notes |
 | --- | --- | --- |
