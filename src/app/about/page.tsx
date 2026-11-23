@@ -6,6 +6,7 @@ export default function AboutPage() {
   return (
     <>
       <h1>Giới thiệu</h1>
+      <p>Mở cửa trực tuyến 24/7</p>
       <section data-testid="about-inspiration">
         <h2>Cảm hứng văn hoá</h2>
         <p>
