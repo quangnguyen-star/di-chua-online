@@ -19,7 +19,7 @@ test("only the pond draws river layers", () => {
     assert.ok(SCENES[p].backdrop, `${p} has a backdrop`);
   }
   const pond = SCENES.pond.layers.join(" ");
-  for (const word of ["lanterns", "water", "motes", "bank-and-gate", "far-hills"]) assert.match(pond, new RegExp(word));
+  for (const word of ["lanterns", "water", "motes", "bank-and-gate", "ridges"]) assert.match(pond, new RegExp(word));
 });
 
 test("each backdrop declares sky and ground", () => {
@@ -27,6 +27,14 @@ test("each backdrop declares sky and ground", () => {
     const layers = SCENES[p].layers;
     assert.ok(layers.includes("sky") && layers.includes("ground"), p);
   }
+});
+
+test("the pond names every layer of the still, bottom to top", () => {
+  const layers: readonly string[] = SCENES.pond.layers;
+  const order = ["sky", "moon", "ridges", "bank-and-gate", "umbrella-trees", "water", "lily-pads", "boat", "lanterns", "reeds"];
+  const at = order.map((name) => layers.indexOf(name));
+  assert.ok(at.every((i) => i >= 0), `missing a named layer: ${order.filter((_, i) => at[i] < 0).join(", ")}`);
+  assert.deepEqual([...at].sort((a, b) => a - b), at);
 });
 
 test("courtyard draws its named layers and no river layers", () => {

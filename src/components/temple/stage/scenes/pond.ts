@@ -1,9 +1,11 @@
 import type { Container, Filter, Graphics, Sprite, Texture } from "pixi.js";
 import {
-  bakeBankAndGate, bakeCrackle, bakeDot, bakeFarMountains, bakeLantern, bakeMidMountains, bakeOrb, bakeSky, bakeWater,
-  HORIZON_Y, rng, WORLD_H, WORLD_W,
+  bakeCrackle, bakeDot, bakeLotusLantern, bakeSky, bakeUmbrellaTree, bakeWater,
+  HORIZON_Y, LOTUS_COLOR_NAMES, rng, WORLD_H, WORLD_W, type LotusColor,
 } from "../art.ts";
-import { createLanternCanvas, LANTERN_COLORS, type LanternColor } from "../../lantern/bake.ts";
+import type { LanternColor } from "../../lantern/bake.ts";
+import { addGoldenMoon, addGoldRidges, makeBoat, makeLilyPads } from "./common.ts";
+import { bakeBankStrip, bakeBoatman, bakeLitTamQuan, bakeReeds, GATE_H, GATE_W } from "./pond.art.ts";
 import { lanternCount } from "../lighting.ts";
 import { createWaterFilter } from "../waterFilter.ts";
 import type { PlaceScene, PondApi, SceneContext, SceneInstance } from "./types.ts";
@@ -14,8 +16,16 @@ const MAX_LANTERNS_LOW = 8;
 const MAX_ZOOM_OUT = 0.12;
 const MAX_RINGS = 6;
 const RING_S = 1.4;
-const FIELD_COLORS = LANTERN_COLORS;
-const LANTERN_COLORS_HEX: Record<LanternColor, string> = { pink: "#ffb3c4", gold: "#ffd36b", white: "#fff6e0" };
+const FIELD_COLORS = LOTUS_COLOR_NAMES;
+/** The flow's colour names map onto the shared lotus colours; the visitor's lantern is the same motif, just brighter and closer. */
+const LOTUS_OF: Record<LanternColor, LotusColor> = { pink: "pink", gold: "yellow", white: "white" };
+const LOTUS_HEX: Record<LotusColor, string> = { pink: "#ffb3c4", yellow: "#ffd36b", white: "#fff6e0", purple: "#ba8cec" };
+/** Where the still shows its lotus lanterns, in world pixels (colour, x, y). */
+const FIELD_SPOTS: readonly (readonly [LotusColor, number, number])[] = [
+  ["yellow", 438, 448], ["white", 436, 492], ["pink", 243, 497], ["pink", 177, 456], ["purple", 576, 512], ["pink", 660, 450],
+];
+/** Umbrella trees from the still: [x, scale] standing on the bank. */
+const TREES: readonly (readonly [number, number])[] = [[62, 2.3], [412, 1], [818, 1.5], [900, 1.9]];
 /** Reflection strokes: [dy, half-width, dx] from the lantern, each one shorter and offset so the column reads as broken water. */
 const REFLECTION_BREAKS: readonly (readonly [number, number, number])[] = [[0, 12, 0], [9, 9, -4], [19, 7, 5], [31, 5, -3]];
 
@@ -23,46 +33,92 @@ interface Lantern { box: Container; reflection: Container; baseY: number; speed:
 interface Ring { g: Graphics; age: number }
 interface Mote { sprite: Sprite; x: number; y: number; vx: number; vy: number; phase: number }
 
-export const pondLayers = ["sky", "orb", "far-hills", "mid-hills", "mist", "bank-and-gate", "water", "lanterns", "motes", "wash", "crackle"] as const;
+export const pondLayers = [
+  "sky", "moon", "ridges", "mist", "bank-and-gate", "umbrella-trees", "water", "lily-pads", "boat", "lanterns", "reeds", "motes", "wash", "crackle",
+] as const;
 
 /** The river: the only scene with water, lotus lanterns, lily pads and motes. The lantern flow drives it through PondApi; it draws, React keeps the clock. */
 function buildPond(ctx: SceneContext): SceneInstance {
   const { pixi, palette: p, options: o } = ctx;
   ctx.layer("sky", new pixi.Sprite(ctx.tex(bakeSky(p, HORIZON_Y))));
 
-  const orbs = new pixi.Container();
-  const addOrb = (kind: "sun" | "moon", x: number, y: number) => {
-    const s = new pixi.Sprite(ctx.tex(bakeOrb(kind, p.haloAlpha)));
-    s.anchor.set(0.5);
-    s.position.set(x, y);
-    orbs.addChild(s);
-  };
-  if (p.orb === "moon") addOrb("moon", 700, 120);
-  else if (p.orb === "sun") addOrb("sun", 700, 170);
-  if (o.ram && p.orb !== "moon") addOrb("moon", 840, 90);
-  ctx.depthLayer("orb", orbs, 0.05);
-
-  const far = new pixi.Sprite(ctx.tex(bakeFarMountains(p)));
-  ctx.depthLayer("far-hills", far, 0.15, -40);
-  const mid = new pixi.Sprite(ctx.tex(bakeMidMountains(p)));
-  ctx.depthLayer("mid-hills", mid, 0.3, -40);
+  addGoldenMoon(ctx, 697, 142);
+  addGoldRidges(ctx, HORIZON_Y);
 
   ctx.layer("mist", new pixi.Graphics().rect(0, HORIZON_Y - 150, WORLD_W, 150).fill({ color: 0xfbf0d8, alpha: p.mist * 0.35 }));
 
-  const gate = new pixi.Sprite(ctx.tex(bakeBankAndGate()));
-  gate.y = HORIZON_Y - 40;
-  ctx.depthLayer("bank-and-gate", gate, 0.5);
+  const bank = new pixi.Container();
+  const strip = new pixi.Sprite(ctx.tex(bakeBankStrip(WORLD_W)));
+  strip.y = HORIZON_Y - 6;
+  const gateTex = ctx.tex(bakeLitTamQuan());
+  const gate = new pixi.Sprite(gateTex);
+  gate.position.set(60, HORIZON_Y - GATE_H + 2);
+  const gateGlow = new pixi.Sprite(ctx.tex(bakeDot()));
+  gateGlow.anchor.set(0.5);
+  gateGlow.blendMode = "add";
+  gateGlow.tint = 0xffb050;
+  gateGlow.alpha = 0.5;
+  gateGlow.scale.set(11, 9);
+  gateGlow.position.set(60 + GATE_W / 2, HORIZON_Y - 50);
+  bank.addChild(strip, gateGlow, gate);
+  ctx.layer("bank-and-gate", bank);
+
+  const treeBox = new pixi.Container();
+  const treeTex = [ctx.tex(bakeUmbrellaTree(3)), ctx.tex(bakeUmbrellaTree(8))];
+  TREES.forEach(([x, scale], i) => {
+    const t = new pixi.Sprite(treeTex[i % treeTex.length]);
+    t.anchor.set(0.5, 1);
+    t.scale.set(scale);
+    t.position.set(x, HORIZON_Y + 2);
+    treeBox.addChild(t);
+  });
+  ctx.layer("umbrella-trees", treeBox);
 
   const waterBox = new pixi.Container();
   const water = new pixi.Sprite(ctx.tex(bakeWater(p, o.ram)));
   water.y = HORIZON_Y;
   waterBox.addChild(water);
+  const gateReflection = new pixi.Sprite(gateTex);
+  gateReflection.scale.y = -0.8;
+  gateReflection.alpha = 0.32;
+  gateReflection.position.set(60, HORIZON_Y + 6 + GATE_H * 0.8);
+  waterBox.addChild(gateReflection);
   let waterFx: { filter: Filter; setTime(s: number): void } | null = createWaterFilter(pixi);
   waterBox.filters = [waterFx.filter];
   ctx.layer("water", waterBox);
 
+  ctx.layer("lily-pads", (() => {
+    const box = new pixi.Container();
+    box.addChild(makeLilyPads(ctx, 8, { x: 40, y: HORIZON_Y + 30, w: WORLD_W - 80, h: 90 }, 61));
+    const big = makeLilyPads(ctx, 5, { x: 20 / 1.8, y: (HORIZON_Y + 120) / 1.8, w: (WORLD_W - 40) / 1.8, h: 40 / 1.8 }, 77);
+    big.scale.set(1.8);
+    box.addChild(big);
+    return box;
+  })());
+
+  const boat = makeBoat(ctx, 0, 0);
+  const boatman = new pixi.Sprite(ctx.tex(bakeBoatman()));
+  boatman.anchor.set(0.5, 1);
+  boatman.position.set(-26, -2);
+  boat.addChild(boatman);
+  boat.scale.set(1.4);
+  boat.position.set(800, HORIZON_Y + 56);
+  ctx.layer("boat", boat);
+
   const lanternLayer = new pixi.Container();
   ctx.layer("lanterns", lanternLayer);
+  ctx.layer("reeds", (() => {
+    const box = new pixi.Container();
+    const tex = ctx.tex(bakeReeds(60, 150));
+    for (const [x, scale] of [[884, 1.2], [926, 1.5]] as const) {
+      const r = new pixi.Sprite(tex);
+      r.anchor.set(0.5, 1);
+      r.scale.set(scale);
+      r.position.set(x, WORLD_H + 4);
+      box.addChild(r);
+    }
+    return box;
+  })());
   const reflectionLayer = new pixi.Container();
   waterBox.addChild(reflectionLayer);
   const lanterns: Lantern[] = [];
@@ -73,40 +129,41 @@ function buildPond(ctx: SceneContext): SceneInstance {
   let lit = false;
   let drift = 1;
 
-  const lotusTex = new Map<string, Texture>();
-  const lotus = (color: LanternColor, prominent: boolean): Texture => {
-    const key = `${color}:${prominent}`;
-    let t = lotusTex.get(key);
+  const lotusTex = new Map<LotusColor, { body: Texture; glow: Texture }>();
+  const lotus = (color: LotusColor) => {
+    let t = lotusTex.get(color);
     if (!t) {
-      t = ctx.tex(createLanternCanvas(color, prominent));
-      lotusTex.set(key, t);
+      const b = bakeLotusLantern(color);
+      t = { body: ctx.tex(b.body), glow: ctx.tex(b.glow) };
+      lotusTex.set(color, t);
     }
     return t;
   };
-  const glowTex = ctx.tex(bakeLantern().glow);
 
   /** Reflection: short horizontal strokes with gaps, so the water filter breaks them up instead of leaving a vertical line. */
-  const makeReflection = (color: LanternColor, scale: number) => {
+  const makeReflection = (color: LotusColor, scale: number) => {
     const box = new pixi.Container();
     const g = new pixi.Graphics();
     REFLECTION_BREAKS.forEach(([dy, w, dx], i) => {
-      g.ellipse(dx * scale, dy * scale, w * scale, 2.2 * scale).fill({ color: Number.parseInt(LANTERN_COLORS_HEX[color].slice(1), 16), alpha: 0.42 - i * 0.07 });
+      g.ellipse(dx * scale, dy * scale, w * scale, 2.2 * scale).fill({ color: Number.parseInt(LOTUS_HEX[color].slice(1), 16), alpha: 0.42 - i * 0.07 });
     });
     box.addChild(g);
     return box;
   };
 
-  const spawnLantern = (x: number, y: number, color: LanternColor, mine: boolean) => {
+  const spawnLantern = (x: number, y: number, color: LotusColor, mine: boolean) => {
     const box = new pixi.Container();
-    const scale = mine ? 1.15 : 0.9;
-    const glow = new pixi.Sprite(glowTex);
+    const scale = mine ? 1.3 : 0.95;
+    const tex = lotus(color);
+    const glow = new pixi.Sprite(tex.glow);
     glow.anchor.set(0.5);
     glow.blendMode = "add";
-    glow.tint = Number.parseInt(LANTERN_COLORS_HEX[color].slice(1), 16);
-    glow.alpha = mine ? 1 : 0.6;
-    glow.position.set(0, -8);
-    const body = new pixi.Sprite(lotus(color, mine));
-    body.anchor.set(0.5, 0.6);
+    glow.alpha = mine ? 1 : 0.7;
+    glow.scale.set(mine ? 1.4 : 1);
+    glow.position.set(0, -12);
+    const body = new pixi.Sprite(tex.body);
+    body.anchor.set(0.5, 1);
+    body.alpha = mine ? 1 : 0.92;
     box.addChild(glow, body);
     box.scale.set(scale);
     box.position.set(x, y);
@@ -120,9 +177,11 @@ function buildPond(ctx: SceneContext): SceneInstance {
       old?.reflection.destroy({ children: true });
     }
   };
-  const initial = Math.min(lanternCount(o.lighting, o.ram), maxLanterns);
+  const initial = Math.min(Math.max(FIELD_SPOTS.length, lanternCount(o.lighting, o.ram)), maxLanterns);
   for (let i = 0; i < initial; i++) {
-    spawnLantern(100 + rand() * (WORLD_W - 200), HORIZON_Y + 50 + rand() * 110, FIELD_COLORS[i % FIELD_COLORS.length], false);
+    const spot = FIELD_SPOTS[i];
+    if (spot) spawnLantern(spot[1], spot[2], spot[0], false);
+    else spawnLantern(100 + rand() * (WORLD_W - 200), HORIZON_Y + 60 + rand() * 110, FIELD_COLORS[i % FIELD_COLORS.length], false);
   }
 
   const dotTex = ctx.tex(bakeDot());
@@ -159,7 +218,7 @@ function buildPond(ctx: SceneContext): SceneInstance {
     if (y < HORIZON_Y + 10 || y > WORLD_H - 10 || x < 0 || x > WORLD_W) return;
     ringAt(x, y);
     if (!held || !lit) return;
-    spawnLantern(x, y, held, true);
+    spawnLantern(x, y, LOTUS_OF[held], true);
     held = null;
     lit = false;
     ctx.requestRender();
