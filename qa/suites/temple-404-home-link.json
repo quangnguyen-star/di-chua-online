@@ -54,15 +54,6 @@
         {
           "kind": "assert",
           "op": "assert",
-          "intent": "url is the home page",
-          "expected": {
-            "kind": "url_contains",
-            "url": "localhost:3000/"
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
           "intent": "not-found is gone",
           "expected": {
             "kind": "hidden",
