@@ -1,0 +1,91 @@
+{
+  "_about": "The 404 offers a Về trang chủ link beside Về bản đồ; clicking it lands on the home page.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-404-home-link",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-404-home-link",
+    "email": "qa+temple-404-home-link@gomu.ai",
+    "tag": "QA RUN temple-404-home-link"
+  },
+  "scenarios": [
+    {
+      "name": "404 offers a Về trang chủ link that returns home",
+      "tags": [
+        "404",
+        "home-link"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /__does-not-exist",
+          "url": "/__does-not-exist"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "Về trang chủ is visible",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "role",
+              "role": "link",
+              "name": "Về trang chủ",
+              "exact": true
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "Về trang chủ",
+          "target": {
+            "by": "testid",
+            "name": "not-found-home"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "url is the home page",
+          "expected": {
+            "kind": "url_contains",
+            "url": "localhost:3000/"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "not-found is gone",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "not-found"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home page shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-visit"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}

@@ -19,6 +19,9 @@ export default function NotFound() {
         <Link href="/" className="button" data-testid="not-found-map">
           Về bản đồ
         </Link>
+        <Link href="/" className="button button--quiet" data-testid="not-found-home">
+          Về trang chủ
+        </Link>
       </div>
     </section>
   );
