@@ -1,0 +1,59 @@
+{
+  "_about": "/about shows the open-hours line directly under the page title.",
+  "schema_version": "1.1.0",
+  "run_id": "temple-about-open-hours",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 15000
+  },
+  "namespace": {
+    "run_id": "temple-about-open-hours",
+    "email": "qa+temple-about-open-hours@gomu.ai",
+    "tag": "QA RUN temple-about-open-hours"
+  },
+  "scenarios": [
+    {
+      "name": "About page shows the open-hours line",
+      "tags": [
+        "about"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /about",
+          "url": "/about"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "open-hours line visible",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "about-open-hours"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "open-hours text exact",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "about-open-hours"
+            },
+            "text": "Mở cửa trực tuyến 24/7"
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}
