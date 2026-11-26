@@ -44,12 +44,12 @@
           "op": "assert",
           "intent": "open-hours text exact",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "about-open-hours"
-            },
-            "text": "Mở cửa trực tuyến 24/7"
+              "by": "text",
+              "name": "Mở cửa trực tuyến 24/7",
+              "exact": true
+            }
           }
         }
       ],
