@@ -25,7 +25,7 @@ function buildGate(ctx: SceneContext): SceneInstance {
   ground.y = GATE_HORIZON;
   ctx.layer("ground", ground);
 
-  addUmbrellaTrees(ctx, GATE_HORIZON + 10, [200, 330, 640, 760]);
+  addUmbrellaTrees(ctx, GATE_HORIZON + 10, [240, 330, 645, 735]);
 
   const gate = new pixi.Sprite(ctx.tex(bakeTamQuan()));
   gate.position.set(TAM_QUAN_AT.x, TAM_QUAN_AT.y + 8);
