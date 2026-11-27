@@ -17,8 +17,10 @@ export const outsideLayers = [
 const ROCKS: readonly (readonly [number, number, number, string, number])[] = [
   [285, 392, 66, "#c9754c", 0.5],
   [675, 392, 70, "#c9754c", 0.5],
-  [40, 460, 100, "#7a4f3a", 0.5],
-  [920, 460, 110, "#7a4f3a", 0.5],
+  [45, 470, 150, "#8a5a42", 0.5],
+  [915, 470, 160, "#8a5a42", 0.5],
+  [95, 540, 80, "#7a4f3a", 0.5],
+  [875, 540, 90, "#7a4f3a", 0.5],
   [130, 520, 90, "#6b4634", 0.4],
   [850, 520, 90, "#6b4634", 0.6],
 ];
@@ -32,7 +34,7 @@ function buildOutside(ctx: SceneContext): SceneInstance {
   addGoldenMoon(ctx, 230, 90);
 
   const mountains = new pixi.Container();
-  mountains.addChild(new pixi.Sprite(ctx.tex(bakeGoldRidge("#5a2c1c", HORIZON - 70, 60, 7, HORIZON))));
+  mountains.addChild(new pixi.Sprite(ctx.tex(bakeGoldRidge("#7a3a24", HORIZON - 100, 70, 7, HORIZON))));
   ctx.depthLayer("mountains", mountains, 0.15, -40);
 
   addSkyline(ctx, HORIZON + 4, 110, 23);
