@@ -82,3 +82,10 @@ test("arrows and swipe navigate whenever a stop runs; typing and the courtyard s
   const css = readFileSync(new URL("../src/components/visit/visit.module.css", import.meta.url), "utf8");
   assert.match(css, /animation-duration: 600ms !important/);
 });
+
+test("the shell hands the mounted activity the stage handle through the provider", () => {
+  const src = readFileSync(new URL("../src/components/visit/VisitShell.tsx", import.meta.url), "utf8");
+  assert.match(src, /onHandle=\{\(h\) => setHandles\(\(m\) => withHandle\(m, stage\.id, h\)\)\}/);
+  assert.match(src, /<StageHandleProvider value=\{\{ handle: handles\[stage\.id\] \?\? null/);
+  assert.match(src, /<StopActivity key=\{stage\.id\}/);
+});
