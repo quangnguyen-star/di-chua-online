@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force_no_webgl:
+        description: 'Disable WebGL in the capture job (the job must then fail)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  capture:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      FORCE_NO_WEBGL: ${{ inputs.force_no_webgl && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Start the built app
+        run: |
+          nohup npm run start > app.log 2>&1 &
+          npx --yes wait-on@8 -t 90000 http-get://127.0.0.1:3000/
+        env:
+          PORT: '3000'
+      - name: Capture matrix
+        run: npx playwright test
+      - name: Show app log on failure
+        if: failure()
+        run: tail -n 100 app.log
+      - name: Upload captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures
+          path: captures/
+          if-no-files-found: warn
+      - name: Publish to ci-captures
+        if: success() && github.event_name != 'pull_request'
+        continue-on-error: true
+        run: |
+          cd captures
+          git init -q
+          git checkout -q -b ci-captures
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "CI captures for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-captures

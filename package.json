@@ -8,6 +8,7 @@
     "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "capture": "playwright test",
     "test": "node --test --experimental-strip-types src/lib/*.test.ts src/components/temple/stage/*.test.ts src/components/temple/lantern/*.test.ts src/components/temple/river/*.test.ts src/components/temple/smoke/*.test.ts tests/*.test.ts tests/release-check/*.test.ts"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.0",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",
     "@types/pg": "^8.11.0",
