@@ -14,6 +14,7 @@ import type { PondApi, SceneHandle } from "@/components/temple/stage";
 import { useAtmosphere } from "@/components/atmosphere";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import StageZones, { useStageHandle } from "@/components/visit/StageZones";
+import { useInstruction } from "@/components/visit/useInstruction";
 import type { Embed } from "@/lib/visit/embed";
 import styles from "./lantern.module.css";
 
@@ -121,7 +122,13 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
     router.push("/");
   };
 
-  const instruction = { text: STEP_TEXT[step], visible: true, replay: () => {}, advance: () => {} };
+  const instruction = useInstruction([STEP_TEXT[step]]);
+  const { replay } = instruction;
+  useEffect(() => {
+    replay();
+  }, [step, replay]);
+
+  const hint = "Điều bạn muốn buông xuống (không bắt buộc). Chỉ ở trên màn hình này, không được lưu hay gửi đi.";
 
   const paper = (
     <div className={styles.paper} data-testid="lantern-paper" data-step={step}>
@@ -143,7 +150,7 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
             ))}
           </fieldset>
           <label className={styles.field}>
-            <span>Điều bạn muốn buông xuống (không bắt buộc). Chỉ ở trên màn hình này, không được lưu hay gửi đi.</span>
+            {!embed && <span>{hint}</span>}
             <textarea
               ref={thoughtRef}
               value={thought}
@@ -151,6 +158,7 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
               rows={3}
               autoComplete="off"
               spellCheck={false}
+              aria-label={embed ? hint : undefined}
               data-testid="lantern-thought"
               readOnly={frozen}
               onChange={(e) => setThought(e.target.value)}
@@ -160,7 +168,7 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
       ) : (
         <div className={styles.sheet} data-testid="lantern-sheet">
           {isReleasing(step) && <LotusLantern color={color} prominent className={styles.heldLantern} label="Đèn sen của bạn" />}
-          {step === "blended" && (
+          {!embed && step === "blended" && (
             <>
               <h2 className={styles.label} data-testid="lantern-released">
                 Ngọn đèn đã trôi đi
@@ -204,16 +212,9 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
     </>
   );
 
-  const announcement = (
-    <div className={styles.live} role="status" aria-live="polite" data-testid="lantern-announcement">
-      {step === "writing" ? "" : STEP_TEXT[step]}
-    </div>
-  );
-
   if (embed) {
     return (
       <div className={styles.embedded}>
-        {announcement}
         <StageZones instruction={instruction} actions={<>{writingActions}{endActions}</>}>
           {paper}
         </StageZones>
@@ -227,7 +228,6 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
         <SceneStage place="pond" lighting="moon" paused={!isReleasing(step) || frozen} onHandle={setLocalHandle} />
       </div>
       <h1>Bến sông</h1>
-      {announcement}
       <p className={styles.prompt}>{STEP_TEXT[step]}</p>
       {paper}
       <div className={styles.controls}>

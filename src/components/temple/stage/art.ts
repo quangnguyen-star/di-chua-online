@@ -305,9 +305,13 @@ export const LOTUS_COLORS = {
   yellow: ["#e8b730", "#ffe58a", "rgba(255,214,100,.55)"],
   white: ["#ece4d2", "#ffffff", "rgba(255,246,224,.55)"],
   purple: ["#8a5bb8", "#c9a6ec", "rgba(186,140,236,.55)"],
+  red: ["#c8382e", "#ff9a8a", "rgba(255,120,100,.55)"],
+  blue: ["#3f78c4", "#a9ceff", "rgba(130,180,255,.55)"],
+  green: ["#4f9a58", "#b5ecb4", "rgba(150,230,160,.55)"],
 } as const;
 export type LotusColor = keyof typeof LOTUS_COLORS;
-export const LOTUS_COLOR_NAMES = Object.keys(LOTUS_COLORS) as LotusColor[];
+/** The colours the still scatters across the field; red, blue and green exist only for the visitor's own lantern. */
+export const LOTUS_COLOR_NAMES: readonly LotusColor[] = ["pink", "yellow", "white", "purple"];
 
 /** Large golden moon: a 640px sprite (disc radius 96) with a wide soft halo, centred on its own middle. */
 export function bakeGoldenMoon(haloAlpha = 0.5): HTMLCanvasElement {

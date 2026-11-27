@@ -1,11 +1,15 @@
 /** The river release as a pure, timed sequence. React owns the clock; nothing here listens for animation events. */
 export type RiverStep = "writing" | "folding" | "placing" | "lighting" | "lowering" | "pulling" | "drifting" | "blended";
-export type LanternColor = "pink" | "gold" | "white";
+export type LanternColor = "pink" | "gold" | "white" | "red" | "violet" | "blue" | "green";
 
 export const lanternColors: { id: LanternColor; label: string }[] = [
   { id: "pink", label: "Hồng" },
   { id: "gold", label: "Vàng" },
   { id: "white", label: "Trắng" },
+  { id: "red", label: "Đỏ" },
+  { id: "violet", label: "Tím" },
+  { id: "blue", label: "Xanh dương" },
+  { id: "green", label: "Xanh lá" },
 ];
 
 export const DRIFT_MIN_MS = 60_000;

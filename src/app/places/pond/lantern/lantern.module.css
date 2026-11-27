@@ -4,7 +4,6 @@
 .prompt { margin: 0; max-width: 60ch; }
 .label { margin: 0; font-size: 1.5rem; }
 .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .paper { width: min(100%, 36rem); max-height: 60%; overflow: auto; padding: 0.75rem 1rem; border-radius: var(--radius, 0.5rem); background: #f4ead8; color: #2b2118; text-shadow: none; box-shadow: 0 6px 24px rgba(10, 8, 6, 0.45); }
 .field { display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.9rem; }
 .field textarea { font: inherit; padding: 0.6rem; border: 1px solid #b9a98c; border-radius: 0.4rem; background: #fffaf0; color: inherit; resize: none; }

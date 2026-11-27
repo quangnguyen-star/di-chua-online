@@ -1,8 +1,8 @@
 /* Lantern bake: a pure description of a lotus lantern plus a 2D-context painter. Works from DOM canvas and Pixi
    (draw into an offscreen canvas, hand it to a texture). Colors mirror the lacquer tokens in src/styles/tokens.css. */
-export type LanternColor = "pink" | "gold" | "white";
+export type LanternColor = "pink" | "gold" | "white" | "red" | "violet" | "blue" | "green";
 
-export const LANTERN_COLORS: readonly LanternColor[] = ["pink", "gold", "white"];
+export const LANTERN_COLORS: readonly LanternColor[] = ["pink", "gold", "white", "red", "violet", "blue", "green"];
 
 export interface LanternBake {
   color: LanternColor;
@@ -21,6 +21,10 @@ const PALETTE: Record<LanternColor, { petal: string; petalEdge: string; glow: st
   pink: { petal: "#f2a0b4", petalEdge: "#b8261a", glow: "#ffb3c4" },
   gold: { petal: "#f4d98c", petalEdge: "#9c6f22", glow: "#ffd36b" },
   white: { petal: "#fbf1dc", petalEdge: "#c9c6c0", glow: "#fff6e0" },
+  red: { petal: "#d8473a", petalEdge: "#7a1710", glow: "#ff8a7a" },
+  violet: { petal: "#a47bd0", petalEdge: "#4f2a7a", glow: "#c9a6ec" },
+  blue: { petal: "#5f96dc", petalEdge: "#1f4a86", glow: "#a9ceff" },
+  green: { petal: "#6fb878", petalEdge: "#27602f", glow: "#b5ecb4" },
 };
 
 const BASE_WIDTH = 48;

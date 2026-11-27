@@ -18,8 +18,12 @@ const MAX_RINGS = 6;
 const RING_S = 1.4;
 const FIELD_COLORS = LOTUS_COLOR_NAMES;
 /** The flow's colour names map onto the shared lotus colours; the visitor's lantern is the same motif, just brighter and closer. */
-const LOTUS_OF: Record<LanternColor, LotusColor> = { pink: "pink", gold: "yellow", white: "white" };
-const LOTUS_HEX: Record<LotusColor, string> = { pink: "#ffb3c4", yellow: "#ffd36b", white: "#fff6e0", purple: "#ba8cec" };
+const LOTUS_OF: Record<LanternColor, LotusColor> = {
+  pink: "pink", gold: "yellow", white: "white", red: "red", violet: "purple", blue: "blue", green: "green",
+};
+const LOTUS_HEX: Record<LotusColor, string> = { pink: "#ffb3c4", yellow: "#ffd36b", white: "#fff6e0", purple: "#ba8cec",
+  red: "#ff7864", blue: "#82b4ff", green: "#96e6a0",
+};
 /** Where the still shows its lotus lanterns, in world pixels (colour, x, y). */
 const FIELD_SPOTS: readonly (readonly [LotusColor, number, number])[] = [
   ["yellow", 438, 448], ["white", 436, 492], ["pink", 243, 497], ["pink", 177, 456], ["purple", 576, 512], ["pink", 660, 450],
@@ -226,7 +230,7 @@ function buildPond(ctx: SceneContext): SceneInstance {
 
   const pond: PondApi = {
     setLantern(color) {
-      held = color === "pink" || color === "gold" || color === "white" ? color : null;
+      held = color !== null && color in LOTUS_OF ? (color as LanternColor) : null;
       lit = false;
     },
     light() {
