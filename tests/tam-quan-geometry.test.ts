@@ -26,11 +26,11 @@ test("the home map is a separate schematic: it holds no gate art, so no label ca
   assert.match(home, /styles\.gate/);
 });
 
-test("the six map spots sit at the reference positions", () => {
+test("the six map spots sit at the design positions (gate marker just below the drawn gate)", () => {
   const all = Object.fromEntries(spots().map((s) => [s.id, s]));
   assert.equal(Object.keys(all).length, 6);
   assert.equal(all.gate.left, 46.875);
-  assert.equal(all.gate.top, 80);
+  assert.equal(all.gate.top, 85);
   assert.equal(all.outside.left, 60);
   assert.ok(Math.abs(all.outside.top - 86.3) < 0.05);
   assert.match(mapSrc, /\/visit\/\?stop=\$\{p\.id\}/);

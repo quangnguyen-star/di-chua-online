@@ -2,9 +2,9 @@ import Link from "next/link";
 import { readyRoutes, type PlaceId } from "@/content/routes";
 import styles from "./map.module.css";
 
-/** Where each place's marker sits, as percentages of the 960x540 map frame, matching the reference site. */
+/** Where each place's marker sits, as percentages of the 960x540 map frame; the gate marker sits just below the drawn gate so its label stays off it. */
 const spots: Record<PlaceId, { left: number; top: number }> = {
-  gate: { left: 46.875, top: 80 },
+  gate: { left: 46.875, top: 85 },
   courtyard: { left: 46.875, top: 59.62962962962963 },
   hall: { left: 46.875, top: 39.62962962962963 },
   pond: { left: 31.25, top: 27.77777777777778 },
