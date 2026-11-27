@@ -1,0 +1,717 @@
+{
+  "_about": "Scenes and tour (epic DCO-87), happy paths: home and /places list the six places, every stop is reached through the tour with its stage showing, arrows move between stops, and the river-lantern flow completes. The lantern release drifts 60-90 s, so default_timeout_ms is raised to cover the wait for the released state.",
+  "schema_version": "1.1.0",
+  "run_id": "scenes-and-tour",
+  "config": {
+    "base_url": "http://localhost:3000",
+    "parallelism": 1,
+    "video": "fail",
+    "default_timeout_ms": 120000
+  },
+  "namespace": {
+    "run_id": "scenes-and-tour",
+    "email": "qa+scenes-and-tour@gomu.ai",
+    "tag": "QA RUN scenes-and-tour"
+  },
+  "scenarios": [
+    {
+      "name": "Home lists the six places and the map gate marker leads to the gate",
+      "tags": [
+        "home",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /",
+          "url": "/"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home place link gate",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-gate"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home place link courtyard",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-courtyard"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home place link hall",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-hall"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home place link pond",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-pond"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home place link veranda",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-veranda"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home place link outside",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "home-place-outside"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "map gate marker",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "map-place-gate"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open the gate from the map marker",
+          "target": {
+            "by": "testid",
+            "name": "map-place-gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "on the gate stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "stop=gate"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "gate named in the HUD",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "1/6 · Cổng chùa"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Places gallery shows six cards and a card opens its stop",
+      "tags": [
+        "places",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places",
+          "url": "/places"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "gallery shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-gallery"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "place card gate",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-card-gate"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "place card courtyard",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-card-courtyard"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "place card hall",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-card-hall"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "place card pond",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-card-pond"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "place card veranda",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-card-veranda"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "place card outside",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "place-card-outside"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "open the hall card",
+          "target": {
+            "by": "testid",
+            "name": "place-card-hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "on the hall stop",
+          "expected": {
+            "kind": "url_contains",
+            "url": "stop=hall"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hall named in the HUD",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "3/6 · Chánh điện"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "The tour reaches every stop in order with the stage showing",
+      "tags": [
+        "tour",
+        "stages",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown on the first stop",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "tour opens on the gate",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "1/6 · Cổng chùa"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to Sân chùa",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "HUD names Sân chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "2/6 · Sân chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown at Sân chùa",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to Chánh điện",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "HUD names Chánh điện",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "3/6 · Chánh điện"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown at Chánh điện",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to Bến sông",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "HUD names Bến sông",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "4/6 · Bến sông"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown at Bến sông",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to Hiên chùa",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "HUD names Hiên chùa",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "5/6 · Hiên chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown at Hiên chùa",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to Bên ngoài",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "HUD names Bên ngoài",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "6/6 · Bên ngoài"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown at Bên ngoài",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "Arrows navigate forward and back between stops",
+      "tags": [
+        "tour",
+        "arrows",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /visit",
+          "url": "/visit"
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to the courtyard",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "courtyard",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "2/6 · Sân chùa"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowRight to the hall",
+          "key": "ArrowRight"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "hall",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "3/6 · Chánh điện"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowLeft back to the courtyard",
+          "key": "ArrowLeft"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "courtyard again",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "2/6 · Sân chùa"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage still shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "press",
+          "intent": "ArrowLeft back to the gate",
+          "key": "ArrowLeft"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "gate again",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "visit-where"
+            },
+            "text": "1/6 · Cổng chùa"
+          }
+        }
+      ],
+      "teardown": []
+    },
+    {
+      "name": "River lantern flow completes at /places/pond/lantern",
+      "tags": [
+        "lantern",
+        "happy-path"
+      ],
+      "setup": [],
+      "steps": [
+        {
+          "kind": "action",
+          "op": "navigate",
+          "intent": "open /places/pond/lantern",
+          "url": "/places/pond/lantern"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "stage shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "scene-stage"
+            }
+          }
+        },
+        {
+          "kind": "action",
+          "op": "fill",
+          "intent": "write a thought",
+          "target": {
+            "by": "testid",
+            "name": "lantern-thought"
+          },
+          "value": "{{run_id}} let go"
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "thought held in the field",
+          "expected": {
+            "kind": "value_equals",
+            "target": {
+              "by": "testid",
+              "name": "lantern-thought"
+            },
+            "value": "{{run_id}} let go"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "fold and release the lantern",
+          "target": {
+            "by": "testid",
+            "name": "lantern-release"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "thought field is gone while releasing",
+          "expected": {
+            "kind": "hidden",
+            "target": {
+              "by": "testid",
+              "name": "lantern-thought"
+            }
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "released heading after the drift",
+          "expected": {
+            "kind": "text_equals",
+            "target": {
+              "by": "testid",
+              "name": "lantern-released"
+            },
+            "text": "Ngọn đèn đã trôi đi"
+          }
+        },
+        {
+          "kind": "action",
+          "op": "click",
+          "intent": "go to the map from the released state",
+          "target": {
+            "by": "testid",
+            "name": "lantern-map"
+          }
+        },
+        {
+          "kind": "assert",
+          "op": "assert",
+          "intent": "home map shown",
+          "expected": {
+            "kind": "visible",
+            "target": {
+              "by": "testid",
+              "name": "temple-map"
+            }
+          }
+        }
+      ],
+      "teardown": []
+    }
+  ]
+}
