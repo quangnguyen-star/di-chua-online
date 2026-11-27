@@ -12,7 +12,7 @@ function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContex
 export const HALL_W = 520;
 export const HALL_H = 190;
 /** Hall door centres and the lamp positions, in hall-local pixels. */
-export const HALL_DOORS = [87, 260, 433] as const;
+export const HALL_DOORS = [150, 260, 370] as const;
 export const HALL_LAMP_XS = [98, 203, 317, 419] as const;
 
 /** Sweeping curved eave: a dark band with a gold ridge line and upturned tips, spanning [x0, x1] at height y. */
@@ -43,16 +43,16 @@ export function bakeMainHall(): HTMLCanvasElement {
   c.fillStyle = "#2c140c";
   c.fillRect(24, 100, HALL_W - 48, 76);
   c.fillStyle = "#6a1c10";
-  for (const x of [32, 175, 345, 480]) c.fillRect(x, 100, 8, 76);
+  for (const x of [75, 200, 322, 440]) c.fillRect(x, 100, 8, 76);
   for (const x of HALL_DOORS) {
     const g = c.createLinearGradient(0, 118, 0, 176);
     g.addColorStop(0, "#ffd890");
     g.addColorStop(1, "#e0883a");
     c.fillStyle = g;
-    c.fillRect(x - 21, 118, 42, 58);
+    c.fillRect(x - 24, 118, 48, 58);
     c.strokeStyle = "#7a2a12";
     c.lineWidth = 2;
-    c.strokeRect(x - 21, 118, 42, 58);
+    c.strokeRect(x - 24, 118, 48, 58);
     c.beginPath();
     c.moveTo(x, 118);
     c.lineTo(x, 176);

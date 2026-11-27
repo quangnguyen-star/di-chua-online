@@ -69,7 +69,7 @@ function buildCourtyard(ctx: SceneContext): SceneInstance {
   hall.anchor.set(0.5, 1);
   hall.position.set(WORLD_W / 2, HORIZON);
   ctx.layer("hall", hall);
-  addHangingLamps(ctx, HORIZON - HALL_H + 71, HALL_LAMP_XS.map((x) => WORLD_W / 2 - HALL_W / 2 + x));
+  addHangingLamps(ctx, HORIZON - HALL_H + 100, HALL_LAMP_XS.map((x) => WORLD_W / 2 - HALL_W / 2 + x));
 
   const ground = new pixi.Sprite(ctx.tex(bakeGround(HORIZON, GROUND_TOP, GROUND_BOTTOM)));
   ground.y = HORIZON;
@@ -86,10 +86,12 @@ function buildCourtyard(ctx: SceneContext): SceneInstance {
     const tree = new pixi.Sprite(ctx.tex(bakeBanyan(b.seed)));
     tree.anchor.set(0.5, 1);
     tree.position.set(b.x, PLANTER_Y);
+    tree.scale.set(1.25);
     banyans.addChild(tree);
     const planter = new pixi.Sprite(ctx.tex(bakePlanter(b.seed)));
     planter.anchor.set(0.5);
     planter.position.set(b.x, PLANTER_Y);
+    planter.scale.set(0.8);
     planters.addChild(planter);
     for (let k = 0; k < 6; k++) {
       const leaf = new pixi.Sprite(ctx.tex(bakeFallenLeaf(k + i, LEAF_TINTS[k % LEAF_TINTS.length])));
