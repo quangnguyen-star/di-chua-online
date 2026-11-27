@@ -249,7 +249,6 @@ export function TeaPreparation({ closingLine, embed }: Props) {
   if (embed) {
     return (
       <div className={styles.fullscreen} data-testid="tea-root">
-        <SceneStage place="veranda" paused={paused} />
         {body}
         {controls}
       </div>

@@ -202,10 +202,12 @@ export default function Gate({ embed, onNext }: Props) {
       onContextMenu={(e) => e.preventDefault()}
     >
       <div ref={cameraRef} className={styles.camera} aria-hidden="true">
-        <div className={styles.art}>
-          <TamQuanStill label="" className={styles.tamQuan} testId="gate-art" />
-          <div className={`${styles.glow} ${ready ? styles.lit : ""}`} data-testid="gate-middle" data-lit={ready} />
-        </div>
+        {!embed && (
+          <div className={styles.art}>
+            <TamQuanStill label="" className={styles.tamQuan} testId="gate-art" />
+            <div className={`${styles.glow} ${ready ? styles.lit : ""}`} data-testid="gate-middle" data-lit={ready} />
+          </div>
+        )}
         <div ref={mistRef} className={styles.mist} />
       </div>
       <div ref={ringRef} className={styles.ring} aria-hidden="true" data-testid="gate-ring" />
