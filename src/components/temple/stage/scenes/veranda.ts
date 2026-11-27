@@ -70,7 +70,7 @@ function buildVeranda(ctx: SceneContext): SceneInstance {
 
   const boat = new pixi.Sprite(ctx.tex(bakeBoat()));
   boat.anchor.set(0.5, 0.8);
-  boat.position.set(718, 378);
+  boat.position.set(676, 364);
   boat.scale.set(0.8);
   ctx.layer("boat", boat);
 
