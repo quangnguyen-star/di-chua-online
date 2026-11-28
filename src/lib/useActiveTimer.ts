@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ActiveTimerCore, type TimerConfig } from "./activity/timerCore.ts";
 
 export { ActiveTimerCore, type TimerConfig, type TimerOptions, type TimerSnapshot } from "./activity/timerCore.ts";
@@ -8,10 +8,10 @@ export { ActiveTimerCore, type TimerConfig, type TimerOptions, type TimerSnapsho
 export function useActiveTimer(seconds: number, clock: () => number = Date.now, config?: TimerConfig) {
   const effective = config?.seconds ?? seconds;
   const clockRef = useRef(clock);
-  clockRef.current = clock;
-  const core = useRef<ActiveTimerCore | null>(null);
-  core.current ??= new ActiveTimerCore(effective, { now: () => clockRef.current() });
-  const timer = core.current;
+  useEffect(() => {
+    clockRef.current = clock;
+  }, [clock]);
+  const [timer] = useState(() => new ActiveTimerCore(effective, { now: () => clockRef.current() }));
 
   const snap = useSyncExternalStore(timer.subscribe, timer.getSnapshot, timer.getSnapshot);
 

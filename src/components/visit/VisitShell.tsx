@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { visitStages } from "@/content";
 import { useAtmosphere, type Scene } from "@/components/atmosphere";
 import { SceneStage } from "@/components/temple/stage";
@@ -36,6 +36,8 @@ const stageScene: Record<string, Scene> = {
 const isEditable = (t: EventTarget | null) =>
   t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
 
+const subscribeNever = () => () => {};
+
 type Props = { single: boolean; startIndex: number };
 
 /** The full-viewport visit: the shell owns the clock, HUD and navigation; activities render inside it. */
@@ -48,7 +50,7 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
   const [leaving, setLeaving] = useState(false);
   const [hudIdle, setHudIdle] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [canFullscreen, setCanFullscreen] = useState(false);
+  const canFullscreen = useSyncExternalStore(subscribeNever, () => Boolean(document.fullscreenEnabled), () => false);
   const [fadingOut, setFadingOut] = useState<number | null>(null);
   const [subtitleOn, setSubtitleOn] = useState(true);
   const [handles, setHandles] = useState<StageHandles>({});
@@ -64,23 +66,26 @@ export default function VisitShell({ single: singleStart, startIndex }: Props) {
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const lastIndex = useRef(stageIndex);
 
-  const poke = useCallback(() => {
-    setHudIdle(false);
+  const armIdle = useCallback(() => {
     if (idleTimer.current) clearTimeout(idleTimer.current);
     idleTimer.current = setTimeout(() => setHudIdle(true), HUD_IDLE_MS);
   }, []);
 
+  const poke = useCallback(() => {
+    setHudIdle(false);
+    armIdle();
+  }, [armIdle]);
+
   useEffect(() => {
-    poke();
+    armIdle();
     return () => {
       if (idleTimer.current) clearTimeout(idleTimer.current);
     };
-  }, [poke]);
+  }, [armIdle]);
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    setCanFullscreen(Boolean(document.fullscreenEnabled));
     const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", onChange);
     return () => {

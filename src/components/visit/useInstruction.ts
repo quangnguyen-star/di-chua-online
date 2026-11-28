@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export const INSTRUCTION_VISIBLE_MS = 4000;
 
@@ -18,23 +18,24 @@ export type InstructionState = {
 export function useInstruction(lines: readonly string[]): InstructionState {
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [plays, setPlays] = useState(0);
 
-  const show = useCallback(() => {
+  const replay = useCallback(() => {
     setVisible(true);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setVisible(false), INSTRUCTION_VISIBLE_MS);
+    setPlays((n) => n + 1);
   }, []);
 
   useEffect(() => {
-    show();
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, [show, index]);
+    if (!visible) return;
+    const id = setTimeout(() => setVisible(false), INSTRUCTION_VISIBLE_MS);
+    return () => clearTimeout(id);
+  }, [visible, plays, index]);
 
   const last = Math.max(0, lines.length - 1);
-  const advance = useCallback(() => setIndex((i) => Math.min(i + 1, last)), [last]);
+  const advance = useCallback(() => {
+    setIndex((i) => Math.min(i + 1, last));
+    setVisible(true);
+  }, [last]);
 
-  return { text: lines[Math.min(index, last)] ?? "", visible, replay: show, advance };
+  return { text: lines[Math.min(index, last)] ?? "", visible, replay, advance };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { isRam, resolveLighting } from "./lighting.ts";
 import type { SceneHandle } from "./scene.ts";
 import { StaticScene } from "./StaticScene.tsx";
@@ -8,6 +8,8 @@ import styles from "./stage.module.css";
 import type { SceneStageProps, StageLighting } from "./types.ts";
 
 const MAX_DPR = 2;
+
+const subscribeNever = () => () => {};
 
 function hasWebGL(): boolean {
   try {
@@ -26,23 +28,22 @@ function prefersReducedMotion(): boolean {
 export function SceneStage({ place, lighting, paused = false, quality = "auto", reduced, onHandle }: SceneStageProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<SceneHandle | null>(null);
-  const [resolved, setResolved] = useState<{ lighting: StageLighting; ram: boolean } | null>(null);
   const [live, setLive] = useState(false);
-  const [motionReduced, setMotionReduced] = useState(reduced ?? false);
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const resolved = useMemo<{ lighting: StageLighting; ram: boolean } | null>(() => {
+    if (!mounted) return null;
+    const now = new Date();
+    return { lighting: resolveLighting(place, lighting, now), ram: isRam(now) };
+  }, [mounted, place, lighting]);
+  const motionReduced = useMemo(() => reduced ?? (mounted ? prefersReducedMotion() : false), [mounted, reduced]);
   const onHandleRef = useRef(onHandle);
-  onHandleRef.current = onHandle;
   const running = !paused && !motionReduced;
   const runningRef = useRef(running);
-  runningRef.current = running;
 
   useEffect(() => {
-    const now = new Date();
-    setResolved({ lighting: resolveLighting(place, lighting, now), ram: isRam(now) });
-  }, [place, lighting]);
-
-  useEffect(() => {
-    setMotionReduced(reduced ?? prefersReducedMotion());
-  }, [reduced]);
+    onHandleRef.current = onHandle;
+    runningRef.current = running;
+  }, [onHandle, running]);
 
   useEffect(() => {
     const host = hostRef.current;

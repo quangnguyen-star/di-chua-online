@@ -12,15 +12,16 @@ type Options = { startIndex?: number; untimed?: boolean; clock?: () => number };
 export function useVisit(stages: readonly Stage[], options: Options = {}) {
   const { startIndex = 0, untimed = false } = options;
   const clockRef = useRef(options.clock ?? Date.now);
-  clockRef.current = options.clock ?? Date.now;
-  const stagesRef = useRef(stages);
-  stagesRef.current = stages;
+  const clock = options.clock ?? Date.now;
+  useEffect(() => {
+    clockRef.current = clock;
+  }, [clock]);
   const hiddenPause = useRef(false);
 
   const [state, dispatch] = useReducer(
-    (s: VisitState, a: Action) => reduce(stagesRef.current, s, a),
+    (s: VisitState, a: Action) => reduce(stages, s, a),
     startIndex,
-    (index): VisitState => reduce(stagesRef.current, { phase: "running", stageIndex: 0, activeMs: 0, due: false, nudge: "idle" }, { type: "begin", index }),
+    (index): VisitState => reduce(stages, { phase: "running", stageIndex: 0, activeMs: 0, due: false, nudge: "idle" }, { type: "begin", index }),
   );
 
   const { phase } = state;

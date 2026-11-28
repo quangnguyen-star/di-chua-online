@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Embed } from "@/lib/visit/embed";
 import StageZones from "@/components/visit/StageZones";
 import { useInstruction } from "@/components/visit/useInstruction";
@@ -27,6 +27,8 @@ type Props = {
   onNext?: () => void;
 };
 
+const subscribeNever = () => () => {};
+
 const prefersReduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Stop 1: hold to inhale as the mist parts, release to exhale; three breaths open the middle gate. */
@@ -35,7 +37,8 @@ export default function Gate({ embed, onNext }: Props) {
   const [holding, setHolding] = useState(false);
   const [breaths, setBreaths] = useState(0);
   const [stepping, setStepping] = useState(false);
-  const [reduced, setReduced] = useState(false);
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const reduced = useMemo(() => mounted && prefersReduced(), [mounted]);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<HTMLDivElement>(null);
@@ -48,19 +51,18 @@ export default function Gate({ embed, onNext }: Props) {
   const holdRef = useRef(false);
   const pointer = useRef({ x: 0, y: 0, seen: false });
   const pausedRef = useRef(paused);
-  pausedRef.current = paused;
   const breathsRef = useRef(0);
   const steppingRef = useRef(false);
   const doneRef = useRef(false);
   const dollyStart = useRef<number | null>(null);
   const onNextRef = useRef(onNext);
-  onNextRef.current = onNext;
 
   const ready = breaths >= BREATHS;
 
   useEffect(() => {
-    setReduced(prefersReduced());
-  }, []);
+    pausedRef.current = paused;
+    onNextRef.current = onNext;
+  }, [paused, onNext]);
 
   const paint = useCallback((still: boolean, dolly: number) => {
     const l = level.current;

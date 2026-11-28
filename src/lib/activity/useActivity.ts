@@ -10,7 +10,9 @@ export function useActivity<TState, TEvent extends ActivityEvent = ActivityEvent
   config?: ActivityConfig,
 ) {
   const latest = useRef({ def, config });
-  latest.current = { def, config };
+  useEffect(() => {
+    latest.current = { def, config };
+  }, [def, config]);
   const [activity, setActivity] = useState(() => createActivity(def, config));
 
   useEffect(() => {
