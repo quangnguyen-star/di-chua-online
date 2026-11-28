@@ -30,6 +30,9 @@ const FIELD_SPOTS: readonly (readonly [LotusColor, number, number])[] = [
 ];
 /** Umbrella trees from the still: [x, scale] standing on the bank. */
 const TREES: readonly (readonly [number, number])[] = [[62, 2.3], [412, 1], [818, 1.5], [900, 1.9]];
+/** The still's gate spans about 290 x 200 world pixels from x 76; the bake is larger, so the sprite is scaled down to match. */
+const GATE_X = 76;
+const GATE_SCALE = 0.88;
 /** Reflection strokes: [dy, half-width, dx] from the lantern, each one shorter and offset so the column reads as broken water. */
 const REFLECTION_BREAKS: readonly (readonly [number, number, number])[] = [[0, 12, 0], [9, 9, -4], [19, 7, 5], [31, 5, -3]];
 
@@ -56,14 +59,15 @@ function buildPond(ctx: SceneContext): SceneInstance {
   strip.y = HORIZON_Y - 6;
   const gateTex = ctx.tex(bakeLitTamQuan());
   const gate = new pixi.Sprite(gateTex);
-  gate.position.set(60, HORIZON_Y - GATE_H + 2);
+  gate.scale.set(GATE_SCALE);
+  gate.position.set(GATE_X, HORIZON_Y - GATE_H * GATE_SCALE + 2);
   const gateGlow = new pixi.Sprite(ctx.tex(bakeDot()));
   gateGlow.anchor.set(0.5);
   gateGlow.blendMode = "add";
   gateGlow.tint = 0xffb050;
   gateGlow.alpha = 0.5;
   gateGlow.scale.set(11, 9);
-  gateGlow.position.set(60 + GATE_W / 2, HORIZON_Y - 50);
+  gateGlow.position.set(GATE_X + (GATE_W * GATE_SCALE) / 2, HORIZON_Y - 50);
   bank.addChild(strip, gateGlow, gate);
   ctx.layer("bank-and-gate", bank);
 
@@ -83,9 +87,9 @@ function buildPond(ctx: SceneContext): SceneInstance {
   water.y = HORIZON_Y;
   waterBox.addChild(water);
   const gateReflection = new pixi.Sprite(gateTex);
-  gateReflection.scale.y = -0.8;
+  gateReflection.scale.set(GATE_SCALE, -GATE_SCALE * 0.8);
   gateReflection.alpha = 0.32;
-  gateReflection.position.set(60, HORIZON_Y + 6 + GATE_H * 0.8);
+  gateReflection.position.set(GATE_X, HORIZON_Y + 6 + GATE_H * GATE_SCALE * 0.8);
   waterBox.addChild(gateReflection);
   let waterFx: { filter: Filter; setTime(s: number): void } | null = createWaterFilter(pixi);
   waterBox.filters = [waterFx.filter];
