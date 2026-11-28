@@ -147,12 +147,13 @@
           "op": "assert",
           "intent": "gate named in the HUD",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "1/6 · Cổng chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "1/6 · Cổng chùa",
+              "exact": true
+            }
           }
         }
       ],
@@ -279,12 +280,13 @@
           "op": "assert",
           "intent": "hall named in the HUD",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "3/6 · Chánh điện"
+              "by": "role",
+              "role": "heading",
+              "name": "3/6 · Chánh điện",
+              "exact": true
+            }
           }
         },
         {
@@ -334,12 +336,13 @@
           "op": "assert",
           "intent": "tour opens on the gate",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "1/6 · Cổng chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "1/6 · Cổng chùa",
+              "exact": true
+            }
           }
         },
         {
@@ -353,12 +356,13 @@
           "op": "assert",
           "intent": "HUD names Sân chùa",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "2/6 · Sân chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "2/6 · Sân chùa",
+              "exact": true
+            }
           }
         },
         {
@@ -384,12 +388,13 @@
           "op": "assert",
           "intent": "HUD names Chánh điện",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "3/6 · Chánh điện"
+              "by": "role",
+              "role": "heading",
+              "name": "3/6 · Chánh điện",
+              "exact": true
+            }
           }
         },
         {
@@ -415,12 +420,13 @@
           "op": "assert",
           "intent": "HUD names Bến sông",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "4/6 · Bến sông"
+              "by": "role",
+              "role": "heading",
+              "name": "4/6 · Bến sông",
+              "exact": true
+            }
           }
         },
         {
@@ -446,12 +452,13 @@
           "op": "assert",
           "intent": "HUD names Hiên chùa",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "5/6 · Hiên chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "5/6 · Hiên chùa",
+              "exact": true
+            }
           }
         },
         {
@@ -477,12 +484,13 @@
           "op": "assert",
           "intent": "HUD names Bên ngoài",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "6/6 · Bên ngoài"
+              "by": "role",
+              "role": "heading",
+              "name": "6/6 · Bên ngoài",
+              "exact": true
+            }
           }
         },
         {
@@ -526,12 +534,13 @@
           "op": "assert",
           "intent": "courtyard",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "2/6 · Sân chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "2/6 · Sân chùa",
+              "exact": true
+            }
           }
         },
         {
@@ -545,12 +554,13 @@
           "op": "assert",
           "intent": "hall",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "3/6 · Chánh điện"
+              "by": "role",
+              "role": "heading",
+              "name": "3/6 · Chánh điện",
+              "exact": true
+            }
           }
         },
         {
@@ -564,12 +574,13 @@
           "op": "assert",
           "intent": "courtyard again",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "2/6 · Sân chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "2/6 · Sân chùa",
+              "exact": true
+            }
           }
         },
         {
@@ -595,12 +606,13 @@
           "op": "assert",
           "intent": "gate again",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "visit-where"
-            },
-            "text": "1/6 · Cổng chùa"
+              "by": "role",
+              "role": "heading",
+              "name": "1/6 · Cổng chùa",
+              "exact": true
+            }
           }
         }
       ],
@@ -681,12 +693,13 @@
           "op": "assert",
           "intent": "released heading after the drift",
           "expected": {
-            "kind": "text_equals",
+            "kind": "visible",
             "target": {
-              "by": "testid",
-              "name": "lantern-released"
-            },
-            "text": "Ngọn đèn đã trôi đi"
+              "by": "role",
+              "role": "heading",
+              "name": "Ngọn đèn đã trôi đi",
+              "exact": true
+            }
           }
         },
         {
