@@ -15,3 +15,9 @@ test("embedded gate draws no art of its own", () => {
   const src = read("components/temple/scenes/Gate.tsx");
   assert.match(src, /\{!embed && \(\s*<div className=\{styles\.art\}>/);
 });
+
+test("the lantern flow never touches the pond from an unmount cleanup, the stage is already destroyed by then", () => {
+  const src = read("app/places/pond/lantern/LanternFlow.tsx");
+  assert.doesNotMatch(src, /\(\) => \(\) => resetScene\(/);
+  assert.doesNotMatch(src, /return \(\) => \{[^}]*resetScene\(/);
+});

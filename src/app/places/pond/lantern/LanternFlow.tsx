@@ -69,8 +69,8 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
   // Entering the stop always starts from nothing (the initial state), and leaving it (unmount) drops whatever was typed.
   useEffect(() => () => setThought(""), []);
 
-  // Leaving the stop puts the scene back: nothing held, camera home.
-  useEffect(() => () => resetScene(pondRef.current), []);
+  // No reset on unmount: the stage is destroyed with this activity, and React runs the stage's cleanup first, so
+  // touching the pond then throws on destroyed sprites and the tour's error boundary takes over.
 
   // Refresh and tab close drop the thought too; nothing is persisted, this just empties state on the way out.
   useEffect(() => {
