@@ -26,6 +26,7 @@ const outDir = path.join(root, "captures");
 const sheetDir = path.join(outDir, "sheets");
 mkdirSync(sheetDir, { recursive: true });
 
+/** Built on a fresh page: the stage page keeps a software-GL render loop alive, which starves a second screenshot. */
 async function sheet(page: Page, id: string, capturePath: string) {
   const shot = readFileSync(capturePath).toString("base64");
   const art = readFileSync(path.join(root, "public", "art", "stops", `${id}.jpg`)).toString("base64");
@@ -36,7 +37,7 @@ async function sheet(page: Page, id: string, capturePath: string) {
       <figure style="margin:0"><img style="width:820px" src="data:image/jpeg;base64,${art}"><figcaption>still ${id}</figcaption></figure>
     </body>`,
   );
-  await page.screenshot({ path: path.join(sheetDir, `${id}.png`), fullPage: true });
+  await page.screenshot({ path: path.join(sheetDir, `${id}.png`), fullPage: true, timeout: 60_000 });
 }
 
 for (const [lighting, time] of Object.entries(LIGHTING)) {
@@ -55,18 +56,20 @@ for (const [lighting, time] of Object.entries(LIGHTING)) {
             .waitForFunction(
               () => document.querySelector('[data-testid="scene-stage"]')?.getAttribute("data-mode") === "webgl",
               undefined,
-              { timeout: 30_000 },
+              { timeout: 120_000 },
             )
             .catch(() => undefined);
-          await expect(stage).toHaveAttribute("data-mode", "webgl");
+          await expect(stage).toHaveAttribute("data-mode", "webgl", { timeout: 30_000 });
         }
 
         await page.waitForTimeout(1500);
         const file = path.join(outDir, `${entry.name}-${lighting}-${vpName}.png`);
-        await page.screenshot({ path: file });
+        await page.screenshot({ path: file, timeout: 90_000 });
 
-        if (entry.stop && lighting === "day" && vpName === "desktop") {
-          await sheet(page, entry.stop, file);
+        const wantsSheet = entry.stop && lighting === "day" && vpName === "desktop";
+        if (wantsSheet) {
+          await page.close();
+          await sheet(await context.newPage(), entry.stop, file);
         }
         await context.close();
       });

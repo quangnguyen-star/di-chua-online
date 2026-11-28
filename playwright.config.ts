@@ -5,7 +5,7 @@ const noWebgl = process.env.FORCE_NO_WEBGL === "1";
 export default defineConfig({
   testDir: "tests/visual",
   testMatch: "capture.spec.ts",
-  timeout: 120_000,
+  timeout: 300_000,
   retries: 0,
   workers: 1,
   reporter: [["list"]],

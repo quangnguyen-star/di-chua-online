@@ -35,6 +35,7 @@ jobs:
   capture:
     needs: verify
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       contents: write
     env:
@@ -66,7 +67,7 @@ jobs:
           path: captures/
           if-no-files-found: warn
       - name: Publish to ci-captures
-        if: success() && github.event_name != 'pull_request'
+        if: always() && github.event_name != 'pull_request' && hashFiles('captures/sheets/*.png') != ''
         continue-on-error: true
         run: |
           cd captures
