@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
 import { vnNow } from "@/lib/clock";
 import { monthCalendar } from "@/lib/lunar/calendar";
@@ -24,6 +24,22 @@ function load(today: string): WordRecord {
   save(rec);
   return rec;
 }
+
+type Loaded = { rec: WordRecord; today: { y: number; m: number } };
+
+let loaded: Loaded | null = null;
+
+/** The day's record, read from storage once per page load; null on the server and during hydration. */
+function loadOnce(): Loaded {
+  if (!loaded) {
+    const iso = vnNow().iso;
+    loaded = { rec: load(iso), today: { y: Number(iso.slice(0, 4)), m: Number(iso.slice(5, 7)) } };
+  }
+  return loaded;
+}
+
+const subscribeNone = () => () => {};
+const notLoaded = (): Loaded | null => null;
 
 function save(rec: WordRecord) {
   try {
@@ -52,8 +68,10 @@ const INSTRUCTION_LINES = [
 /** Stop 6: the day's word arrives as a red paper. Tap to open it, hold (or press the pocket button) to keep it. */
 export default function WordBooth({ embed }: { embed?: Embed } = {}) {
   const { scene } = useAtmosphere();
-  const [rec, setRec] = useState<WordRecord | null>(null);
-  const [today, setToday] = useState<{ y: number; m: number } | null>(null);
+  const initial = useSyncExternalStore(subscribeNone, loadOnce, notLoaded);
+  const [revealedRec, setRec] = useState<WordRecord | null>(null);
+  const rec = revealedRec ?? initial?.rec ?? null;
+  const today = initial?.today ?? null;
   const [error, setError] = useState(false);
   const [pulled, setPulled] = useState(false);
   const [pocketed, setPocketed] = useState(false);
@@ -64,9 +82,6 @@ export default function WordBooth({ embed }: { embed?: Embed } = {}) {
 
   useEffect(() => {
     scene("outside");
-    const iso = vnNow().iso;
-    setRec(load(iso));
-    setToday({ y: Number(iso.slice(0, 4)), m: Number(iso.slice(5, 7)) });
   }, [scene]);
 
   useEffect(() => {

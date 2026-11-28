@@ -7,11 +7,10 @@ export { ActiveTimerCore, type TimerConfig, type TimerOptions, type TimerSnapsho
 
 export function useActiveTimer(seconds: number, clock: () => number = Date.now, config?: TimerConfig) {
   const effective = config?.seconds ?? seconds;
-  const clockRef = useRef(clock);
+  const [timer] = useState(() => new ActiveTimerCore(effective, { now: clock }));
   useEffect(() => {
-    clockRef.current = clock;
-  }, [clock]);
-  const [timer] = useState(() => new ActiveTimerCore(effective, { now: () => clockRef.current() }));
+    timer.setClock(clock);
+  }, [timer, clock]);
 
   const snap = useSyncExternalStore(timer.subscribe, timer.getSnapshot, timer.getSnapshot);
 

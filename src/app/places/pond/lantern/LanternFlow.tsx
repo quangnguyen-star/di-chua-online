@@ -12,6 +12,7 @@ import { LotusLantern } from "@/components/temple/lantern";
 import { SceneStage } from "@/components/temple/stage";
 import type { PondApi, SceneHandle } from "@/components/temple/stage";
 import { useAtmosphere } from "@/components/atmosphere";
+import { useReducedMotion } from "@/lib/useBrowserFlags";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import StageZones, { useStageHandle } from "@/components/visit/StageZones";
 import { useInstruction } from "@/components/visit/useInstruction";
@@ -38,8 +39,6 @@ const STEP_TEXT: Record<RiverStep, string> = {
 const river = routes.find((r) => r.id === "pond");
 const nextPlace = routes.find((r) => r.id === river?.next && r.ready);
 
-const prefersReduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
   const router = useRouter();
   const { scene, cue } = useAtmosphere();
@@ -48,30 +47,27 @@ export default function LanternFlow({ embed }: { embed?: Embed } = {}) {
   const [step, setStep] = useState<RiverStep>("writing");
   const [thought, setThought] = useState("");
   const [color, setColor] = useState<LanternColor>("gold");
-  const [reduced, setReduced] = useState(false);
+  const reduced = useReducedMotion();
   const thoughtRef = useRef<HTMLTextAreaElement>(null);
   const stepRef = useRef<RiverStep>("writing");
-  stepRef.current = step;
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
 
   // The shell reports its scene through the provider; the standalone page owns its own stage. Only the pond API is read.
   const sceneHandle = (embed ? (shell.handle as SceneHandle | null) : localHandle) ?? null;
   const pond: PondApi | null = sceneHandle?.pond ?? null;
   const pondRef = useRef<PondApi | null>(null);
-  pondRef.current = pond;
+  useEffect(() => {
+    pondRef.current = pond;
+  }, [pond]);
 
   useEffect(() => {
     scene("pond");
   }, [scene]);
 
-  useEffect(() => {
-    setReduced(prefersReduced());
-  }, []);
-
-  // Entering the stop always starts from nothing, and leaving it (unmount) drops whatever was typed.
-  useEffect(() => {
-    setThought("");
-    return () => setThought("");
-  }, []);
+  // Entering the stop always starts from nothing (the initial state), and leaving it (unmount) drops whatever was typed.
+  useEffect(() => () => setThought(""), []);
 
   // Leaving the stop puts the scene back: nothing held, camera home.
   useEffect(() => () => resetScene(pondRef.current), []);

@@ -22,9 +22,10 @@ test("each embedded activity hides its own map and next links", () => {
   }
 });
 
-test("the lantern thought is cleared on entry and never stored", () => {
+test("the lantern thought starts empty, is dropped on unmount and never stored", () => {
   const src = read("src/app/places/pond/lantern/LanternFlow.tsx");
-  assert.match(src, /setThought\(""\);\s*return \(\) => setThought\(""\)/);
+  assert.match(src, /useState\(""\)/, "starts empty on entry");
+  assert.match(src, /useEffect\(\(\) => \(\) => setThought\(""\), \[\]\)/, "dropped on unmount");
   assert.doesNotMatch(src, /localStorage|sessionStorage|fetch\(/);
   assert.match(read("src/components/visit/VisitShell.tsx"), /<StopActivity key=\{stage\.id\}/);
 });

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
+import { usePageHidden, useReducedMotion } from "@/lib/useBrowserFlags";
 import { panFromPercent } from "@/lib/audio/mix.ts";
 import { SceneStage } from "@/components/temple/stage";
 import StageZones from "@/components/visit/StageZones";
@@ -38,14 +39,12 @@ const SETTLE_MS = 2200;
 const LINES = ["Kéo chổi trên sân để gom lá về góc.", "Phím ← → cũng quét được."] as const;
 const HINT = "Kéo chổi để gom lá về góc sân. Phím ← → để quét.";
 
-const prefersReduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 /** Stop 2: sweep the courtyard; a slow broom gathers leaves into the pile, a fast one scatters them, and leaves never stop falling. */
 export default function Sweeping({ embed }: { embed?: Embed } = {}) {
   const paused = embed?.paused ?? false;
   const { scene, cue } = useAtmosphere();
-  const [reduced, setReduced] = useState(false);
-  const [hidden, setHidden] = useState(false);
+  const reduced = useReducedMotion();
+  const hidden = usePageHidden();
   const running = !paused && !hidden;
 
   const yard = useRef<HTMLDivElement>(null);
@@ -70,20 +69,6 @@ export default function Sweeping({ embed }: { embed?: Embed } = {}) {
   useEffect(() => {
     scene("courtyard");
   }, [scene]);
-
-  useEffect(() => {
-    setReduced(prefersReduced());
-    const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReduced(prefersReduced());
-    query?.addEventListener("change", onChange);
-    setHidden(document.hidden);
-    const onVisibility = () => setHidden(document.hidden);
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      query?.removeEventListener("change", onChange);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, []);
 
   const paint = () => {
     const w = world.current;

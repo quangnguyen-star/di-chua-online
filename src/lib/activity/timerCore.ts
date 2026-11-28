@@ -32,6 +32,10 @@ export class ActiveTimerCore {
   private now: () => number;
   private schedule: (fn: () => void, ms: number) => () => void;
 
+  setClock(now: () => number) {
+    this.now = now;
+  }
+
   constructor(seconds: number, options: TimerOptions = {}) {
     this.now = options.now ?? Date.now;
     this.schedule = options.schedule ?? realSchedule;

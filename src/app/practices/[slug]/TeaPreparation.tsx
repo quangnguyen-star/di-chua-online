@@ -56,7 +56,9 @@ export function TeaPreparation({ closingLine, embed }: Props) {
   const phaseRef = useRef<Phase>("pour");
   const holdRef = useRef(false);
   const pausedRef = useRef(paused);
-  pausedRef.current = paused;
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
   const poured = useRef(0);
   const sipProgress = useRef(0);
   const sipsRef = useRef(0);
@@ -68,7 +70,9 @@ export function TeaPreparation({ closingLine, embed }: Props) {
   const streamEl = useRef<SVGLineElement>(null);
   const teaEl = useRef<SVGRectElement>(null);
   const cueRef = useRef(cue);
-  cueRef.current = cue;
+  useEffect(() => {
+    cueRef.current = cue;
+  }, [cue]);
 
   useEffect(() => {
     scene("veranda");

@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useAtmosphere } from "@/components/atmosphere";
 import { SceneStage } from "@/components/temple/stage";
 import { SceneLinks } from "@/components/temple/map/SceneLinks";
 import { useActivity } from "@/lib/activity/useActivity";
+import { useReducedMotion } from "@/lib/useBrowserFlags";
 import type { Embed } from "@/lib/visit/embed";
 import { DEFAULT_STICK, FLICK_SPEED, LIGHT_HOLD_MS, burnProgress, incenseActivity, markSpent, phaseLabels, readSpent } from "./incense";
 import { Smoke } from "@/components/temple/smoke";
@@ -16,7 +17,14 @@ import styles from "./hall.module.css";
 const PLACED_STICKS = [18, 30, 42, 58, 70, 82];
 const STICK_FULL = 5.2;
 
-const prefersReduced = () => typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const spentListeners = new Set<() => void>();
+const subscribeSpent = (onChange: () => void) => {
+  spentListeners.add(onChange);
+  return () => {
+    spentListeners.delete(onChange);
+  };
+};
+const notSpent = () => false;
 
 /** Stop 3: pull your stick from the bowl, hold it at the lamp, flick the flame out, and place the ember back. */
 export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
@@ -25,25 +33,22 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
   const tourPaused = embed?.paused ?? false;
   const { state, send, pause, resume } = useActivity(incenseActivity, { seconds });
   const { phase, remainingMs } = state;
-  const [spentBefore, setSpentBefore] = useState(false);
+  const spentBefore = useSyncExternalStore(subscribeSpent, readSpent, notSpent);
   const [holding, setHolding] = useState(false);
-  const [reduced, setReduced] = useState(false);
+  const reduced = useReducedMotion();
   const frozenByTour = useRef(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const pointer = useRef({ x: -999, y: -999, t: 0, seen: false });
   const holdTimer = useRef<number | null>(null);
   const phaseRef = useRef(phase);
-  phaseRef.current = phase;
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   useEffect(() => {
     scene("hall");
   }, [scene]);
-
-  useEffect(() => {
-    setSpentBefore(readSpent());
-    setReduced(prefersReduced());
-  }, []);
 
   useEffect(() => {
     const onHide = () => {
@@ -92,7 +97,7 @@ export default function IncenseHall({ embed }: { embed?: Embed } = {}) {
   const place = () => {
     if (phaseRef.current !== "extinguished" && phaseRef.current !== "spent") return;
     markSpent();
-    setSpentBefore(true);
+    spentListeners.forEach((notify) => notify());
     send({ type: "place" });
   };
 
