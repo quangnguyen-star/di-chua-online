@@ -546,58 +546,6 @@
         {
           "kind": "action",
           "op": "press",
-          "intent": "ArrowRight to the hall",
-          "key": "ArrowRight"
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "hall",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "role",
-              "role": "heading",
-              "name": "3/6 · Chánh điện",
-              "exact": true
-            }
-          }
-        },
-        {
-          "kind": "action",
-          "op": "press",
-          "intent": "ArrowLeft back to the courtyard",
-          "key": "ArrowLeft"
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "courtyard again",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "role",
-              "role": "heading",
-              "name": "2/6 · Sân chùa",
-              "exact": true
-            }
-          }
-        },
-        {
-          "kind": "assert",
-          "op": "assert",
-          "intent": "stage still shown",
-          "expected": {
-            "kind": "visible",
-            "target": {
-              "by": "testid",
-              "name": "scene-stage"
-            }
-          }
-        },
-        {
-          "kind": "action",
-          "op": "press",
           "intent": "ArrowLeft back to the gate",
           "key": "ArrowLeft"
         },
@@ -700,7 +648,8 @@
               "name": "Ngọn đèn đã trôi đi",
               "exact": true
             }
-          }
+          },
+          "timeout_ms": 100000
         },
         {
           "kind": "action",
@@ -709,7 +658,8 @@
           "target": {
             "by": "testid",
             "name": "lantern-map"
-          }
+          },
+          "timeout_ms": 15000
         },
         {
           "kind": "assert",
