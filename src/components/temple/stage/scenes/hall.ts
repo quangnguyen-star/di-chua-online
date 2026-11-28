@@ -44,7 +44,7 @@ export const hallScene: PlaceScene = {
     }
     ctx.layer("columns", columns);
 
-    place("halo", bakeHalo(), CENTER_X, 172, 0.5, 0.5);
+    place("halo", bakeHalo(), CENTER_X, 171, 0.5, 0.5);
     place("statue", bakeStatue(), CENTER_X, 40);
     addHangingLamps(ctx, 28, LAMP_XS);
     place("altar", bakeAltar(), CENTER_X, ALTAR_TOP);

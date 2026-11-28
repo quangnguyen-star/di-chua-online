@@ -11,8 +11,8 @@ function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContex
 
 export const COLUMN_W = 46;
 export const COLUMN_H = 540;
-export const HALO_W = 260;
-export const HALO_H = 330;
+export const HALO_W = 258;
+export const HALO_H = 342;
 export const STATUE_W = 400;
 export const STATUE_H = 330;
 
@@ -31,7 +31,7 @@ export function bakeColumn(): HTMLCanvasElement {
   return el;
 }
 
-/** Thin gold halo ring with a soft warm fill behind the statue (260x330). */
+/** Thin gold halo ring with a soft warm fill behind the statue (258x342). */
 export function bakeHalo(): HTMLCanvasElement {
   const [el, c] = canvas(HALO_W, HALO_H);
   const fill = c.createRadialGradient(HALO_W / 2, HALO_H / 2, 10, HALO_W / 2, HALO_H / 2, HALO_H / 2);
@@ -90,10 +90,10 @@ export function bakeStatue(): HTMLCanvasElement {
 
   c.fillStyle = gold;
   c.beginPath();
-  c.moveTo(cx - 85, 262);
-  c.quadraticCurveTo(cx - 100, 150, cx - 42, 112);
+  c.moveTo(cx - 72, 262);
+  c.quadraticCurveTo(cx - 88, 150, cx - 42, 112);
   c.lineTo(cx + 42, 112);
-  c.quadraticCurveTo(cx + 100, 150, cx + 85, 262);
+  c.quadraticCurveTo(cx + 88, 150, cx + 72, 262);
   c.closePath();
   c.fill();
   c.fillStyle = "rgba(255,240,180,.35)";
